@@ -60,7 +60,7 @@ export default function SpinWheel() {
   const handleSpin = () => {
     if (isSpinning || !user) return;
     
-    if ((user.spinsUsed || 0) >= 2) {
+    if ((user.spinsUsed || 0) >= 5) {
       toast({
         title: "Daily Limit Reached",
         description: "You've used all your spins for today. Come back tomorrow!",
@@ -95,7 +95,7 @@ export default function SpinWheel() {
       <div className="text-center">
         <Button
           onClick={handleSpin}
-          disabled={isSpinning || !user || (user.spinsUsed || 0) >= 2}
+          disabled={isSpinning || !user || (user.spinsUsed || 0) >= 5}
           className="bg-gradient-to-r from-primary to-blue-600 hover:from-blue-500 hover:to-primary text-white font-pixel text-lg px-8 py-6 rounded-xl border-2 border-primary neon-border transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSpinning ? "🎲 SPINNING..." : "🎯 SPIN TO WIN"}

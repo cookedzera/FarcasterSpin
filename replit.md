@@ -35,8 +35,9 @@ Preferred communication style: Simple, everyday language.
 
 ## Game Logic
 - **Spin Mechanics**: Random symbol generation with configurable win conditions
-- **Rate Limiting**: 2 spins per user per day with UTC midnight reset
-- **Reward System**: PEPE token rewards for winning combinations
+- **Rate Limiting**: 5 spins per user per day with UTC midnight reset
+- **Reward System**: Real token rewards (TOKEN1, TOKEN2, TOKEN3) for winning combinations
+- **Wallet Integration**: Automatic token distribution via Arbitrum network
 - **Leaderboard**: Real-time ranking based on total wins
 
 ## Development Environment

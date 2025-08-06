@@ -83,7 +83,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const spinsToday = await storage.getUserSpinsToday(userId);
-      if (spinsToday >= 2) {
+      if (spinsToday >= 5) {
         return res.status(400).json({ error: "Daily spin limit reached" });
       }
 

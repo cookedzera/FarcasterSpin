@@ -43,7 +43,7 @@ export default function Home() {
         <div className="flex justify-between items-center mb-2">
           <span className="text-muted-foreground">🔢 Your Spins Today:</span>
           <span className="font-bold text-green-400 neon-green-text">
-            {user?.spinsUsed || 0} / 2
+            {user?.spinsUsed || 0} / 5
           </span>
         </div>
         <div className="flex justify-between items-center">
