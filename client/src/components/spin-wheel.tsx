@@ -66,23 +66,23 @@ export default function SpinWheel() {
     spinMutation.mutate();
   };
 
-  // Mock token info - will be replaced with real data
+  // Real token info from GeckoTerminal
   const getTokenInfo = (tokenAddress: string | null | undefined) => {
     const tokenMap: Record<string, any> = {
       "0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b": {
-        name: "First Token",
-        symbol: "TOKEN1",
-        logo: "/api/placeholder/32/32" // Placeholder - replace with actual logo
+        name: "AiDoge",
+        symbol: "AIDOGE",
+        logo: "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg"
       },
       "0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3": {
         name: "Second Token", 
         symbol: "TOKEN2",
-        logo: "/api/placeholder/32/32" // Placeholder - replace with actual logo
+        logo: "/api/placeholder/32/32" // Waiting for token info
       },
       "0xbc4c97fb9befaa8b41448e1dfcc5236da543217f": {
         name: "Third Token",
         symbol: "TOKEN3", 
-        logo: "/api/placeholder/32/32" // Placeholder - replace with actual logo
+        logo: "/api/placeholder/32/32" // Waiting for token info
       }
     };
     return tokenAddress ? tokenMap[tokenAddress] : null;
