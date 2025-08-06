@@ -48,7 +48,7 @@ The game now has both mainnet and testnet tokens configured:
 - TOKEN1: 0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b (old mainnet)
 - TOKEN2: 0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3 (old mainnet)
 - TOKEN3: 0xbc4c97fb9befaa8b41448e1dfcc5236da543217f (old mainnet)
-- USDC (Base Sepolia): 0x036CbD53842c5426634e7929541eC2318f3dCF7e ✅ **Ready for Testing**
+- USDC (Base Sepolia): 0x036CbD53842c5426634e7929541eC2318f3dCF7e ✅ **Ready for Testing** (0.0001 USDC reward)
 
 ## How to Test Right Now
 

@@ -32,6 +32,11 @@ async function sendTokenReward(recipientAddress: string | null, token: any, amou
     
     const tokenContract = new ethers.Contract(token.address, ERC20_ABI, wallet);
     
+    // Validate the recipient address format (no ENS resolution needed)
+    if (!ethers.isAddress(recipientAddress)) {
+      throw new Error(`Invalid address format: ${recipientAddress}`);
+    }
+    
     // Send the token transfer transaction
     const tx = await tokenContract.transfer(recipientAddress, BigInt(amount));
     await tx.wait();
