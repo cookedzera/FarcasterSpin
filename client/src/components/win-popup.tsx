@@ -20,7 +20,7 @@ export default function WinPopup({ isOpen, onClose, winResult, tokenInfo }: WinP
 
   const readableAmount = Number(winResult.rewardAmount) / Math.pow(10, 18);
   const shortTxHash = winResult.transactionHash?.slice(0, 8) + "..." + winResult.transactionHash?.slice(-6);
-  const arbitrumScanUrl = `https://arbiscan.io/tx/${winResult.transactionHash}`;
+  const baseScanUrl = `https://sepolia.basescan.org/tx/${winResult.transactionHash}`;
 
   return (
     <AnimatePresence>
@@ -89,8 +89,10 @@ export default function WinPopup({ isOpen, onClose, winResult, tokenInfo }: WinP
                     alt={tokenInfo.name}
                     className="w-8 h-8 rounded-full"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling!.style.display = 'block';
+                      const current = e.currentTarget as HTMLImageElement;
+                      current.style.display = 'none';
+                      const sibling = current.nextElementSibling as HTMLDivElement;
+                      if (sibling) sibling.style.display = 'block';
                     }}
                   />
                 ) : null}
@@ -127,10 +129,11 @@ export default function WinPopup({ isOpen, onClose, winResult, tokenInfo }: WinP
                       {shortTxHash}
                     </code>
                     <Button
-                      onClick={() => window.open(arbitrumScanUrl, '_blank')}
+                      onClick={() => window.open(baseScanUrl, '_blank')}
                       variant="ghost"
                       size="sm"
                       className="h-6 w-6 p-0 text-primary hover:text-primary/80"
+                      title="View on BaseScan"
                     >
                       <ExternalLink className="h-3 w-3" />
                     </Button>
