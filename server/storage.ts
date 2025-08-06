@@ -40,12 +40,14 @@ export class MemStorage implements IStorage {
   }
 
   private initializeMockData() {
+    const generateMockAddress = () => `0x${Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
+    
     const mockUsers = [
-      { username: "0xAb...C1F", walletAddress: "0xAb...C1F", spinsUsed: 2, totalWins: 4, totalSpins: 4 },
-      { username: "0xD2...B12", walletAddress: "0xD2...B12", spinsUsed: 2, totalWins: 3, totalSpins: 5 },
-      { username: "0xE3...A45", walletAddress: "0xE3...A45", spinsUsed: 1, totalWins: 2, totalSpins: 3 },
-      { username: "0xF4...B67", walletAddress: "0xF4...B67", spinsUsed: 2, totalWins: 2, totalSpins: 4 },
-      { username: "0xG5...C89", walletAddress: "0xG5...C89", spinsUsed: 1, totalWins: 1, totalSpins: 2 },
+      { username: "0xAb...C1F", walletAddress: generateMockAddress(), spinsUsed: 2, totalWins: 4, totalSpins: 4 },
+      { username: "0xD2...B12", walletAddress: generateMockAddress(), spinsUsed: 2, totalWins: 3, totalSpins: 5 },
+      { username: "0xE3...A45", walletAddress: generateMockAddress(), spinsUsed: 1, totalWins: 2, totalSpins: 3 },
+      { username: "0xF4...B67", walletAddress: generateMockAddress(), spinsUsed: 2, totalWins: 2, totalSpins: 4 },
+      { username: "0xG5...C89", walletAddress: generateMockAddress(), spinsUsed: 1, totalWins: 1, totalSpins: 2 },
     ];
 
     mockUsers.forEach(user => {

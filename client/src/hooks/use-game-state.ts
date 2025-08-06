@@ -42,7 +42,8 @@ export function useGameState() {
       if (!storedUserId || error) {
         // Create a new user with a mock wallet address
         const mockUsername = `Player${Math.floor(Math.random() * 10000)}`;
-        const mockWallet = `0x${Math.random().toString(16).substr(2, 8)}...${Math.random().toString(16).substr(2, 3)}`;
+        // Generate a proper 40-character hex address (20 bytes = 40 hex chars)
+        const mockWallet = `0x${Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
         
         initUserMutation.mutate({
           username: mockUsername,
