@@ -58,6 +58,10 @@ Preferred communication style: Simple, everyday language.
 - **Drizzle Kit**: Database migrations and schema management
 - **Connection**: Environment-based DATABASE_URL configuration
 
+## Security
+- **Private Key Management**: Wallet private key stored securely in WALLET_PRIVATE_KEY environment variable
+- **Network Configuration**: Arbitrum Sepolia testnet for safe development and testing
+
 ## UI Components
 - **Radix UI**: Comprehensive set of accessible, unstyled React components for complex UI patterns
 - **Class Variance Authority**: Type-safe utility for managing component variants
