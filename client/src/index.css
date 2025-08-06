@@ -154,47 +154,60 @@
   height: 80px;
 }
 
-.loot-container {
+.meme-reel {
   position: relative;
   transform-style: preserve-3d;
   will-change: transform;
 }
 
-/* Epic loot animations */
-@keyframes loot-shine {
-  0% { transform: translateX(-100%) rotateZ(35deg); }
-  100% { transform: translateX(300%) rotateZ(35deg); }
-}
-
-@keyframes epic-glow {
+/* Classic arcade styling */
+@keyframes arcade-glow {
   0%, 100% { 
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 
-                inset 0 0 20px rgba(168, 85, 247, 0.1);
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
   }
   50% { 
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.8), 
-                inset 0 0 30px rgba(168, 85, 247, 0.2);
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.8), 
+                0 0 30px rgba(255, 193, 7, 0.4);
   }
 }
 
-.epic-glow {
-  animation: epic-glow 2s ease-in-out infinite;
+.arcade-glow {
+  animation: arcade-glow 2s ease-in-out infinite;
 }
 
-/* Legendary particle effects */
-@keyframes legendary-particle {
-  0% {
-    transform: scale(0) rotate(0deg);
-    opacity: 0;
+/* Meme coin bounce */
+@keyframes meme-bounce {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
   }
   50% {
-    transform: scale(1) rotate(180deg);
-    opacity: 1;
+    transform: translateY(-10px) scale(1.1);
   }
-  100% {
-    transform: scale(0) rotate(360deg);
-    opacity: 0;
+}
+
+/* Slot machine gear rotation */
+@keyframes gear-spin {
+  from {
+    transform: rotate(0deg);
   }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gear-spin {
+  animation: gear-spin 2s linear infinite;
+}
+
+/* Slot handle pull effect */
+@keyframes handle-pull {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(-15deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.handle-pull {
+  animation: handle-pull 0.3s ease-in-out;
 }
 
 /* Mobile responsive adjustments and premium features */

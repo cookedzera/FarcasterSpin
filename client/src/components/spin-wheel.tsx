@@ -5,7 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useGameState } from "@/hooks/use-game-state";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import LootReel from "./loot-reel";
+import MemeReel from "./loot-reel";
 import WinPopup from "./win-popup";
 import { type SpinResult } from "@shared/schema";
 import { HapticFeedback } from "@/lib/haptics";
@@ -186,129 +186,140 @@ export default function SpinWheel() {
         </AnimatePresence>
 
         <motion.h2 
-          className="font-pixel text-center bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent text-xl mb-6"
+          className="font-pixel text-center text-2xl mb-6 text-yellow-400"
           animate={isSpinning ? {
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+            color: ["#facc15", "#f97316", "#dc2626", "#facc15"]
           } : {}}
-          transition={{ duration: 2, repeat: isSpinning ? Infinity : 0 }}
-          style={{ backgroundSize: "200% 200%" }}
+          transition={{ duration: 1, repeat: isSpinning ? Infinity : 0 }}
         >
-          ⚔️ EPIC LOOT CHEST ⚔️
+          🎰 MEME SLOT MACHINE 🎰
         </motion.h2>
 
-        {/* Epic hint text */}
+        {/* Fun hint text */}
         <motion.p 
-          className="text-xs text-center mb-6 font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent"
-          initial={{ opacity: 0.7 }}
+          className="text-sm text-center mb-6 text-green-400 font-mono"
+          initial={{ opacity: 0.8 }}
           animate={{ 
-            opacity: isSpinning ? 0.3 : [0.5, 1, 0.5],
+            opacity: isSpinning ? 0.4 : [0.6, 1, 0.6],
           }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          ✨ Swipe or Double-Tap for Legendary Loot! ✨
+          🚀 Swipe or Double-Tap to Win Meme Coins! 🚀
         </motion.p>
       
-        {/* Epic Loot Reels */}
-        <div className="flex justify-center space-x-3 mb-8 relative">
-          {/* Background glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20 blur-xl rounded-3xl" />
+        {/* Meme Slot Reels */}
+        <div className="flex justify-center space-x-4 mb-8 relative">
+          {/* Classic arcade background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-800 via-gray-900 to-black blur-lg rounded-2xl opacity-30" />
           
           {slotResults.map((symbol, index) => (
             <motion.div
               key={index}
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.1, type: "spring", bounce: 0.4 }}
             >
-              <LootReel 
+              <MemeReel 
                 symbol={symbol} 
                 isSpinning={isSpinning}
-                delay={index * 200}
+                delay={index * 150}
               />
             </motion.div>
           ))}
         </div>
 
-          {/* Spin Button */}
-          <div className="text-center">
+          {/* Slot Machine Pull Handle & Spin Button */}
+          <div className="flex items-center justify-center space-x-6">
+            
+            {/* Classic Slot Machine Pull Handle */}
+            <motion.div 
+              className="relative"
+              animate={isSpinning ? { rotate: [0, -20, 0] } : {}}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Handle Base */}
+              <div className="w-3 h-16 bg-gradient-to-b from-gray-300 to-gray-600 rounded-full border-2 border-gray-700 shadow-lg"></div>
+              
+              {/* Handle Ball */}
+              <motion.div 
+                className="absolute -top-3 -left-3 w-9 h-9 bg-gradient-to-br from-red-500 to-red-700 rounded-full border-3 border-black shadow-2xl cursor-pointer"
+                whileHover={!isSpinning ? { scale: 1.1 } : {}}
+                whileTap={!isSpinning ? { scale: 0.9 } : {}}
+                onClick={handleSpin}
+                style={{ 
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
+                }}
+              >
+                {/* Ball highlight */}
+                <div className="absolute top-1 left-1 w-3 h-3 bg-white/40 rounded-full"></div>
+              </motion.div>
+              
+              {/* Handle connecting rod */}
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gray-500"></div>
+            </motion.div>
+
+            {/* Compact Spin Button */}
             <motion.div
-              whileHover={!isSpinning ? { scale: 1.05 } : {}}
-              whileTap={!isSpinning ? { scale: 0.95 } : {}}
+              whileHover={!isSpinning ? { scale: 1.02 } : {}}
+              whileTap={!isSpinning ? { scale: 0.98 } : {}}
               animate={isSpinning ? {
-                scale: [1, 1.02, 1],
+                rotate: [0, 360],
                 boxShadow: [
-                  "0 4px 20px rgba(59, 130, 246, 0.3)",
-                  "0 8px 30px rgba(59, 130, 246, 0.6)",
-                  "0 4px 20px rgba(59, 130, 246, 0.3)"
+                  "0 2px 10px rgba(255, 193, 7, 0.3)",
+                  "0 4px 20px rgba(255, 193, 7, 0.6)",
+                  "0 2px 10px rgba(255, 193, 7, 0.3)"
                 ]
               } : {}}
-              transition={{ duration: 0.8, repeat: isSpinning ? Infinity : 0 }}
+              transition={{ 
+                rotate: { duration: 2, repeat: isSpinning ? Infinity : 0, ease: "linear" },
+                boxShadow: { duration: 1, repeat: isSpinning ? Infinity : 0 }
+              }}
             >
               <Button
                 ref={spinButtonRef}
                 onClick={handleSpin}
                 disabled={isSpinning || !user || (user.spinsUsed || 0) >= 5}
                 data-testid="button-spin"
-                className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 text-white font-pixel text-lg px-8 py-6 rounded-2xl border-2 border-purple-400 shadow-2xl shadow-purple-500/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden touch-manipulation"
+                className="relative w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-4 border-yellow-200 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden touch-manipulation"
                 style={{ 
                   WebkitTapHighlightColor: 'transparent',
                   touchAction: 'manipulation'
                 }}
               >
-                {/* Epic button glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-orange-500/30 rounded-2xl" />
-                
-                {/* Magical particles */}
-                <AnimatePresence>
-                  {!isSpinning && (
-                    <>
-                      {[...Array(3)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-1 h-1 bg-white rounded-full"
-                          style={{
-                            left: `${20 + i * 30}%`,
-                            top: `${30 + i * 10}%`,
-                          }}
-                          animate={{
-                            opacity: [0, 1, 0],
-                            scale: [0, 1, 0],
-                            y: [0, -10, 0]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            delay: i * 0.5
-                          }}
-                        />
-                      ))}
-                    </>
-                  )}
-                </AnimatePresence>
-                
-                {/* Button text with animation */}
-                <motion.span
-                  animate={isSpinning ? {
-                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-                  } : {}}
-                  transition={{ duration: 1, repeat: isSpinning ? Infinity : 0 }}
-                  className="relative z-10 bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent font-bold"
-                  style={{ backgroundSize: "200% 200%" }}
-                >
-                  {isSpinning ? "⚔️ HUNTING LOOT..." : "🏆 CLAIM TREASURE"}
-                </motion.span>
-                
-                {/* Pulse effect when spinning */}
-                {isSpinning && (
+                {/* Gear teeth around the edge */}
+                <div className="absolute inset-0 rounded-full" style={{
+                  background: `conic-gradient(from 0deg, 
+                    transparent 0deg, transparent 10deg,
+                    rgba(0,0,0,0.2) 10deg, rgba(0,0,0,0.2) 20deg,
+                    transparent 20deg, transparent 30deg,
+                    rgba(0,0,0,0.2) 30deg, rgba(0,0,0,0.2) 40deg,
+                    transparent 40deg, transparent 50deg,
+                    rgba(0,0,0,0.2) 50deg, rgba(0,0,0,0.2) 60deg,
+                    transparent 60deg, transparent 70deg,
+                    rgba(0,0,0,0.2) 70deg, rgba(0,0,0,0.2) 80deg,
+                    transparent 80deg, transparent 90deg,
+                    rgba(0,0,0,0.2) 90deg, rgba(0,0,0,0.2) 100deg,
+                    transparent 100deg, transparent 110deg,
+                    rgba(0,0,0,0.2) 110deg, rgba(0,0,0,0.2) 120deg,
+                    transparent 120deg)`
+                }}></div>
+
+                {/* Inner circle */}
+                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 border-2 border-orange-600 flex items-center justify-center">
+                  
+                  {/* Center icon */}
                   <motion.div
-                    className="absolute inset-0 bg-white/10 rounded-xl"
-                    animate={{
-                      opacity: [0, 0.3, 0],
-                      scale: [1, 1.05, 1]
-                    }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                )}
+                    animate={isSpinning ? { rotate: [0, -360] } : {}}
+                    transition={{ duration: 1.5, repeat: isSpinning ? Infinity : 0, ease: "linear" }}
+                    className="text-2xl font-bold text-orange-800 drop-shadow-sm"
+                  >
+                    {isSpinning ? "⚡" : "🎲"}
+                  </motion.div>
+                </div>
+
+                {/* Highlight shine */}
+                <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-white/30 via-transparent to-transparent"></div>
               </Button>
             </motion.div>
           </div>

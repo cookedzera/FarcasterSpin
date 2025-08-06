@@ -1,66 +1,60 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
+import boopLogo from "@assets/Boop_resized_1754468548333.webp";
+import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
 
-interface LootReelProps {
+interface MemeReelProps {
   symbol: string;
   isSpinning: boolean;
   delay?: number;
 }
 
-const lootItems = [
+const memeTokens = [
   {
     id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b',
-    name: 'Mystic Crystal',
-    rarity: 'legendary',
-    icon: '💎',
-    color: 'from-purple-500 to-pink-500',
-    glow: 'shadow-purple-500/50'
+    name: 'AIDOGE',
+    image: aidogeLogo,
+    emoji: '🐕',
+    color: '#FF6B35'
   },
   {
     id: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3',
-    name: 'Golden Coin',
-    rarity: 'epic',
-    icon: '🪙',
-    color: 'from-yellow-400 to-orange-500',
-    glow: 'shadow-yellow-500/50'
+    name: 'BOOP',
+    image: boopLogo,
+    emoji: '🎭',
+    color: '#4ECDC4'
   },
   {
     id: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f',
-    name: 'Treasure Chest',
-    rarity: 'rare',
-    icon: '🏆',
-    color: 'from-blue-400 to-cyan-500',
-    glow: 'shadow-blue-500/50'
+    name: 'CATCH',
+    image: catchLogo,
+    emoji: '🎯',
+    color: '#45B7D1'
   }
 ];
 
-const getLootItem = (tokenAddress: string) => {
-  return lootItems.find(item => item.id === tokenAddress) || lootItems[0];
+const getMemeToken = (tokenAddress: string) => {
+  return memeTokens.find(token => token.id === tokenAddress) || memeTokens[0];
 };
 
-const rarityColors: Record<string, string> = {
-  legendary: 'from-purple-600 via-pink-600 to-purple-800',
-  epic: 'from-yellow-500 via-orange-500 to-red-600',
-  rare: 'from-blue-500 via-cyan-500 to-teal-600'
-};
-
-export default function LootReel({ symbol, isSpinning, delay = 0 }: LootReelProps) {
+export default function MemeReel({ symbol, isSpinning, delay = 0 }: MemeReelProps) {
   const [displaySymbol, setDisplaySymbol] = useState(symbol);
   const [animationPhase, setAnimationPhase] = useState<'idle' | 'spinning' | 'stopping' | 'complete'>('idle');
-  const [showLootParticles, setShowLootParticles] = useState(false);
+  const [showSparkles, setShowSparkles] = useState(false);
 
-  const currentLoot = getLootItem(displaySymbol);
+  const currentMeme = getMemeToken(displaySymbol);
 
   useEffect(() => {
     if (isSpinning) {
       setTimeout(() => {
         setAnimationPhase('spinning');
         
-        // Rapid loot cycling
+        // Fast meme cycling
         const fastInterval = setInterval(() => {
-          const randomItem = lootItems[Math.floor(Math.random() * lootItems.length)];
-          setDisplaySymbol(randomItem.id);
-        }, 100);
+          const randomMeme = memeTokens[Math.floor(Math.random() * memeTokens.length)];
+          setDisplaySymbol(randomMeme.id);
+        }, 80);
 
         // Slow down phase
         setTimeout(() => {
@@ -68,25 +62,25 @@ export default function LootReel({ symbol, isSpinning, delay = 0 }: LootReelProp
           setAnimationPhase('stopping');
           
           const slowInterval = setInterval(() => {
-            const randomItem = lootItems[Math.floor(Math.random() * lootItems.length)];
-            setDisplaySymbol(randomItem.id);
-          }, 250);
+            const randomMeme = memeTokens[Math.floor(Math.random() * memeTokens.length)];
+            setDisplaySymbol(randomMeme.id);
+          }, 200);
 
           // Final reveal
           setTimeout(() => {
             clearInterval(slowInterval);
             setDisplaySymbol(symbol);
             setAnimationPhase('complete');
-            setShowLootParticles(true);
+            setShowSparkles(true);
             
-            // Hide particles after animation
-            setTimeout(() => setShowLootParticles(false), 2000);
-          }, 1000);
-        }, 1800);
+            // Hide sparkles after animation
+            setTimeout(() => setShowSparkles(false), 1500);
+          }, 800);
+        }, 1500);
       }, delay);
     } else {
       setAnimationPhase('idle');
-      setShowLootParticles(false);
+      setShowSparkles(false);
     }
   }, [isSpinning, symbol, delay]);
 
@@ -128,126 +122,92 @@ export default function LootReel({ symbol, isSpinning, delay = 0 }: LootReelProp
   };
 
   return (
-    <div className="loot-container relative w-28 h-28 md:w-24 md:h-24 flex items-center justify-center">
-      {/* Background glow effect */}
-      <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${currentLoot.color} opacity-30 blur-lg`} />
-      
-      {/* Main container */}
-      <div className={`relative w-full h-full rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-black border-2 border-slate-600 overflow-hidden shadow-2xl ${currentLoot.glow}`}>
+    <div className="meme-reel relative w-24 h-32 flex items-center justify-center">
+      {/* Main container with classic arcade styling */}
+      <div className="relative w-full h-full rounded-lg bg-gradient-to-b from-gray-200 via-gray-100 to-gray-300 border-4 border-gray-800 shadow-lg overflow-hidden">
         
-        {/* Animated background pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent" />
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-t from-transparent via-white/5 to-transparent"
-            animate={isSpinning ? { x: [-100, 100], y: [-100, 100] } : {}}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
+        {/* Inner frame */}
+        <div className="absolute inset-1 bg-black rounded border-2 border-gray-600 overflow-hidden">
+          
+          {/* Meme content area */}
+          <motion.div
+            className="w-full h-full flex flex-col items-center justify-center bg-white relative"
+            animate={getAnimationVariants()}
+            style={{
+              filter: animationPhase === 'spinning' ? "blur(2px)" : "none"
+            }}
+          >
+            {/* Meme image */}
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-300 mb-1 bg-white">
+              <img 
+                src={currentMeme.image} 
+                alt={currentMeme.name}
+                className="w-full h-full object-cover"
+                style={{
+                  filter: animationPhase === 'spinning' ? "blur(1px) brightness(1.3)" : "none"
+                }}
+              />
+            </div>
+
+            {/* Token name */}
+            <div className="text-xs font-bold text-gray-800 text-center px-1" style={{ fontSize: '9px' }}>
+              {currentMeme.name}
+            </div>
+
+            {/* Emoji indicator */}
+            <div className="text-sm mt-1">{currentMeme.emoji}</div>
+          </motion.div>
+
+          {/* Win sparkles */}
+          <AnimatePresence>
+            {(isSpinning || showSparkles) && (
+              <>
+                {[...Array(6)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute text-yellow-400"
+                    style={{
+                      left: `${15 + (i % 3) * 25}%`,
+                      top: `${15 + Math.floor(i / 3) * 35}%`,
+                      fontSize: '12px'
+                    }}
+                    initial={{ opacity: 0, scale: 0, rotate: 0 }}
+                    animate={{
+                      opacity: [0, 1, 0],
+                      scale: [0, 1.2, 0],
+                      rotate: [0, 180, 360],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: isSpinning ? Infinity : 1,
+                      delay: i * 0.15
+                    }}
+                    exit={{ opacity: 0 }}
+                  >
+                    ✨
+                  </motion.div>
+                ))}
+              </>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Loot particles when spinning */}
-        <AnimatePresence>
-          {(isSpinning || showLootParticles) && (
-            <>
-              {[...Array(8)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-1 h-1 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full"
-                  style={{
-                    left: `${20 + (i * 10)}%`,
-                    top: `${20 + (i * 8)}%`,
-                  }}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0, 2, 0],
-                    rotate: [0, 360],
-                    x: [0, Math.cos(i * 45 * Math.PI / 180) * 40],
-                    y: [0, Math.sin(i * 45 * Math.PI / 180) * 40],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: isSpinning ? Infinity : 1,
-                    delay: i * 0.1
-                  }}
-                  exit={{ opacity: 0 }}
-                />
-              ))}
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* Main loot content */}
-        <motion.div
-          className="w-full h-full flex flex-col items-center justify-center relative z-10"
-          animate={getAnimationVariants()}
-          style={{
-            filter: animationPhase === 'spinning' ? "blur(4px) brightness(1.5)" : 
-                   animationPhase === 'stopping' ? "blur(1px) brightness(1.2)" : "none"
-          }}
-        >
-          {/* Loot icon with epic styling */}
-          <motion.div 
-            className="text-4xl md:text-3xl mb-1 relative"
-            animate={animationPhase === 'complete' ? {
-              textShadow: [
-                "0 0 0px rgba(255, 255, 255, 0)",
-                "0 0 20px rgba(255, 255, 255, 0.8)",
-                "0 0 0px rgba(255, 255, 255, 0)"
+        {/* Win glow effect */}
+        {animationPhase === 'complete' && (
+          <motion.div
+            className="absolute inset-0 rounded-lg border-4"
+            style={{ borderColor: currentMeme.color }}
+            animate={{
+              opacity: [0, 0.8, 0],
+              boxShadow: [
+                `0 0 0px ${currentMeme.color}`,
+                `0 0 20px ${currentMeme.color}`,
+                `0 0 0px ${currentMeme.color}`
               ]
-            } : {}}
-            transition={{ duration: 0.5, repeat: animationPhase === 'complete' ? 2 : 0 }}
-          >
-            {currentLoot.icon}
-            
-            {/* Shine effect */}
-            {animationPhase === 'complete' && (
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
-                initial={{ x: '-100%' }}
-                animate={{ x: '100%' }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              />
-            )}
-          </motion.div>
-
-          {/* Loot name */}
-          <motion.div 
-            className={`text-xs font-bold text-center bg-gradient-to-r ${rarityColors[currentLoot.rarity] || rarityColors.rare} bg-clip-text text-transparent`}
-            style={{ fontSize: '10px' }}
-            animate={animationPhase === 'complete' ? {
-              scale: [1, 1.1, 1]
-            } : {}}
-          >
-            {currentLoot.name}
-          </motion.div>
-        </motion.div>
-
-        {/* Border glow animation */}
-        <motion.div 
-          className="absolute inset-0 rounded-2xl border-2"
-          animate={isSpinning ? {
-            borderColor: [
-              "rgba(148, 163, 184, 0.5)",
-              "rgba(59, 130, 246, 0.8)",
-              "rgba(168, 85, 247, 0.8)",
-              "rgba(236, 72, 153, 0.8)",
-              "rgba(148, 163, 184, 0.5)"
-            ]
-          } : animationPhase === 'complete' ? {
-            borderColor: [
-              "rgba(148, 163, 184, 0.5)",
-              currentLoot.rarity === 'legendary' ? "rgba(168, 85, 247, 1)" :
-              currentLoot.rarity === 'epic' ? "rgba(245, 158, 11, 1)" :
-              "rgba(59, 130, 246, 1)",
-              "rgba(148, 163, 184, 0.5)"
-            ]
-          } : {}}
-          transition={{ duration: 0.5, repeat: isSpinning ? Infinity : 1 }}
-        />
-
-        {/* Rarity indicator */}
-        <div className={`absolute top-1 right-1 w-2 h-2 rounded-full bg-gradient-to-br ${currentLoot.color} opacity-80`} />
+            }}
+            transition={{ duration: 1, repeat: 2 }}
+          />
+        )}
       </div>
     </div>
   );
