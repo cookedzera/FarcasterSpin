@@ -87,12 +87,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Daily spin limit reached" });
       }
 
-      // Generate random slot symbols
-      const symbols = ['🪙', '💎', '🏆', '💰', '⭐', '🎰'];
+      // Generate random slot symbols using token addresses
+      const tokenSymbols = [
+        '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', // AIDOGE
+        '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', // BOOP
+        '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // CATCH
+      ];
       const result = [
-        symbols[Math.floor(Math.random() * symbols.length)],
-        symbols[Math.floor(Math.random() * symbols.length)],
-        symbols[Math.floor(Math.random() * symbols.length)]
+        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
+        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
+        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)]
       ];
 
       // Check for win (all symbols match)
