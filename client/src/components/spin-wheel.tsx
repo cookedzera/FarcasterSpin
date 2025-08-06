@@ -80,9 +80,9 @@ export default function SpinWheel() {
         logo: "/api/placeholder/32/32" // Waiting for token info
       },
       "0xbc4c97fb9befaa8b41448e1dfcc5236da543217f": {
-        name: "Third Token",
-        symbol: "TOKEN3", 
-        logo: "/api/placeholder/32/32" // Waiting for token info
+        name: "Catch",
+        symbol: "CATCH",
+        logo: "@assets/Logomark_colours_1754468507462.webp"
       }
     };
     return tokenAddress ? tokenMap[tokenAddress] : null;
