@@ -5,9 +5,9 @@ import { insertSpinResultSchema, insertTokenSchema } from "@shared/schema";
 import { ethers } from "ethers";
 import { z } from "zod";
 
-// Wallet configuration - Using Arbitrum Sepolia testnet
+// Wallet configuration - Using Base Sepolia testnet
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
-const RPC_URL = "https://sepolia-rollup.arbitrum.io/rpc";
+const RPC_URL = "https://sepolia.base.org";
 
 // ERC20 ABI for token transfers
 const ERC20_ABI = [
