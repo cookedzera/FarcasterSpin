@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type GameStats, type InsertGameStats, type SpinResult, type InsertSpinResult } from "@shared/schema";
+import { type User, type InsertUser, type GameStats, type InsertGameStats, type SpinResult, type InsertSpinResult, type Token, type InsertToken } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -11,12 +11,17 @@ export interface IStorage {
   createSpinResult(result: InsertSpinResult): Promise<SpinResult>;
   getLeaderboard(): Promise<User[]>;
   getUserSpinsToday(userId: string): Promise<number>;
+  getTokens(): Promise<Token[]>;
+  createToken(token: InsertToken): Promise<Token>;
+  updateToken(id: string, updates: Partial<Token>): Promise<Token | undefined>;
+  getActiveTokens(): Promise<Token[]>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private gameStats: GameStats;
   private spinResults: Map<string, SpinResult>;
+  private tokens: Map<string, Token>;
 
   constructor() {
     this.users = new Map();
@@ -27,9 +32,11 @@ export class MemStorage implements IStorage {
       contractTxs: 839,
     };
     this.spinResults = new Map();
+    this.tokens = new Map();
     
-    // Initialize with some mock users for leaderboard
+    // Initialize with some mock users for leaderboard and tokens
     this.initializeMockData();
+    this.initializeTokens();
   }
 
   private initializeMockData() {
@@ -50,6 +57,44 @@ export class MemStorage implements IStorage {
         createdAt: new Date(),
       };
       this.users.set(id, fullUser);
+    });
+  }
+
+  private initializeTokens() {
+    const tokensData = [
+      {
+        address: "0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b",
+        symbol: "TOKEN1",
+        name: "First Token",
+        decimals: 18,
+        isActive: true,
+        rewardAmount: 50000000000000 // 0.00005 tokens (very small amount)
+      },
+      {
+        address: "0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3",
+        symbol: "TOKEN2", 
+        name: "Second Token",
+        decimals: 18,
+        isActive: true,
+        rewardAmount: 100000000000000 // 0.0001 tokens
+      },
+      {
+        address: "0xbc4c97fb9befaa8b41448e1dfcc5236da543217f",
+        symbol: "TOKEN3",
+        name: "Third Token", 
+        decimals: 18,
+        isActive: true,
+        rewardAmount: 25000000000000 // 0.000025 tokens
+      }
+    ];
+
+    tokensData.forEach(tokenData => {
+      const id = randomUUID();
+      const token: Token = {
+        id,
+        ...tokenData,
+      };
+      this.tokens.set(id, token);
     });
   }
 
@@ -130,6 +175,33 @@ export class MemStorage implements IStorage {
     }
     
     return 0;
+  }
+
+  async getTokens(): Promise<Token[]> {
+    return Array.from(this.tokens.values());
+  }
+
+  async createToken(insertToken: InsertToken): Promise<Token> {
+    const id = randomUUID();
+    const token: Token = {
+      ...insertToken,
+      id,
+    };
+    this.tokens.set(id, token);
+    return token;
+  }
+
+  async updateToken(id: string, updates: Partial<Token>): Promise<Token | undefined> {
+    const token = this.tokens.get(id);
+    if (!token) return undefined;
+    
+    const updatedToken = { ...token, ...updates };
+    this.tokens.set(id, updatedToken);
+    return updatedToken;
+  }
+
+  async getActiveTokens(): Promise<Token[]> {
+    return Array.from(this.tokens.values()).filter(token => token.isActive);
   }
 }
 

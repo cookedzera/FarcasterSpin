@@ -65,6 +65,11 @@ export default function Home() {
           <span>Connected to Arbitrum One</span>
         </div>
         <p>Powered by Farcaster Mini Apps</p>
+        <div className="mt-2">
+          <a href="/admin" className="text-primary hover:text-primary/80 text-xs">
+            🔧 Admin Panel
+          </a>
+        </div>
       </footer>
     </div>
   );

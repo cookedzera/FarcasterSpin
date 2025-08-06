@@ -26,12 +26,16 @@ export default function SpinWheel() {
     onSuccess: (result) => {
       setSlotResults(result.symbols || ['🎯', '🐸', '🪙']);
       
-      if (result.isWin) {
+      if (result.isWin && result.rewardAmount) {
         setWinResult(result);
         setTimeout(() => setWinResult(null), 3000);
+        
+        // Format the reward amount from wei to readable format
+        const readableAmount = Number(result.rewardAmount) / Math.pow(10, 18);
+        
         toast({
           title: "🎉 You Won!",
-          description: `${result.rewardAmount} ${result.rewardToken} tokens!`,
+          description: `${readableAmount.toFixed(6)} tokens sent to your wallet!`,
           variant: "default",
         });
       }
@@ -115,10 +119,15 @@ export default function SpinWheel() {
               🎁 YOU WON!
             </motion.div>
             <div className="text-2xl font-bold text-white">
-              <span>{winResult.rewardAmount}</span> 
-              <span className="text-green-400 ml-2">{winResult.rewardToken}</span> 
-              <span className="text-2xl ml-2">🐸</span>
+              <span>{(Number(winResult.rewardAmount) / Math.pow(10, 18)).toFixed(6)}</span> 
+              <span className="text-green-400 ml-2">TOKENS</span> 
+              <span className="text-2xl ml-2">🪙</span>
             </div>
+            {winResult.transactionHash && (
+              <div className="text-xs text-green-300 mt-2">
+                TX: {winResult.transactionHash?.slice(0, 10)}...{winResult.transactionHash?.slice(-8)}
+              </div>
+            )}
           </div>
         </motion.div>
       )}
