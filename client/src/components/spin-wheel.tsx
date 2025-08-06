@@ -75,9 +75,9 @@ export default function SpinWheel() {
         logo: "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg"
       },
       "0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3": {
-        name: "Second Token", 
-        symbol: "TOKEN2",
-        logo: "/api/placeholder/32/32" // Waiting for token info
+        name: "Boop",
+        symbol: "BOOP", 
+        logo: "@assets/Boop_resized_1754468548333.webp"
       },
       "0xbc4c97fb9befaa8b41448e1dfcc5236da543217f": {
         name: "Catch",
