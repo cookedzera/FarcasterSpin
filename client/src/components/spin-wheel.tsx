@@ -6,12 +6,14 @@ import { useGameState } from "@/hooks/use-game-state";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import SlotReel from "./slot-reel";
+import WinPopup from "./win-popup";
 import { type SpinResult } from "@shared/schema";
 
 export default function SpinWheel() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [winResult, setWinResult] = useState<SpinResult | null>(null);
-  const [slotResults, setSlotResults] = useState<string[]>(['🎯', '🐸', '🪙']);
+  const [showWinPopup, setShowWinPopup] = useState(false);
+  const [slotResults, setSlotResults] = useState<string[]>(['🪙', '💎', '🏆']);
   const { user } = useGameState();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -28,16 +30,7 @@ export default function SpinWheel() {
       
       if (result.isWin && result.rewardAmount) {
         setWinResult(result);
-        setTimeout(() => setWinResult(null), 3000);
-        
-        // Format the reward amount from wei to readable format
-        const readableAmount = Number(result.rewardAmount) / Math.pow(10, 18);
-        
-        toast({
-          title: "🎉 You Won!",
-          description: `${readableAmount.toFixed(6)} tokens sent to your wallet!`,
-          variant: "default",
-        });
+        setShowWinPopup(true);
       }
       
       // Invalidate queries to refresh user data and stats
@@ -73,11 +66,34 @@ export default function SpinWheel() {
     spinMutation.mutate();
   };
 
+  // Mock token info - will be replaced with real data
+  const getTokenInfo = (tokenAddress: string | null | undefined) => {
+    const tokenMap: Record<string, any> = {
+      "0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b": {
+        name: "First Token",
+        symbol: "TOKEN1",
+        logo: "/api/placeholder/32/32" // Placeholder - replace with actual logo
+      },
+      "0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3": {
+        name: "Second Token", 
+        symbol: "TOKEN2",
+        logo: "/api/placeholder/32/32" // Placeholder - replace with actual logo
+      },
+      "0xbc4c97fb9befaa8b41448e1dfcc5236da543217f": {
+        name: "Third Token",
+        symbol: "TOKEN3", 
+        logo: "/api/placeholder/32/32" // Placeholder - replace with actual logo
+      }
+    };
+    return tokenAddress ? tokenMap[tokenAddress] : null;
+  };
+
   return (
-    <div className="bg-card rounded-xl border border-border neon-border p-6">
-      <h2 className="font-pixel text-center text-green-400 text-lg mb-6 neon-green-text">
-        🎡 SPIN WHEEL
-      </h2>
+    <>
+      <div className="bg-card rounded-xl border border-border neon-border p-6">
+        <h2 className="font-pixel text-center text-green-400 text-lg mb-6 neon-green-text">
+          🎰 SPIN MACHINE
+        </h2>
       
       {/* Slot Machine Reels */}
       <div className="flex justify-center space-x-4 mb-6">
@@ -131,6 +147,18 @@ export default function SpinWheel() {
           </div>
         </motion.div>
       )}
-    </div>
+      </div>
+
+      {/* Win Popup */}
+      <WinPopup
+        isOpen={showWinPopup}
+        onClose={() => {
+          setShowWinPopup(false);
+          setWinResult(null);
+        }}
+        winResult={winResult}
+        tokenInfo={getTokenInfo(winResult?.tokenAddress)}
+      />
+    </>
   );
 }

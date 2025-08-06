@@ -7,7 +7,7 @@ interface SlotReelProps {
   delay?: number;
 }
 
-const symbols = ['🎯', '🐸', '🪙', '💀', '🌈', '🍌'];
+const symbols = ['🪙', '💎', '🏆', '💰', '⭐', '🎰'];
 
 export default function SlotReel({ symbol, isSpinning, delay = 0 }: SlotReelProps) {
   const [displaySymbol, setDisplaySymbol] = useState(symbol);

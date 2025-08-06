@@ -88,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Generate random slot symbols
-      const symbols = ['🎯', '🐸', '🪙', '💀', '🌈', '🍌'];
+      const symbols = ['🪙', '💎', '🏆', '💰', '⭐', '🎰'];
       const result = [
         symbols[Math.floor(Math.random() * symbols.length)],
         symbols[Math.floor(Math.random() * symbols.length)],
