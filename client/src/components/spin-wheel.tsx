@@ -31,7 +31,13 @@ export default function SpinWheel() {
       return response.json() as Promise<SpinResult>;
     },
     onSuccess: (result) => {
-      setSlotResults(result.symbols || ['🎯', '🐸', '🪙']);
+      // For wins, ensure all symbols match the winning symbol
+      if (result.isWin && result.symbols && result.symbols.length > 0) {
+        const winningSymbol = result.symbols[0];
+        setSlotResults([winningSymbol, winningSymbol, winningSymbol]);
+      } else {
+        setSlotResults(result.symbols || ['🎯', '🐸', '🪙']);
+      }
       
       if (result.isWin && result.rewardAmount) {
         setWinResult(result);

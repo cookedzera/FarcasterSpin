@@ -21,7 +21,11 @@
 3. Verify transactions on https://sepolia.basescan.org/
 4. Look for USDC transfers to the test address
 
+## Recent Fix
+✅ **Fixed Winning Display**: Now all three reels show the same symbol when winning (proper matching combination)
+
 ## Important Notes
 - This is for testing only - remember to disable before production
 - Requires testnet USDC in the wallet to actually send rewards
 - Transaction hashes will appear in console logs
+- All wins now properly display matching symbols across all three reels

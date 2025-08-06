@@ -104,12 +104,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // CATCH
       ];
       
-      // Force winning combination for testing
+      // Force winning combination - all three symbols must match
       const winningSymbol = tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)];
       const result = [winningSymbol, winningSymbol, winningSymbol];
 
-      // Always win in testing mode
-      const isWin = true;
+      // Always win in testing mode - verify all symbols match
+      const isWin = result[0] === result[1] && result[1] === result[2];
       
       let rewardAmount = 0;
       let selectedToken = null;
