@@ -185,95 +185,105 @@ export default function SpinWheel() {
           )}
         </AnimatePresence>
 
-        <motion.h2 
-          className="font-pixel text-center text-2xl mb-6 text-yellow-400"
+        <motion.div 
+          className="text-center mb-4"
           animate={isSpinning ? {
-            color: ["#facc15", "#f97316", "#dc2626", "#facc15"]
+            scale: [1, 1.02, 1]
           } : {}}
-          transition={{ duration: 1, repeat: isSpinning ? Infinity : 0 }}
+          transition={{ duration: 2, repeat: isSpinning ? Infinity : 0 }}
         >
-          🎰 MEME SLOT MACHINE 🎰
-        </motion.h2>
+          <h1 className="font-pixel text-red-500 text-2xl md:text-3xl font-bold tracking-wider mb-1" 
+              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+            MEME SLOT
+          </h1>
+          <h2 className="font-pixel text-red-500 text-2xl md:text-3xl font-bold tracking-wider" 
+              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+            MACHINE
+          </h2>
+        </motion.div>
 
-        {/* Fun hint text */}
         <motion.p 
-          className="text-sm text-center mb-6 text-green-400 font-mono"
+          className="text-center mb-6 text-green-400 font-mono text-sm px-4"
           initial={{ opacity: 0.8 }}
           animate={{ 
             opacity: isSpinning ? 0.4 : [0.6, 1, 0.6],
           }}
           transition={{ duration: 2, repeat: Infinity }}
+          style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
         >
-          🚀 Swipe or Double-Tap to Win Meme Coins! 🚀
+          Swipe or Double-Tap to Win Meme Coins!
         </motion.p>
       
-        {/* Meme Slot Reels */}
-        <div className="flex justify-center space-x-4 mb-8 relative">
-          {/* Classic arcade background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-800 via-gray-900 to-black blur-lg rounded-2xl opacity-30" />
-          
+        {/* Classic Slot Machine Reels */}
+        <div className="flex justify-center space-x-2 mb-6 px-4">
           {slotResults.map((symbol, index) => (
             <motion.div
               key={index}
-              initial={{ y: 30, opacity: 0 }}
+              initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: index * 0.1, type: "spring", bounce: 0.4 }}
+              transition={{ delay: index * 0.1 }}
+              className="relative"
             >
-              <MemeReel 
-                symbol={symbol} 
-                isSpinning={isSpinning}
-                delay={index * 150}
-              />
+              {/* Reel Frame */}
+              <div className="w-24 h-32 bg-black border-4 border-white rounded-lg shadow-2xl relative overflow-hidden">
+                {/* Inner content area */}
+                <div className="absolute inset-2 bg-white rounded-sm overflow-hidden">
+                  <MemeReel 
+                    symbol={symbol} 
+                    isSpinning={isSpinning}
+                    delay={index * 150}
+                  />
+                </div>
+                
+                {/* Reel number */}
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-red-600 border-2 border-white rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">{index + 1}</span>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
 
-          {/* Slot Machine Pull Handle & Spin Button */}
-          <div className="flex items-center justify-center space-x-6">
+          {/* Control Panel */}
+          <div className="flex items-center justify-center space-x-8 px-6">
             
-            {/* Classic Slot Machine Pull Handle */}
+            {/* Classic Pull Handle */}
             <motion.div 
-              className="relative"
-              animate={isSpinning ? { rotate: [0, -20, 0] } : {}}
-              transition={{ duration: 0.5 }}
+              className="relative cursor-pointer"
+              animate={isSpinning ? { rotate: [0, -25, 0] } : {}}
+              transition={{ duration: 0.6 }}
+              onClick={handleSpin}
+              whileHover={!isSpinning ? { scale: 1.05 } : {}}
+              whileTap={!isSpinning ? { scale: 0.95 } : {}}
+              style={{ 
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation'
+              }}
             >
-              {/* Handle Base */}
-              <div className="w-3 h-16 bg-gradient-to-b from-gray-300 to-gray-600 rounded-full border-2 border-gray-700 shadow-lg"></div>
+              {/* Handle Shaft */}
+              <div className="w-4 h-20 bg-gradient-to-b from-gray-300 via-gray-400 to-gray-600 rounded-full border-2 border-gray-800 shadow-lg relative">
+                {/* Shaft highlights */}
+                <div className="absolute top-2 left-0.5 w-1 h-16 bg-gradient-to-b from-white/60 to-transparent rounded-full"></div>
+              </div>
               
-              {/* Handle Ball */}
-              <motion.div 
-                className="absolute -top-3 -left-3 w-9 h-9 bg-gradient-to-br from-red-500 to-red-700 rounded-full border-3 border-black shadow-2xl cursor-pointer"
-                whileHover={!isSpinning ? { scale: 1.1 } : {}}
-                whileTap={!isSpinning ? { scale: 0.9 } : {}}
-                onClick={handleSpin}
-                style={{ 
-                  WebkitTapHighlightColor: 'transparent',
-                  touchAction: 'manipulation'
-                }}
-              >
-                {/* Ball highlight */}
-                <div className="absolute top-1 left-1 w-3 h-3 bg-white/40 rounded-full"></div>
-              </motion.div>
-              
-              {/* Handle connecting rod */}
-              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gray-500"></div>
+              {/* Handle Knob */}
+              <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-red-400 via-red-500 to-red-700 rounded-full border-4 border-gray-800 shadow-2xl">
+                {/* Knob highlight */}
+                <div className="absolute top-1 left-2 w-4 h-4 bg-white/50 rounded-full blur-sm"></div>
+                {/* Knob detail ring */}
+                <div className="absolute inset-1 border-2 border-red-300/30 rounded-full"></div>
+              </div>
             </motion.div>
 
-            {/* Compact Spin Button */}
+            {/* Spin Button */}
             <motion.div
-              whileHover={!isSpinning ? { scale: 1.02 } : {}}
-              whileTap={!isSpinning ? { scale: 0.98 } : {}}
+              whileHover={!isSpinning ? { scale: 1.05 } : {}}
+              whileTap={!isSpinning ? { scale: 0.95 } : {}}
               animate={isSpinning ? {
-                rotate: [0, 360],
-                boxShadow: [
-                  "0 2px 10px rgba(255, 193, 7, 0.3)",
-                  "0 4px 20px rgba(255, 193, 7, 0.6)",
-                  "0 2px 10px rgba(255, 193, 7, 0.3)"
-                ]
+                rotate: [0, 360]
               } : {}}
               transition={{ 
-                rotate: { duration: 2, repeat: isSpinning ? Infinity : 0, ease: "linear" },
-                boxShadow: { duration: 1, repeat: isSpinning ? Infinity : 0 }
+                rotate: { duration: 3, repeat: isSpinning ? Infinity : 0, ease: "linear" }
               }}
             >
               <Button
@@ -281,45 +291,26 @@ export default function SpinWheel() {
                 onClick={handleSpin}
                 disabled={isSpinning || !user || (user.spinsUsed || 0) >= 5}
                 data-testid="button-spin"
-                className="relative w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-4 border-yellow-200 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden touch-manipulation"
+                className="relative w-24 h-24 rounded-full bg-gradient-to-br from-yellow-300 via-orange-400 to-red-500 hover:from-yellow-200 hover:via-orange-300 hover:to-red-400 border-6 border-yellow-100 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden touch-manipulation"
                 style={{ 
                   WebkitTapHighlightColor: 'transparent',
-                  touchAction: 'manipulation'
+                  touchAction: 'manipulation',
+                  boxShadow: '0 8px 25px rgba(0,0,0,0.4), inset 0 2px 10px rgba(255,255,255,0.3)'
                 }}
               >
-                {/* Gear teeth around the edge */}
-                <div className="absolute inset-0 rounded-full" style={{
-                  background: `conic-gradient(from 0deg, 
-                    transparent 0deg, transparent 10deg,
-                    rgba(0,0,0,0.2) 10deg, rgba(0,0,0,0.2) 20deg,
-                    transparent 20deg, transparent 30deg,
-                    rgba(0,0,0,0.2) 30deg, rgba(0,0,0,0.2) 40deg,
-                    transparent 40deg, transparent 50deg,
-                    rgba(0,0,0,0.2) 50deg, rgba(0,0,0,0.2) 60deg,
-                    transparent 60deg, transparent 70deg,
-                    rgba(0,0,0,0.2) 70deg, rgba(0,0,0,0.2) 80deg,
-                    transparent 80deg, transparent 90deg,
-                    rgba(0,0,0,0.2) 90deg, rgba(0,0,0,0.2) 100deg,
-                    transparent 100deg, transparent 110deg,
-                    rgba(0,0,0,0.2) 110deg, rgba(0,0,0,0.2) 120deg,
-                    transparent 120deg)`
-                }}></div>
-
-                {/* Inner circle */}
-                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 border-2 border-orange-600 flex items-center justify-center">
-                  
-                  {/* Center icon */}
-                  <motion.div
-                    animate={isSpinning ? { rotate: [0, -360] } : {}}
-                    transition={{ duration: 1.5, repeat: isSpinning ? Infinity : 0, ease: "linear" }}
-                    className="text-2xl font-bold text-orange-800 drop-shadow-sm"
+                {/* Button Center */}
+                <div className="absolute inset-3 rounded-full bg-gradient-to-br from-yellow-200 to-orange-300 border-2 border-orange-400 flex items-center justify-center">
+                  <motion.span
+                    animate={isSpinning ? { scale: [1, 1.2, 1] } : {}}
+                    transition={{ duration: 1, repeat: isSpinning ? Infinity : 0 }}
+                    className="text-orange-800 font-bold text-sm"
                   >
-                    {isSpinning ? "⚡" : "🎲"}
-                  </motion.div>
+                    {isSpinning ? "..." : "SPIN"}
+                  </motion.span>
                 </div>
 
-                {/* Highlight shine */}
-                <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-white/30 via-transparent to-transparent"></div>
+                {/* Button shine effect */}
+                <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-white/40 via-transparent to-transparent"></div>
               </Button>
             </motion.div>
           </div>
