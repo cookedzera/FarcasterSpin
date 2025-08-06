@@ -20,28 +20,37 @@ export function useGameState() {
   });
 
   // Get user data
-  const { data: user, isLoading } = useQuery<User>({
+  const { data: user, isLoading, error } = useQuery<User>({
     queryKey: ["/api/user", userId],
     enabled: !!userId,
+    retry: false,
   });
 
   // Initialize user on mount
   useEffect(() => {
     const storedUserId = localStorage.getItem("arbcasino_user_id");
     
-    if (storedUserId) {
+    if (storedUserId && !error) {
       setUserId(storedUserId);
     } else {
-      // Create a new user with a mock wallet address
-      const mockUsername = `Player${Math.floor(Math.random() * 10000)}`;
-      const mockWallet = `0x${Math.random().toString(16).substr(2, 8)}...${Math.random().toString(16).substr(2, 3)}`;
+      // Clear invalid stored user ID and create a new user
+      if (storedUserId && error) {
+        localStorage.removeItem("arbcasino_user_id");
+        setUserId(null);
+      }
       
-      initUserMutation.mutate({
-        username: mockUsername,
-        walletAddress: mockWallet
-      });
+      if (!storedUserId || error) {
+        // Create a new user with a mock wallet address
+        const mockUsername = `Player${Math.floor(Math.random() * 10000)}`;
+        const mockWallet = `0x${Math.random().toString(16).substr(2, 8)}...${Math.random().toString(16).substr(2, 3)}`;
+        
+        initUserMutation.mutate({
+          username: mockUsername,
+          walletAddress: mockWallet
+        });
+      }
     }
-  }, []);
+  }, [error]);
 
   return {
     user,

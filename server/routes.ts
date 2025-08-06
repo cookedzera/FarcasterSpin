@@ -107,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const activeTokens = await storage.getActiveTokens();
         if (activeTokens.length > 0) {
           selectedToken = activeTokens[Math.floor(Math.random() * activeTokens.length)];
-          rewardAmount = selectedToken.rewardAmount;
+          rewardAmount = selectedToken.rewardAmount || 0;
           
           // Send tokens to user (mock transaction for now)
           try {
@@ -136,16 +136,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newSpinsUsed = spinsToday + 1;
       await storage.updateUser(userId, {
         spinsUsed: newSpinsUsed,
-        totalSpins: user.totalSpins + 1,
-        totalWins: user.totalWins + (isWin ? 1 : 0),
+        totalSpins: (user.totalSpins || 0) + 1,
+        totalWins: (user.totalWins || 0) + (isWin ? 1 : 0),
         lastSpinDate: today
       });
 
       // Update game stats
       const gameStats = await storage.getGameStats();
       await storage.updateGameStats({
-        totalClaims: gameStats.totalClaims + (isWin ? 1 : 0),
-        contractTxs: gameStats.contractTxs + 1
+        totalClaims: (gameStats.totalClaims || 0) + (isWin ? 1 : 0),
+        contractTxs: (gameStats.contractTxs || 0) + 1
       });
 
       res.json(spinResult);
