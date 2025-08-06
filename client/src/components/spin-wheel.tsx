@@ -5,7 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useGameState } from "@/hooks/use-game-state";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import SlotReel from "./slot-reel";
+import LootReel from "./loot-reel";
 import WinPopup from "./win-popup";
 import { type SpinResult } from "@shared/schema";
 import { HapticFeedback } from "@/lib/haptics";
@@ -186,42 +186,48 @@ export default function SpinWheel() {
         </AnimatePresence>
 
         <motion.h2 
-          className="font-pixel text-center text-green-400 text-lg mb-6 neon-green-text"
+          className="font-pixel text-center bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent text-xl mb-6"
           animate={isSpinning ? {
-            textShadow: [
-              "0 0 5px #22c55e",
-              "0 0 15px #22c55e, 0 0 25px #22c55e",
-              "0 0 5px #22c55e"
-            ]
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
           } : {}}
-          transition={{ duration: 0.5, repeat: isSpinning ? Infinity : 0 }}
+          transition={{ duration: 2, repeat: isSpinning ? Infinity : 0 }}
+          style={{ backgroundSize: "200% 200%" }}
         >
-          🎰 SPIN MACHINE
+          ⚔️ EPIC LOOT CHEST ⚔️
         </motion.h2>
 
-        {/* Gesture hint text */}
+        {/* Epic hint text */}
         <motion.p 
-          className="text-xs text-muted-foreground text-center mb-4 font-mono"
-          initial={{ opacity: 0.5 }}
+          className="text-xs text-center mb-6 font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent"
+          initial={{ opacity: 0.7 }}
           animate={{ 
-            opacity: isSpinning ? 0.2 : [0.3, 0.7, 0.3],
+            opacity: isSpinning ? 0.3 : [0.5, 1, 0.5],
           }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          Swipe left/right or double-tap to spin
+          ✨ Swipe or Double-Tap for Legendary Loot! ✨
         </motion.p>
       
-        {/* Slot Machine Reels */}
-        <div className="flex justify-center space-x-4 mb-6">
-              {slotResults.map((symbol, index) => (
-              <SlotReel 
-                key={index} 
+        {/* Epic Loot Reels */}
+        <div className="flex justify-center space-x-3 mb-8 relative">
+          {/* Background glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20 blur-xl rounded-3xl" />
+          
+          {slotResults.map((symbol, index) => (
+            <motion.div
+              key={index}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <LootReel 
                 symbol={symbol} 
                 isSpinning={isSpinning}
                 delay={index * 200}
               />
-            ))}
-          </div>
+            </motion.div>
+          ))}
+        </div>
 
           {/* Spin Button */}
           <div className="text-center">
@@ -243,24 +249,53 @@ export default function SpinWheel() {
                 onClick={handleSpin}
                 disabled={isSpinning || !user || (user.spinsUsed || 0) >= 5}
                 data-testid="button-spin"
-                className="bg-gradient-to-r from-primary to-blue-600 hover:from-blue-500 hover:to-primary text-white font-pixel text-lg px-8 py-6 rounded-xl border-2 border-primary neon-border transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden touch-manipulation"
+                className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 text-white font-pixel text-lg px-8 py-6 rounded-2xl border-2 border-purple-400 shadow-2xl shadow-purple-500/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden touch-manipulation"
                 style={{ 
                   WebkitTapHighlightColor: 'transparent',
                   touchAction: 'manipulation'
                 }}
               >
-                {/* Button glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-600/20 rounded-xl" />
+                {/* Epic button glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-orange-500/30 rounded-2xl" />
+                
+                {/* Magical particles */}
+                <AnimatePresence>
+                  {!isSpinning && (
+                    <>
+                      {[...Array(3)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 bg-white rounded-full"
+                          style={{
+                            left: `${20 + i * 30}%`,
+                            top: `${30 + i * 10}%`,
+                          }}
+                          animate={{
+                            opacity: [0, 1, 0],
+                            scale: [0, 1, 0],
+                            y: [0, -10, 0]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            delay: i * 0.5
+                          }}
+                        />
+                      ))}
+                    </>
+                  )}
+                </AnimatePresence>
                 
                 {/* Button text with animation */}
                 <motion.span
                   animate={isSpinning ? {
-                    color: ["#ffffff", "#fbbf24", "#ffffff"]
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
                   } : {}}
-                  transition={{ duration: 0.5, repeat: isSpinning ? Infinity : 0 }}
-                  className="relative z-10"
+                  transition={{ duration: 1, repeat: isSpinning ? Infinity : 0 }}
+                  className="relative z-10 bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent font-bold"
+                  style={{ backgroundSize: "200% 200%" }}
                 >
-                  {isSpinning ? "🎲 SPINNING..." : "🎯 SPIN TO WIN"}
+                  {isSpinning ? "⚔️ HUNTING LOOT..." : "🏆 CLAIM TREASURE"}
                 </motion.span>
                 
                 {/* Pulse effect when spinning */}
