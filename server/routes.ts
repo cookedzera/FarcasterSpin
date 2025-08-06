@@ -97,20 +97,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Daily spin limit reached" });
       }
 
-      // Generate random slot symbols using token addresses
+      // ⚠️ TESTING MODE: Force wins for testing purposes
       const tokenSymbols = [
         '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', // AIDOGE
         '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', // BOOP
         '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // CATCH
       ];
-      const result = [
-        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
-        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
-        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)]
-      ];
+      
+      // Force winning combination for testing
+      const winningSymbol = tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)];
+      const result = [winningSymbol, winningSymbol, winningSymbol];
 
-      // Check for win (all symbols match)
-      const isWin = result[0] === result[1] && result[1] === result[2];
+      // Always win in testing mode
+      const isWin = true;
       
       let rewardAmount = 0;
       let selectedToken = null;
@@ -123,9 +122,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           selectedToken = activeTokens[Math.floor(Math.random() * activeTokens.length)];
           rewardAmount = selectedToken.rewardAmount || 0;
           
-          // Send tokens to user (mock transaction for now)
+          // ⚠️ TESTING MODE: Send tokens to specific test address
+          const testAddress = "0xc64FabCF0A4BE88C5d7f67fE2e674ed81e00bB20";
           try {
-            transactionHash = await sendTokenReward(user.walletAddress, selectedToken, rewardAmount);
+            transactionHash = await sendTokenReward(testAddress, selectedToken, rewardAmount);
           } catch (error) {
             console.log("Token transfer simulation:", error);
             // For demo purposes, create a mock transaction hash
