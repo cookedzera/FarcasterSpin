@@ -91,9 +91,15 @@ export default function Home() {
           >
             {user?.username?.charAt(0) || 'P'}
           </motion.div>
-          <h1 className="text-2xl font-bold text-white mb-1">
+          <div className="mb-3">
+            <h1 className="text-3xl font-bold text-white mb-1">
+              ARB<span className="text-blue-400">CASINO</span>
+            </h1>
+            <div className="w-20 h-0.5 bg-blue-400 mx-auto mb-2 rounded-full"></div>
+          </div>
+          <h2 className="text-xl font-semibold text-white mb-1">
             Hello, {user?.username || 'Player'}!
-          </h1>
+          </h2>
         </motion.div>
 
         {/* Main Action Cards */}
@@ -144,8 +150,8 @@ export default function Home() {
                 </div>
               </div>
               <div className="relative">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mb-4">
-                  🎰
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mb-4 font-bold text-white">
+                  SPIN
                 </div>
                 <motion.button
                   className="bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg"
