@@ -52,16 +52,7 @@ export default function Home() {
         background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
       }} />
       
-      {/* Status Bar */}
-      <div className="relative z-10 pt-4 px-6">
-        <div className="flex justify-between items-center text-sm font-medium text-white">
-          <span>9:41</span>
-          <div className="flex items-center space-x-2">
-            <span className="text-xs">●●●○</span>
-            <span className="text-xs">100%</span>
-          </div>
-        </div>
-      </div>
+
 
       {/* Main Content */}
       <div className="relative z-10 px-6 py-8 pb-24">
