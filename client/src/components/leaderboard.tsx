@@ -18,7 +18,7 @@ export default function Leaderboard() {
   return (
     <div className="bg-card rounded-xl border border-border neon-border p-4">
       <h3 className="font-pixel text-yellow-400 text-sm mb-3 neon-yellow-text">
-        LEADERBOARD
+        🏆 LEADERBOARD
       </h3>
       <div className="space-y-2">
         {leaderboard?.slice(0, 5).map((player, index) => {

@@ -52,6 +52,30 @@ export default function Home() {
         background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
       }} />
       
+      {/* Floating particles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-20, -100],
+              opacity: [0, 0.6, 0],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeOut"
+            }}
+          />
+        ))}
+      </div>
+      
 
 
       {/* Main Content */}
@@ -75,9 +99,14 @@ export default function Home() {
             {user?.username?.charAt(0) || 'P'}
           </motion.div>
           <div className="mb-3">
-            <h1 className="text-3xl font-bold text-white mb-1">
-              ARB<span className="text-blue-400">CASINO</span>
-            </h1>
+            <motion.h1 
+              className="text-3xl font-bold text-white mb-1"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              🎰 ARB<span className="text-blue-400">CASINO</span> ✨
+            </motion.h1>
             <div className="w-20 h-0.5 bg-blue-400 mx-auto mb-2 rounded-full"></div>
           </div>
           <h2 className="text-xl font-semibold text-white mb-1">
@@ -126,8 +155,8 @@ export default function Home() {
             <div className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h2 className="text-xl font-bold mb-2">Spin a Wheel</h2>
-                <p className="text-teal-100 text-sm mb-4">Win meme tokens daily</p>
+                <h2 className="text-xl font-bold mb-2">🎡 Spin a Wheel</h2>
+                <p className="text-teal-100 text-sm mb-4">💰 Win meme tokens daily</p>
                 <div className="text-sm text-teal-100">
                   <CountdownTimer />
                 </div>
@@ -195,13 +224,36 @@ export default function Home() {
                   </motion.svg>
                 </div>
                 <motion.button
-                  className="bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden"
                   onClick={() => setShowSpinWheel(true)}
                   disabled={(user?.spinsUsed || 0) >= 5}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  whileHover={{ 
+                    scale: 1.1,
+                    boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)',
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  animate={{
+                    boxShadow: [
+                      '0 4px 15px rgba(59, 130, 246, 0.2)',
+                      '0 6px 20px rgba(147, 51, 234, 0.3)',
+                      '0 4px 15px rgba(59, 130, 246, 0.2)'
+                    ]
+                  }}
+                  transition={{
+                    boxShadow: {
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }
+                  }}
                 >
-                  GO
+                  <span className="relative z-10">🚀</span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0"
+                    whileHover={{ opacity: 0.3 }}
+                    transition={{ duration: 0.2 }}
+                  />
                 </motion.button>
               </div>
             </div>
@@ -254,7 +306,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">Rewards</h3>
+                  <h3 className="font-bold text-lg">🏆 Rewards</h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <div className="w-16 h-2 bg-white/30 rounded-full">
                       <div className="w-10 h-2 bg-white rounded-full"></div>
@@ -276,7 +328,7 @@ export default function Home() {
           transition={{ delay: 0.3 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white">Goal Progress</h3>
+            <h3 className="text-lg font-bold text-white">🎯 Goal Progress</h3>
             <span className="text-sm text-white/70">{user?.spinsUsed || 0}/5 days</span>
           </div>
           
@@ -324,7 +376,7 @@ export default function Home() {
             />
             <div className="relative z-10">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold">Daily Spin Challenge</h4>
+              <h4 className="font-semibold">⚡ Daily Spin Challenge</h4>
               <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Active</span>
             </div>
             <div className="flex items-center space-x-2 mb-2">
@@ -349,12 +401,12 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <h3 className="text-lg font-bold text-white mb-4">Token Collection</h3>
+          <h3 className="text-lg font-bold text-white mb-4">🪙 Token Collection</h3>
           <div className="space-y-3">
             {[
-              { name: 'AIDOGE', icon: aidogeLogo, amount: '1.2K', time: '2h 14 min' },
-              { name: 'BOOP', icon: boopLogo, amount: '850', time: '5h 22 min' },
-              { name: 'CATCH', icon: catchLogo, amount: '2.1K', time: '1h 8 min' }
+              { name: 'AIDOGE', icon: aidogeLogo, amount: '1.2K', time: '2h 14 min', emoji: '🐕' },
+              { name: 'BOOP', icon: boopLogo, amount: '850', time: '5h 22 min', emoji: '🎭' },
+              { name: 'CATCH', icon: catchLogo, amount: '2.1K', time: '1h 8 min', emoji: '🎯' }
             ].map((token, index) => (
               <motion.div
                 key={index}
@@ -385,10 +437,13 @@ export default function Home() {
                   }}
                 />
                 <div className="flex items-center space-x-3">
-                  <img src={token.icon} alt={token.name} className="w-10 h-10 rounded-xl" />
+                  <div className="relative">
+                    <img src={token.icon} alt={token.name} className="w-10 h-10 rounded-xl" />
+                    <span className="absolute -top-1 -right-1 text-xs">{token.emoji}</span>
+                  </div>
                   <div>
                     <div className="font-semibold text-white">{token.name}</div>
-                    <div className="text-sm text-white/60">{token.time}</div>
+                    <div className="text-sm text-white/60">⏰ {token.time}</div>
                   </div>
                 </div>
                 <div className="text-green-400 font-bold">+{token.amount}</div>
