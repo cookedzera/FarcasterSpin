@@ -225,7 +225,7 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col items-center">
                   <motion.button
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-14 h-14 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden"
+                    className="bg-black text-white w-14 h-14 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden border-2 border-white/20"
                     onClick={() => setShowSpinWheel(true)}
                     disabled={(user?.spinsUsed || 0) >= 5}
                     whileHover={{ 
