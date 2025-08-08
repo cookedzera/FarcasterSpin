@@ -14,14 +14,14 @@ import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
 
 const wheelSegments = [
-  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000' },
-  { id: 'bankrupt', name: 'BUST', image: '', isToken: false, reward: '0' },
-  { id: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', name: 'BOOP', image: boopLogo, isToken: true, reward: '2000' },
-  { id: 'bonus', name: 'BONUS', image: '', isToken: false, reward: '500' },
-  { id: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f', name: 'CATCH', image: catchLogo, isToken: true, reward: '1500' },
-  { id: 'bankrupt', name: 'BUST', image: '', isToken: false, reward: '0' },
-  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000' },
-  { id: 'mega', name: 'JACKPOT', image: '', isToken: false, reward: '5000' }
+  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000', color: '#3B82F6' },
+  { id: 'bankrupt', name: 'BUST', image: '', isToken: false, reward: '0', color: '#EF4444' },
+  { id: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', name: 'BOOP', image: boopLogo, isToken: true, reward: '2000', color: '#10B981' },
+  { id: 'bonus', name: 'BONUS', image: '', isToken: false, reward: '500', color: '#F59E0B' },
+  { id: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f', name: 'CATCH', image: catchLogo, isToken: true, reward: '1500', color: '#8B5CF6' },
+  { id: 'bankrupt', name: 'BUST', image: '', isToken: false, reward: '0', color: '#EF4444' },
+  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000', color: '#3B82F6' },
+  { id: 'mega', name: 'JACKPOT', image: '', isToken: false, reward: '5000', color: '#F97316' }
 ];
 
 export default function SpinWheel() {
@@ -31,6 +31,7 @@ export default function SpinWheel() {
   const [wheelRotation, setWheelRotation] = useState(0);
   const [landedSegment, setLandedSegment] = useState<number | null>(null);
   const [showSparkles, setShowSparkles] = useState(false);
+  const [pointerRotation, setPointerRotation] = useState(0);
   const spinButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { user } = useGameState();
