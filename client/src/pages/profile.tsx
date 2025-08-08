@@ -2,18 +2,18 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
-import { Trophy, Zap, Target, Clock, Star, Award, TrendingUp, Coins, ArrowLeft, Home } from "lucide-react";
+
+import { Trophy, Zap, Target, Clock, Star, Award, TrendingUp, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import Navigation from "@/components/navigation";
 import { type SpinResult } from "@shared/schema";
 
 export default function Profile() {
   const { user, isLoading: userLoading } = useGameState();
   const [activeTab, setActiveTab] = useState('stats');
-  const [, setLocation] = useLocation();
 
   // Mock recent spins for demonstration
   const { data: recentSpins } = useQuery<SpinResult[]>({
@@ -53,7 +53,7 @@ export default function Profile() {
     );
   }
 
-  const winRate = user.totalSpins > 0 ? ((user.totalWins || 0) / user.totalSpins * 100) : 0;
+  const winRate = (user.totalSpins || 0) > 0 ? ((user.totalWins || 0) / (user.totalSpins || 1) * 100) : 0;
   const level = Math.floor((user.totalWins || 0) / 5) + 1;
   const nextLevelProgress = ((user.totalWins || 0) % 5) / 5 * 100;
 
@@ -80,7 +80,7 @@ export default function Profile() {
       name: 'Spin Master',
       description: 'Complete 50 spins',
       icon: Target,
-      unlocked: user.totalSpins >= 50,
+      unlocked: (user.totalSpins || 0) >= 50,
       color: 'text-blue-400'
     },
     {
@@ -137,23 +137,7 @@ export default function Profile() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        {/* Back Navigation */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="mb-6"
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLocation('/')}
-            className="text-gray-400 hover:text-white p-2"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Game
-          </Button>
-        </motion.div>
+      <div className="relative z-10 container mx-auto px-4 py-8 pb-24 max-w-4xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -378,6 +362,9 @@ export default function Profile() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Navigation */}
+      <Navigation />
     </div>
   );
 }

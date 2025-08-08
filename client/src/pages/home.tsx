@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import { useGameState } from "@/hooks/use-game-state";
 import SpinWheel from "@/components/spin-wheel";
 import CountdownTimer from "@/components/countdown-timer";
+import Navigation from "@/components/navigation";
 import { type GameStats } from "@shared/schema";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
 import boopLogo from "@assets/Boop_resized_1754468548333.webp";
@@ -13,8 +14,6 @@ import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
 export default function Home() {
   const { user, isLoading: userLoading } = useGameState();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
-  const [activeTab, setActiveTab] = useState('home');
-  const [, setLocation] = useLocation();
   
   const { data: stats } = useQuery<GameStats>({
     queryKey: ["/api/stats"],
@@ -487,69 +486,8 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 px-6 py-4 relative z-20" style={{
-        background: 'rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        <div className="flex justify-center space-x-8">
-          <motion.button
-            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
-              activeTab === 'home' ? 'text-white' : 'text-white/60'
-            }`}
-            style={activeTab === 'home' ? {
-              background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
-              boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
-            } : {}}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveTab('home')}
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-            <span className="text-xs font-medium">Home</span>
-          </motion.button>
-          
-          <motion.button
-            className="flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 text-white/40 cursor-not-allowed relative"
-            disabled={true}
-          >
-            <div className="relative">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21,6H3A1,1 0 0,0 2,7V17A1,1 0 0,0 3,18H21A1,1 0 0,0 22,17V7A1,1 0 0,0 21,6M20,16H4V8H20V16M6,9V15H8V9H6M10,9V15H12V9H10M14,9V15H16V9H14M18,9V15H20V9H18Z"/>
-              </svg>
-              <div className="absolute -top-1 -right-1 flex space-x-0.5">
-                <span className="text-xs">🎮</span>
-                <span className="text-xs">🃏</span>
-              </div>
-            </div>
-            <span className="text-xs font-medium">Games</span>
-            <span className="text-[10px] text-white/30 absolute -bottom-1">Coming Soon</span>
-          </motion.button>
-          
-          <motion.button
-            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
-              activeTab === 'profile' ? 'text-white' : 'text-white/60'
-            }`}
-            style={activeTab === 'profile' ? {
-              background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
-              boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
-            } : {}}
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setActiveTab('profile');
-              setLocation('/profile');
-            }}
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"/>
-            </svg>
-            <span className="text-xs font-medium">Profile</span>
-          </motion.button>
-        </div>
-      </div>
+      {/* Navigation */}
+      <Navigation />
 
       {/* Spin Wheel Modal */}
       <AnimatePresence>
