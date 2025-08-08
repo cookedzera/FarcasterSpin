@@ -15,7 +15,7 @@ const memeTokens = [
     id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b',
     name: 'AIDOGE',
     image: aidogeLogo,
-    emoji: '🐕',
+
     color: '#FF6B35',
     gradient: 'linear-gradient(135deg, #FF6B35, #F7931E)'
   },
@@ -23,7 +23,7 @@ const memeTokens = [
     id: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3',
     name: 'BOOP',
     image: boopLogo,
-    emoji: '🎭',
+
     color: '#4ECDC4',
     gradient: 'linear-gradient(135deg, #4ECDC4, #44A08D)'
   },
@@ -31,7 +31,7 @@ const memeTokens = [
     id: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f',
     name: 'CATCH',
     image: catchLogo,
-    emoji: '🎯',
+
     color: '#45B7D1',
     gradient: 'linear-gradient(135deg, #45B7D1, #96C93D)'
   }

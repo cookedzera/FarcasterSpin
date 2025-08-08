@@ -70,7 +70,7 @@ export default function WinPopup({ isOpen, onClose, winResult, tokenInfo }: WinP
                   repeatDelay: 2
                 }}
               >
-                🎉
+                WINNER!
               </motion.div>
               <h2 className="font-pixel text-2xl text-green-400 mb-1 winning-glow">
                 YOU WON!

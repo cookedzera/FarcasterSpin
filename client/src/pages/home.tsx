@@ -263,8 +263,12 @@ export default function Home() {
             <div className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
-                  🏆
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 15L8 19H16L12 15Z" fill="currentColor"/>
+                    <path d="M7 9V4C7 3.45 7.45 3 8 3H16C16.55 3 17 3.45 17 4V9L19 11V12H5V11L7 9Z" fill="currentColor"/>
+                    <rect x="8" y="13" width="8" height="2" fill="currentColor"/>
+                  </svg>
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Rewards</h3>
