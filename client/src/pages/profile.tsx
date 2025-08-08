@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import Navigation from "@/components/navigation";
 import { type SpinResult } from "@shared/schema";
 
 export default function Profile() {
@@ -37,24 +38,25 @@ export default function Profile() {
 
   const winRate = (user.totalSpins || 0) > 0 ? ((user.totalWins || 0) / (user.totalSpins || 1) * 100) : 0;
   const level = Math.floor((user.totalWins || 0) / 5) + 1;
-  const nextLevelProgress = ((user.totalWins || 0) % 5) * 20;
+  const nextLevelProgress = ((user.totalWins || 0) % 5) / 5 * 100;
 
+  // Calculate achievements
   const achievements = [
     {
       id: 'first_win',
-      name: 'First Win',
+      name: 'First Victory',
       description: 'Win your first spin',
-      icon: Star,
+      icon: Trophy,
       unlocked: (user.totalWins || 0) >= 1,
       color: 'text-yellow-400'
     },
     {
       id: 'lucky_streak',
-      name: 'Lucky Streak',
-      description: 'Win 5 times in a row',
-      icon: Trophy,
-      unlocked: false, // Would need streak tracking
-      color: 'text-green-400'
+      name: 'Lucky Seven',
+      description: 'Win 7 times',
+      icon: Star,
+      unlocked: (user.totalWins || 0) >= 7,
+      color: 'text-purple-400'
     },
     {
       id: 'spinner',
@@ -81,141 +83,191 @@ export default function Profile() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24 max-w-4xl">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0.8 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
-        className="text-center mb-8"
-      >
-        {/* Avatar */}
+    <div className="min-h-screen relative overflow-hidden" style={{
+      background: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 50%, #2c2c2e 100%)'
+    }}>
+      {/* Subtle noise texture overlay */}
+      <div className="fixed inset-0 opacity-10" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+      }} />
+      
+      {/* Radial gradient overlay */}
+      <div className="fixed inset-0" style={{
+        background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
+      }} />
+
+      {/* Floating particles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-20, -100],
+              opacity: [0, 0.6, 0],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeOut"
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 py-8 pb-24 max-w-4xl">
+        {/* Header */}
         <motion.div
-          className="relative inline-block mb-4"
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 300 }}
+          initial={{ opacity: 0.8 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="text-center mb-8"
         >
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
-            {user.username.charAt(0).toUpperCase()}
-          </div>
-          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-gray-900">
-            <span className="text-white text-xs font-bold">{level}</span>
+          {/* Avatar */}
+          <motion.div
+            className="relative inline-block mb-4"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
+              {user.username.charAt(0).toUpperCase()}
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-gray-900">
+              <span className="text-white text-xs font-bold">{level}</span>
+            </div>
+          </motion.div>
+
+          <h1 className="text-3xl font-bold text-white mb-2">{user.username}</h1>
+          <p className="text-gray-400 text-sm">Level {level} Player</p>
+          
+          {/* Level Progress */}
+          <div className="mt-4 max-w-xs mx-auto">
+            <div className="flex justify-between text-xs text-gray-400 mb-1">
+              <span>Level {level}</span>
+              <span>Level {level + 1}</span>
+            </div>
+            <Progress value={nextLevelProgress} className="h-2" />
           </div>
         </motion.div>
 
-        <h1 className="text-3xl font-bold text-white mb-2">{user.username}</h1>
-        <p className="text-gray-400 text-sm">Level {level} Player</p>
-        
-        {/* Level Progress */}
-        <div className="mt-4 max-w-xs mx-auto">
-          <div className="flex justify-between text-xs text-gray-400 mb-1">
-            <span>Level {level}</span>
-            <span>Level {level + 1}</span>
+        {/* Quick Stats Cards */}
+        <motion.div
+          initial={{ opacity: 0.9 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+        >
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-4 text-center">
+              <Zap className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{user.totalSpins}</div>
+              <div className="text-xs text-gray-400">Total Spins</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-4 text-center">
+              <Trophy className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{user.totalWins || 0}</div>
+              <div className="text-xs text-gray-400">Total Wins</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-4 text-center">
+              <Target className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{winRate.toFixed(1)}%</div>
+              <div className="text-xs text-gray-400">Win Rate</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-4 text-center">
+              <Coins className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{user.spinsUsed || 0}/5</div>
+              <div className="text-xs text-gray-400">Today's Spins</div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Tab Navigation */}
+        <motion.div
+          initial={{ opacity: 0.9 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="flex justify-center mb-6"
+        >
+          <div className="bg-gray-800/30 rounded-lg p-1 backdrop-blur-sm">
+            {tabs.map((tab) => (
+              <Button
+                key={tab.id}
+                variant={activeTab === tab.id ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setActiveTab(tab.id)}
+                className={`mx-1 ${
+                  activeTab === tab.id
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <tab.icon className="w-4 h-4 mr-2" />
+                {tab.label}
+              </Button>
+            ))}
           </div>
-          <Progress value={nextLevelProgress} className="h-2" />
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* Quick Stats Cards */}
-      <motion.div
-        initial={{ opacity: 0.9 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-      >
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardContent className="p-4 text-center">
-            <Zap className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{user.totalSpins}</div>
-            <div className="text-xs text-gray-400">Total Spins</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardContent className="p-4 text-center">
-            <Trophy className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{user.totalWins || 0}</div>
-            <div className="text-xs text-gray-400">Total Wins</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardContent className="p-4 text-center">
-            <Target className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{winRate.toFixed(1)}%</div>
-            <div className="text-xs text-gray-400">Win Rate</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardContent className="p-4 text-center">
-            <Coins className="w-8 h-8 text-orange-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{user.totalRewards || 0}</div>
-            <div className="text-xs text-gray-400">Tokens Won</div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Tab Navigation */}
-      <div className="flex justify-center mb-6">
-        <div className="flex bg-gray-800/50 backdrop-blur-sm rounded-full p-1 border border-gray-700">
-          {tabs.map((tab) => (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                px-4 py-2 rounded-full flex items-center transition-all duration-200
-                ${activeTab === tab.id 
-                  ? 'bg-blue-600 text-white shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-                }
-              `}
-            >
-              <tab.icon className="w-4 h-4 mr-2" />
-              {tab.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tab Content */}
-      <div className="min-h-[400px]">
+        {/* Tab Content */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0.8 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0.8 }}
+            transition={{ duration: 0.15 }}
           >
             {activeTab === 'stats' && (
-              <div className="grid gap-6">
+              <div className="space-y-6">
                 <Card className="bg-gray-800/50 border-gray-700">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
                       <TrendingUp className="w-5 h-5 mr-2 text-blue-400" />
-                      Detailed Statistics
+                      Performance Statistics
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="text-sm text-gray-400 mb-1">Average Win Rate</div>
-                        <div className="text-2xl font-bold text-white">{winRate.toFixed(1)}%</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Win Rate</span>
+                          <span className="text-white font-semibold">{winRate.toFixed(1)}%</span>
+                        </div>
+                        <Progress value={winRate} className="h-2" />
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-400 mb-1">Current Level</div>
-                        <div className="text-2xl font-bold text-white">{level}</div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Daily Progress</span>
+                          <span className="text-white font-semibold">{user.spinsUsed || 0}/5</span>
+                        </div>
+                        <Progress value={((user.spinsUsed || 0) / 5) * 100} className="h-2" />
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-400 mb-1">Spins Today</div>
-                        <div className="text-2xl font-bold text-white">{user.spinsToday || 0}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-400 mb-1">Remaining Today</div>
-                        <div className="text-2xl font-bold text-white">{Math.max(0, 5 - (user.spinsToday || 0))}</div>
+                    </div>
+                    
+                    <div className="pt-4 border-t border-gray-700">
+                      <h4 className="text-white font-semibold mb-3">Recent Activity</h4>
+                      <div className="text-gray-400 text-sm">
+                        {user.lastSpinDate ? (
+                          `Last spin: ${new Date(user.lastSpinDate).toLocaleDateString()}`
+                        ) : (
+                          "No recent activity"
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -224,39 +276,46 @@ export default function Profile() {
             )}
 
             {activeTab === 'achievements' && (
-              <div className="grid md:grid-cols-2 gap-4">
-                {achievements.map((achievement) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {achievements.map((achievement, index) => (
                   <motion.div
                     key={achievement.id}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
                   >
-                    <Card className={`
-                      bg-gray-800/50 border-gray-700 transition-all duration-300
-                      ${achievement.unlocked ? 'ring-2 ring-green-500/30' : 'opacity-60'}
-                    `}>
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className={`
-                              p-3 rounded-full 
-                              ${achievement.unlocked ? 'bg-green-500/20' : 'bg-gray-600/20'}
-                            `}>
-                              <achievement.icon className={`w-6 h-6 ${achievement.unlocked ? achievement.color : 'text-gray-500'}`} />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-white mb-1">{achievement.name}</h3>
-                              <p className="text-sm text-gray-400">{achievement.description}</p>
-                            </div>
+                    <Card className={`${
+                      achievement.unlocked 
+                        ? 'bg-gray-800/50 border-gray-600' 
+                        : 'bg-gray-900/30 border-gray-800'
+                    }`}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className={`p-2 rounded-lg ${
+                            achievement.unlocked 
+                              ? 'bg-gray-700' 
+                              : 'bg-gray-800/50'
+                          }`}>
+                            <achievement.icon className={`w-6 h-6 ${
+                              achievement.unlocked 
+                                ? achievement.color 
+                                : 'text-gray-600'
+                            }`} />
                           </div>
-                          <div>
-                            {achievement.unlocked ? (
-                              <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
+                          <div className="flex-1">
+                            <h3 className={`font-semibold ${
+                              achievement.unlocked ? 'text-white' : 'text-gray-500'
+                            }`}>
+                              {achievement.name}
+                            </h3>
+                            <p className={`text-sm ${
+                              achievement.unlocked ? 'text-gray-400' : 'text-gray-600'
+                            }`}>
+                              {achievement.description}
+                            </p>
+                            {achievement.unlocked && (
+                              <Badge variant="secondary" className="mt-2 bg-green-900/50 text-green-400">
                                 Unlocked
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="border-gray-600 text-gray-500">
-                                Locked
                               </Badge>
                             )}
                           </div>
@@ -288,6 +347,9 @@ export default function Profile() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Navigation */}
+      <Navigation />
     </div>
   );
 }
