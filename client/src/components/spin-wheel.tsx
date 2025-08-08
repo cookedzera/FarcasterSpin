@@ -14,14 +14,14 @@ import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
 
 const wheelSegments = [
-  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, color: '#FF6B35', reward: '1000' },
-  { id: 'bankrupt', name: 'BANKRUPT', image: '', color: '#DC2626', reward: '0' },
-  { id: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', name: 'BOOP', image: boopLogo, color: '#4ECDC4', reward: '2000' },
-  { id: 'bonus', name: 'BONUS', image: '', color: '#F59E0B', reward: '500' },
-  { id: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f', name: 'CATCH', image: catchLogo, color: '#45B7D1', reward: '1500' },
-  { id: 'bankrupt', name: 'BANKRUPT', image: '', color: '#DC2626', reward: '0' },
-  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, color: '#FF6B35', reward: '1000' },
-  { id: 'mega', name: 'MEGA WIN', image: '', color: '#8B5CF6', reward: '5000' }
+  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000' },
+  { id: 'bankrupt', name: 'BUST', image: '', isToken: false, reward: '0' },
+  { id: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', name: 'BOOP', image: boopLogo, isToken: true, reward: '2000' },
+  { id: 'bonus', name: 'BONUS', image: '', isToken: false, reward: '500' },
+  { id: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f', name: 'CATCH', image: catchLogo, isToken: true, reward: '1500' },
+  { id: 'bankrupt', name: 'BUST', image: '', isToken: false, reward: '0' },
+  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000' },
+  { id: 'mega', name: 'JACKPOT', image: '', isToken: false, reward: '5000' }
 ];
 
 export default function SpinWheel() {
@@ -171,88 +171,90 @@ export default function SpinWheel() {
 
   return (
     <>
-      {/* Modern Glass Container */}
+      {/* Comic Book Container */}
       <div 
         ref={containerRef}
         className="relative w-full max-w-lg mx-auto rounded-3xl p-8 select-none"
         style={{
-          background: 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 50%, rgba(0,0,0,0.98) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '2px solid rgba(99,102,241,0.3)',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8), 0 0 0 1px rgba(99,102,241,0.1), inset 0 1px 0 rgba(255,255,255,0.1)'
+          background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)',
+          border: '4px solid #ffffff',
+          boxShadow: '0 0 0 4px #000000, 0 25px 50px -12px rgba(0,0,0,0.9)',
         }}
       >
-        {/* Premium sparkles effect for wins */}
+        {/* Comic Book Style Sparkles */}
         <AnimatePresence>
           {showSparkles && (
             <>
-              {[...Array(30)].map((_, i) => (
+              {[...Array(15)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="absolute w-3 h-3 rounded-full pointer-events-none"
+                  className="absolute pointer-events-none"
                   style={{
-                    background: 'radial-gradient(circle, #fbbf24, #f59e0b)',
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
-                    filter: 'blur(0.5px)'
                   }}
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{
                     opacity: [0, 1, 0],
-                    scale: [0, 2, 0],
-                    rotate: [0, 360],
+                    scale: [0, 1.5, 0],
+                    rotate: [0, 180],
                   }}
                   transition={{
-                    duration: 1.5,
-                    delay: i * 0.03,
-                    repeat: 3,
+                    duration: 1.2,
+                    delay: i * 0.1,
+                    repeat: 2,
                   }}
                   exit={{ opacity: 0 }}
-                />
+                >
+                  <div className="text-white text-xl font-black">★</div>
+                </motion.div>
               ))}
             </>
           )}
         </AnimatePresence>
 
-        {/* Header */}
+        {/* Comic Book Header */}
         <motion.div 
           className="text-center mb-8"
           animate={isSpinning ? { scale: [1, 1.01, 1] } : {}}
           transition={{ duration: 2, repeat: isSpinning ? Infinity : 0 }}
         >
           <motion.h1 
-            className="text-4xl font-black mb-2"
+            className="text-4xl font-black mb-2 text-white"
             style={{
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 25%, #ec4899 50%, #f97316 75%, #eab308 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundSize: '200% 200%',
-              filter: 'drop-shadow(0 0 20px rgba(99,102,241,0.5))'
+              textShadow: '4px 4px 0px #000000, -2px -2px 0px #ffffff',
+              letterSpacing: '2px'
             }}
           >
             WHEEL OF FORTUNE
           </motion.h1>
           <motion.p 
-            className="text-slate-400 text-sm font-medium tracking-wide"
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            className="text-gray-300 text-sm font-bold tracking-wider"
+            style={{
+              textShadow: '2px 2px 0px #000000'
+            }}
           >
-            Spin to Win Meme Tokens • Base Network
+            SPIN • WIN • COLLECT TOKENS
           </motion.p>
         </motion.div>
 
-        {/* Wheel Container */}
+        {/* Comic Book Wheel Container */}
         <div className="relative flex items-center justify-center mb-8">
-          {/* Wheel */}
+          {/* Outer Ring */}
+          <div 
+            className="absolute w-96 h-96 rounded-full"
+            style={{
+              border: '8px solid #ffffff',
+              boxShadow: '0 0 0 4px #000000, inset 0 0 0 4px #000000'
+            }}
+          />
+          
+          {/* Inner Wheel */}
           <motion.div
             className="relative w-80 h-80 rounded-full overflow-hidden"
             style={{
-              background: 'conic-gradient(from 0deg, ' + 
-                wheelSegments.map((segment, index) => 
-                  `${segment.color} ${index * segmentAngle}deg ${(index + 1) * segmentAngle}deg`
-                ).join(', ') + ')',
-              border: '6px solid rgba(255,255,255,0.3)',
-              boxShadow: '0 0 50px rgba(99,102,241,0.4), inset 0 0 20px rgba(0,0,0,0.5)'
+              border: '6px solid #000000',
+              boxShadow: 'inset 0 0 20px rgba(0,0,0,0.8)'
             }}
             animate={{ rotate: wheelRotation }}
             transition={{ 
@@ -264,93 +266,110 @@ export default function SpinWheel() {
             {wheelSegments.map((segment, index) => (
               <div
                 key={index}
-                className="absolute w-full h-full flex items-center justify-center"
+                className="absolute w-full h-full"
                 style={{
-                  transform: `rotate(${index * segmentAngle}deg)`,
-                  transformOrigin: '50% 50%'
+                  clipPath: `polygon(50% 50%, ${50 + 40 * Math.cos((index * segmentAngle - 90) * Math.PI / 180)}% ${50 + 40 * Math.sin((index * segmentAngle - 90) * Math.PI / 180)}%, ${50 + 40 * Math.cos(((index + 1) * segmentAngle - 90) * Math.PI / 180)}% ${50 + 40 * Math.sin(((index + 1) * segmentAngle - 90) * Math.PI / 180)}%)`,
+                  background: index % 2 === 0 ? '#ffffff' : '#000000'
                 }}
               >
                 <div 
-                  className="flex flex-col items-center justify-center absolute"
+                  className="absolute flex flex-col items-center justify-center"
                   style={{
-                    top: '15px',
+                    top: '20px',
                     left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '60px',
-                    height: '60px'
+                    transform: `translateX(-50%) rotate(${index * segmentAngle + segmentAngle/2}deg)`,
+                    width: '80px',
+                    height: '80px'
                   }}
                 >
                   {segment.image ? (
-                    <img 
-                      src={segment.image} 
-                      alt={segment.name}
-                      className="w-8 h-8 rounded-lg object-cover mb-1 border border-white/30"
-                    />
+                    <div className="mb-1">
+                      <img 
+                        src={segment.image} 
+                        alt={segment.name}
+                        className="w-8 h-8 rounded-lg object-cover border-2 border-black"
+                        style={{
+                          filter: index % 2 === 0 ? 'none' : 'invert(1)'
+                        }}
+                      />
+                    </div>
                   ) : (
-                    <div className="w-8 h-8 mb-1 flex items-center justify-center text-white text-lg">
-                      {segment.name === 'BANKRUPT' ? '💀' : 
-                       segment.name === 'BONUS' ? '🎁' : '👑'}
+                    <div className="w-8 h-8 mb-1 flex items-center justify-center text-2xl font-black">
+                      {segment.name === 'BUST' ? '💀' : 
+                       segment.name === 'BONUS' ? '💰' : '👑'}
                     </div>
                   )}
                   <span 
-                    className="text-white text-xs font-bold text-center leading-tight"
+                    className={`font-black text-center leading-tight ${index % 2 === 0 ? 'text-black' : 'text-white'}`}
                     style={{ 
-                      textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-                      fontSize: '9px'
+                      fontSize: '8px',
+                      letterSpacing: '0.5px',
+                      textShadow: index % 2 === 0 ? '1px 1px 0px #ffffff' : '1px 1px 0px #000000'
                     }}
                   >
                     {segment.name}
                   </span>
                 </div>
                 
-                {/* Segment separator line */}
+                {/* Segment border */}
                 <div 
-                  className="absolute w-0.5 h-full bg-white/30"
+                  className="absolute w-full h-0.5 bg-black"
                   style={{
+                    top: '50%',
                     left: '50%',
-                    transform: 'translateX(-50%)',
-                    transformOrigin: '50% 100%'
+                    transformOrigin: '0 0',
+                    transform: `rotate(${index * segmentAngle}deg)`
                   }}
                 />
               </div>
             ))}
 
-            {/* Center circle */}
+            {/* Center Hub */}
             <div 
-              className="absolute inset-0 m-auto w-16 h-16 rounded-full flex items-center justify-center"
+              className="absolute inset-0 m-auto w-20 h-20 rounded-full flex items-center justify-center"
               style={{
-                background: 'linear-gradient(135deg, #1f2937, #111827)',
-                border: '3px solid rgba(255,255,255,0.4)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.6)'
+                background: '#000000',
+                border: '4px solid #ffffff',
+                boxShadow: '0 0 0 2px #000000'
               }}
             >
-              <span className="text-white text-xs font-bold">SPIN</span>
+              <span className="text-white text-xs font-black tracking-wider">SPIN</span>
             </div>
           </motion.div>
 
-          {/* Pointer */}
-          <div 
-            className="absolute top-4 left-1/2 transform -translate-x-1/2 w-0 h-0 z-10"
-            style={{
-              borderLeft: '12px solid transparent',
-              borderRight: '12px solid transparent',
-              borderTop: '30px solid #fbbf24',
-              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.6))'
-            }}
-          />
+          {/* Comic Book Style Pointer */}
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
+            <div 
+              className="w-0 h-0"
+              style={{
+                borderLeft: '15px solid transparent',
+                borderRight: '15px solid transparent',
+                borderTop: '35px solid #ffffff',
+                filter: 'drop-shadow(2px 2px 0px #000000)'
+              }}
+            />
+            <div 
+              className="absolute top-1 left-1/2 transform -translate-x-1/2 w-0 h-0"
+              style={{
+                borderLeft: '12px solid transparent',
+                borderRight: '12px solid transparent',
+                borderTop: '30px solid #000000'
+              }}
+            />
+          </div>
           
-          {/* Pointer base */}
+          {/* Pointer Base */}
           <div 
-            className="absolute top-1 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full z-20"
+            className="absolute top-1 left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full z-30"
             style={{
-              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-              border: '2px solid #ffffff',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.4)'
+              background: '#ffffff',
+              border: '3px solid #000000',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
             }}
           />
         </div>
 
-        {/* Spin Button */}
+        {/* Comic Book Style Spin Button */}
         <div className="flex items-center justify-center">
           <motion.div
             whileHover={!isSpinning ? { scale: 1.05 } : {}}
@@ -362,49 +381,42 @@ export default function SpinWheel() {
               onClick={handleSpin}
               disabled={isSpinning || !user || (user.spinsUsed || 0) >= 5}
               data-testid="button-spin"
-              className="relative w-32 h-16 rounded-2xl border-0 overflow-hidden touch-manipulation disabled:opacity-50 font-black text-lg"
+              className="relative w-40 h-16 rounded-2xl border-0 overflow-hidden touch-manipulation disabled:opacity-50 font-black text-lg"
               style={{ 
-                background: isSpinning 
-                  ? 'linear-gradient(135deg, #ec4899, #8b5cf6, #6366f1)'
-                  : 'linear-gradient(135deg, #f97316, #eab308, #22c55e)',
-                boxShadow: `0 10px 40px -10px ${isSpinning ? 'rgba(139,92,246,0.6)' : 'rgba(249,115,22,0.6)'}, 0 0 0 1px rgba(255,255,255,0.1)`,
+                background: isSpinning ? '#666666' : '#ffffff',
+                color: isSpinning ? '#ffffff' : '#000000',
+                border: '4px solid #000000',
+                boxShadow: '4px 4px 0px #000000',
                 WebkitTapHighlightColor: 'transparent',
                 touchAction: 'manipulation'
               }}
             >
               <motion.div
-                className="flex flex-col items-center justify-center h-full text-white"
+                className="flex flex-col items-center justify-center h-full"
                 animate={isSpinning ? {
                   scale: [1, 1.1, 1]
                 } : {}}
                 transition={{ 
                   scale: { duration: 1, repeat: isSpinning ? Infinity : 0 }
                 }}
+                style={{
+                  textShadow: isSpinning ? '2px 2px 0px #000000' : '2px 2px 0px #ffffff'
+                }}
               >
-                <span className="drop-shadow-lg">
+                <span className="tracking-wider">
                   {isSpinning ? "SPINNING..." : "SPIN WHEEL"}
                 </span>
                 {!isSpinning && (
-                  <span className="text-white/80 text-xs font-medium">
-                    {user ? `${5 - (user.spinsUsed || 0)} spins left` : 'Ready to play'}
+                  <span className="text-xs font-bold opacity-70">
+                    {user ? `${5 - (user.spinsUsed || 0)} SPINS LEFT` : 'READY TO PLAY'}
                   </span>
                 )}
               </motion.div>
             </Button>
-            
-            {/* Glow Effect */}
-            <div 
-              className="absolute inset-0 rounded-2xl -z-10 blur-xl opacity-60"
-              style={{
-                background: isSpinning 
-                  ? 'radial-gradient(circle, #8b5cf6, transparent)'
-                  : 'radial-gradient(circle, #f97316, transparent)'
-              }}
-            />
           </motion.div>
         </div>
 
-        {/* Win Display */}
+        {/* Comic Book Win Display */}
         {winResult && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -412,32 +424,28 @@ export default function SpinWheel() {
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
             className="mt-6 p-6 rounded-2xl relative overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(16,185,129,0.15) 100%)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(34,197,94,0.3)',
-              boxShadow: '0 10px 30px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.1)'
+              background: '#ffffff',
+              border: '4px solid #000000',
+              boxShadow: '4px 4px 0px #000000'
             }}
           >
             <div className="text-center relative z-10">
               <motion.div 
-                className="text-2xl font-black mb-3"
+                className="text-3xl font-black mb-3 text-black"
                 style={{
-                  background: 'linear-gradient(135deg, #22c55e, #10b981, #059669)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 0 10px rgba(34,197,94,0.5))'
+                  textShadow: '2px 2px 0px #ffffff'
                 }}
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 0.8, repeat: Infinity }}
               >
-                🎉 WINNER! 🎉
+                💥 WINNER! 💥
               </motion.div>
-              <div className="text-xl font-bold text-white mb-2">
+              <div className="text-xl font-black text-black mb-2">
                 <span className="text-2xl">+{(Number(winResult.rewardAmount) / Math.pow(10, 18)).toFixed(4)}</span>
-                <span className="text-green-400 ml-2 text-sm">TOKENS</span>
+                <span className="ml-2 text-sm">TOKENS</span>
               </div>
               {winResult.transactionHash && (
-                <div className="text-xs text-green-300/80 font-mono bg-black/20 rounded-lg px-3 py-1 inline-block">
+                <div className="text-xs font-bold bg-black text-white rounded-lg px-3 py-1 inline-block">
                   {winResult.transactionHash?.slice(0, 8)}...{winResult.transactionHash?.slice(-6)}
                 </div>
               )}
