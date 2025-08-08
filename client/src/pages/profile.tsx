@@ -123,37 +123,76 @@ export default function Profile() {
         ) : (
           <>
         {/* All profile content wrapped here */}
-        {/* Header */}
+        {/* Header Profile Card */}
         <motion.div
+          className="rounded-3xl p-6 text-white mb-8 relative overflow-hidden"
+          style={{
+            background: 'rgba(255, 255, 255, 0.08)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            transform: 'perspective(1000px) rotateX(2deg) rotateY(-1deg)',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+          }}
           initial={{ opacity: 0.8 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="text-center mb-8"
+          whileHover={{ 
+            scale: 1.02, 
+            y: -5,
+            transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+            transition: { duration: 0.3 }
+          }}
         >
-          {/* Avatar */}
-          <motion.div
-            className="relative inline-block mb-4"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
-              {user.username.charAt(0).toUpperCase()}
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-gray-900">
-              <span className="text-white text-xs font-bold">{level}</span>
-            </div>
-          </motion.div>
-
-          <h1 className="text-3xl font-bold text-white mb-2">{user.username}</h1>
-          <p className="text-gray-400 text-sm">Level {level} Player</p>
+          {/* Gradient overlay */}
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+              borderRadius: 'inherit'
+            }}
+          />
           
-          {/* Level Progress */}
-          <div className="mt-4 max-w-xs mx-auto">
-            <div className="flex justify-between text-xs text-gray-400 mb-1">
-              <span>Level {level}</span>
-              <span>Level {level + 1}</span>
+          <div className="relative z-10 text-center">
+            {/* Avatar */}
+            <motion.div
+              className="relative inline-block mb-4"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div 
+                className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4"
+                style={{
+                  background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+                  boxShadow: '0 10px 30px rgba(236, 72, 153, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
+                  backdropFilter: 'blur(20px)'
+                }}
+              >
+                {user?.username?.charAt(0) || 'P'}
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-gray-900">
+                <span className="text-white text-xs font-bold">{level}</span>
+              </div>
+            </motion.div>
+
+            <h1 className="text-2xl font-bold text-white mb-1">{user?.username}</h1>
+            <p className="text-white/60 text-sm mb-4">Level {level} Player</p>
+            
+            {/* Level Progress */}
+            <div className="max-w-xs mx-auto">
+              <div className="flex justify-between text-xs text-white/60 mb-2">
+                <span>Level {level}</span>
+                <span>Level {level + 1}</span>
+              </div>
+              <div className="w-full bg-white/20 rounded-full h-2">
+                <div 
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${nextLevelProgress}%`,
+                    background: 'linear-gradient(90deg, #ec4899 0%, #8b5cf6 100%)'
+                  }}
+                />
+              </div>
             </div>
-            <Progress value={nextLevelProgress} className="h-2" />
           </div>
         </motion.div>
 
@@ -162,39 +201,99 @@ export default function Profile() {
           initial={{ opacity: 0.9 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-2 gap-4 mb-8"
         >
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-4 text-center">
-              <Zap className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{user.totalSpins}</div>
-              <div className="text-xs text-gray-400">Total Spins</div>
-            </CardContent>
-          </Card>
+          {/* Total Spins Card */}
+          <motion.div
+            className="rounded-3xl p-4 text-white relative overflow-hidden"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+            }}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="absolute inset-0 opacity-20" style={{
+              background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
+              borderRadius: 'inherit'
+            }} />
+            <div className="relative z-10 text-center">
+              <Zap className="w-8 h-8 text-orange-400 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-white">{user?.totalSpins || 0}</p>
+              <p className="text-xs text-white/60">Total Spins</p>
+            </div>
+          </motion.div>
 
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-4 text-center">
+          {/* Total Wins Card */}
+          <motion.div
+            className="rounded-3xl p-4 text-white relative overflow-hidden"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+            }}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="absolute inset-0 opacity-20" style={{
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              borderRadius: 'inherit'
+            }} />
+            <div className="relative z-10 text-center">
               <Trophy className="w-8 h-8 text-green-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{user.totalWins || 0}</div>
-              <div className="text-xs text-gray-400">Total Wins</div>
-            </CardContent>
-          </Card>
+              <p className="text-2xl font-bold text-white">{user?.totalWins || 0}</p>
+              <p className="text-xs text-white/60">Total Wins</p>
+            </div>
+          </motion.div>
 
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-4 text-center">
+          {/* Win Rate Card */}
+          <motion.div
+            className="rounded-3xl p-4 text-white relative overflow-hidden"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+            }}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="absolute inset-0 opacity-20" style={{
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              borderRadius: 'inherit'
+            }} />
+            <div className="relative z-10 text-center">
               <Target className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{winRate.toFixed(1)}%</div>
-              <div className="text-xs text-gray-400">Win Rate</div>
-            </CardContent>
-          </Card>
+              <p className="text-2xl font-bold text-white">{winRate.toFixed(1)}%</p>
+              <p className="text-xs text-white/60">Win Rate</p>
+            </div>
+          </motion.div>
 
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-4 text-center">
+          {/* Today's Spins Card */}
+          <motion.div
+            className="rounded-3xl p-4 text-white relative overflow-hidden"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+            }}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="absolute inset-0 opacity-20" style={{
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+              borderRadius: 'inherit'
+            }} />
+            <div className="relative z-10 text-center">
               <Coins className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{user.spinsUsed || 0}/5</div>
-              <div className="text-xs text-gray-400">Today's Spins</div>
-            </CardContent>
-          </Card>
+              <p className="text-2xl font-bold text-white">{5 - (user?.spinsUsed || 0)}/5</p>
+              <p className="text-xs text-white/60">Today's Spins</p>
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* Tab Navigation */}
@@ -204,18 +303,29 @@ export default function Profile() {
           transition={{ duration: 0.2 }}
           className="flex justify-center mb-6"
         >
-          <div className="bg-gray-800/30 rounded-lg p-1 backdrop-blur-sm">
+          <div 
+            className="rounded-2xl p-1"
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
             {tabs.map((tab) => (
               <Button
                 key={tab.id}
-                variant={activeTab === tab.id ? "default" : "ghost"}
+                variant="ghost"
                 size="sm"
                 onClick={() => setActiveTab(tab.id)}
-                className={`mx-1 ${
+                className={`mx-1 transition-all duration-200 ${
                   activeTab === tab.id
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-400 hover:text-white"
+                    ? "text-white"
+                    : "text-white/60 hover:text-white"
                 }`}
+                style={activeTab === tab.id ? {
+                  background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+                  boxShadow: '0 4px 15px rgba(236, 72, 153, 0.3)'
+                } : {}}
               >
                 <tab.icon className="w-4 h-4 mr-2" />
                 {tab.label}
@@ -234,116 +344,146 @@ export default function Profile() {
             transition={{ duration: 0.15 }}
           >
             {activeTab === 'stats' && (
-              <div className="space-y-6">
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                      <TrendingUp className="w-5 h-5 mr-2 text-blue-400" />
-                      Performance Statistics
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Win Rate</span>
-                          <span className="text-white font-semibold">{winRate.toFixed(1)}%</span>
-                        </div>
-                        <Progress value={winRate} className="h-2" />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Daily Progress</span>
-                          <span className="text-white font-semibold">{user.spinsUsed || 0}/5</span>
-                        </div>
-                        <Progress value={((user.spinsUsed || 0) / 5) * 100} className="h-2" />
-                      </div>
+              <motion.div
+                className="rounded-3xl p-6 text-white relative overflow-hidden"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+                }}
+                whileHover={{ scale: 1.01, y: -2 }}
+              >
+                <div className="absolute inset-0 opacity-10" style={{
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+                  borderRadius: 'inherit'
+                }} />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center mb-6">
+                    <TrendingUp className="w-6 h-6 mr-3 text-cyan-400" />
+                    <h3 className="text-xl font-bold text-white">Performance Statistics</h3>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 rounded-2xl" style={{
+                      background: 'rgba(255, 255, 255, 0.05)'
+                    }}>
+                      <span className="text-white/70">Win Rate</span>
+                      <span className="text-white font-bold text-lg">{winRate.toFixed(1)}%</span>
                     </div>
-                    
-                    <div className="pt-4 border-t border-gray-700">
-                      <h4 className="text-white font-semibold mb-3">Recent Activity</h4>
-                      <div className="text-gray-400 text-sm">
-                        {user.lastSpinDate ? (
-                          `Last spin: ${new Date(user.lastSpinDate).toLocaleDateString()}`
+                    <div className="flex justify-between items-center p-3 rounded-2xl" style={{
+                      background: 'rgba(255, 255, 255, 0.05)'
+                    }}>
+                      <span className="text-white/70">Spins Used Today</span>
+                      <span className="text-white font-bold text-lg">{user?.spinsUsed || 0}/5</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-2xl" style={{
+                      background: 'rgba(255, 255, 255, 0.05)'
+                    }}>
+                      <span className="text-white/70">Last Activity</span>
+                      <span className="text-white/80 text-sm">
+                        {user?.lastSpinDate ? (
+                          new Date(user.lastSpinDate).toLocaleDateString()
                         ) : (
-                          "No recent activity"
+                          "No recent spins"
                         )}
-                      </div>
+                      </span>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                </div>
+              </motion.div>
             )}
 
             {activeTab === 'achievements' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 {achievements.map((achievement, index) => (
                   <motion.div
                     key={achievement.id}
+                    className="rounded-3xl p-4 text-white relative overflow-hidden"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      backdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+                    }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
                   >
-                    <Card className={`${
-                      achievement.unlocked 
-                        ? 'bg-gray-800/50 border-gray-600' 
-                        : 'bg-gray-900/30 border-gray-800'
-                    }`}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start space-x-3">
-                          <div className={`p-2 rounded-lg ${
-                            achievement.unlocked 
-                              ? 'bg-gray-700' 
-                              : 'bg-gray-800/50'
-                          }`}>
-                            <achievement.icon className={`w-6 h-6 ${
-                              achievement.unlocked 
-                                ? achievement.color 
-                                : 'text-gray-600'
-                            }`} />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className={`font-semibold ${
-                              achievement.unlocked ? 'text-white' : 'text-gray-500'
-                            }`}>
-                              {achievement.name}
-                            </h3>
-                            <p className={`text-sm ${
-                              achievement.unlocked ? 'text-gray-400' : 'text-gray-600'
-                            }`}>
-                              {achievement.description}
-                            </p>
-                            {achievement.unlocked && (
-                              <Badge variant="secondary" className="mt-2 bg-green-900/50 text-green-400">
-                                Unlocked
-                              </Badge>
-                            )}
-                          </div>
+                    <div className="absolute inset-0 opacity-10" style={{
+                      background: achievement.unlocked 
+                        ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                        : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+                      borderRadius: 'inherit'
+                    }} />
+                    
+                    <div className="relative z-10 flex items-center space-x-4">
+                      <div 
+                        className="p-3 rounded-2xl"
+                        style={{
+                          background: achievement.unlocked ? 'rgba(16, 185, 129, 0.2)' : 'rgba(107, 114, 128, 0.2)'
+                        }}
+                      >
+                        <achievement.icon className={`w-8 h-8 ${
+                          achievement.unlocked ? achievement.color : 'text-gray-500'
+                        }`} />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className={`text-lg font-bold ${
+                          achievement.unlocked ? 'text-white' : 'text-gray-400'
+                        }`}>
+                          {achievement.name}
+                        </h4>
+                        <p className={`text-sm ${
+                          achievement.unlocked ? 'text-white/70' : 'text-gray-500'
+                        }`}>
+                          {achievement.description}
+                        </p>
+                      </div>
+                      {achievement.unlocked && (
+                        <div className="px-3 py-1 rounded-full text-xs font-bold text-green-400" style={{
+                          background: 'rgba(16, 185, 129, 0.2)'
+                        }}>
+                          ✓ Unlocked
                         </div>
-                      </CardContent>
-                    </Card>
+                      )}
+                    </div>
                   </motion.div>
                 ))}
               </div>
             )}
 
             {activeTab === 'history' && (
-              <Card className="bg-gray-800/50 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Clock className="w-5 h-5 mr-2 text-blue-400" />
-                    Spin History
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8 text-gray-400">
-                    <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>No recent spin history available</p>
-                    <p className="text-sm">Start spinning to see your history here!</p>
+              <motion.div
+                className="rounded-3xl p-6 text-white relative overflow-hidden"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+                }}
+                whileHover={{ scale: 1.01, y: -2 }}
+              >
+                <div className="absolute inset-0 opacity-10" style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
+                  borderRadius: 'inherit'
+                }} />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center mb-6">
+                    <Clock className="w-6 h-6 mr-3 text-orange-400" />
+                    <h3 className="text-xl font-bold text-white">Spin History</h3>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  <div className="text-center py-8">
+                    <Clock className="w-16 h-16 mx-auto mb-4 text-white/30" />
+                    <p className="text-white/70 text-lg mb-2">No recent spin history available</p>
+                    <p className="text-white/50 text-sm">Start spinning to see your history here!</p>
+                  </div>
+                </div>
+              </motion.div>
             )}
           </motion.div>
         </AnimatePresence>
