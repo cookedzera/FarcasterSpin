@@ -56,17 +56,9 @@ export default function Home() {
       <div className="relative z-10 pt-4 px-6">
         <div className="flex justify-between items-center text-sm font-medium text-white">
           <span>9:41</span>
-          <div className="flex items-center space-x-1">
-            <div className="flex space-x-1">
-              <div className="w-1 h-3 bg-white rounded-full"></div>
-              <div className="w-1 h-3 bg-white rounded-full"></div>
-              <div className="w-1 h-3 bg-white rounded-full"></div>
-              <div className="w-1 h-3 bg-white/40 rounded-full"></div>
-            </div>
-            <svg className="w-6 h-4 text-white" viewBox="0 0 24 16" fill="currentColor">
-              <path d="M1 5h22v6H1z" fill="currentColor"/>
-              <path d="M23 6v4h1a1 1 0 001-1V7a1 1 0 00-1-1h-1z" fill="currentColor"/>
-            </svg>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs">●●●○</span>
+            <span className="text-xs">100%</span>
           </div>
         </div>
       </div>
