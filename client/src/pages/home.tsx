@@ -506,38 +506,42 @@ export default function Home() {
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
+            <span className="text-xs font-medium">Home</span>
+          </motion.button>
+          
+          <motion.button
+            className="flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 text-white/40 cursor-not-allowed relative"
+            disabled={true}
+          >
+            <div className="relative">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M21,6H3A1,1 0 0,0 2,7V17A1,1 0 0,0 3,18H21A1,1 0 0,0 22,17V7A1,1 0 0,0 21,6M20,16H4V8H20V16M6,9V15H8V9H6M10,9V15H12V9H10M14,9V15H16V9H14M18,9V15H20V9H18Z"/>
+              </svg>
+              <div className="absolute -top-1 -right-1 flex space-x-0.5">
+                <span className="text-xs">🎮</span>
+                <span className="text-xs">🃏</span>
+              </div>
+            </div>
+            <span className="text-xs font-medium">Games</span>
+            <span className="text-[10px] text-white/30 absolute -bottom-1">Coming Soon</span>
           </motion.button>
           
           <motion.button
             className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
-              activeTab === 'stats' ? 'text-white' : 'text-white/60'
+              activeTab === 'profile' ? 'text-white' : 'text-white/60'
             }`}
-            style={activeTab === 'stats' ? {
+            style={activeTab === 'profile' ? {
               background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
               boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
             } : {}}
+            whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveTab('stats')}
+            onClick={() => setActiveTab('profile')}
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M16 11V3H8v6H2v12h20V11h-6zM10 5h4v14h-4V5zM4 11h4v8H4v-8zm16 8h-4v-6h4v6z"/>
+              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"/>
             </svg>
-          </motion.button>
-          
-          <motion.button
-            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
-              activeTab === 'settings' ? 'text-white' : 'text-white/60'
-            }`}
-            style={activeTab === 'settings' ? {
-              background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
-              boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
-            } : {}}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveTab('settings')}
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-            </svg>
+            <span className="text-xs font-medium">Profile</span>
           </motion.button>
         </div>
       </div>
