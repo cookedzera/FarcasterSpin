@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertSpinResultSchema, insertTokenSchema } from "@shared/schema";
 import { ethers } from "ethers";
 import { z } from "zod";
-import { createFarcasterAuthMiddleware, verifyFarcasterToken } from "./farcaster";
+import { createFarcasterAuthMiddleware, verifyFarcasterToken, getUserByAddress } from "./farcaster";
 
 // Wallet configuration - Using Base Sepolia testnet
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
@@ -263,6 +263,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Farcaster auth error:', error);
       res.status(401).json({ error: 'Invalid Farcaster authentication' });
+    }
+  });
+
+  // Get Farcaster user by Ethereum address
+  app.post("/api/farcaster/user-by-address", async (req, res) => {
+    try {
+      const { address } = req.body;
+      
+      if (!address) {
+        return res.status(400).json({ error: 'Address is required' });
+      }
+
+      const farcasterUser = await getUserByAddress(address);
+      
+      if (farcasterUser) {
+        res.json(farcasterUser);
+      } else {
+        res.status(404).json({ error: 'No Farcaster profile found for this address' });
+      }
+    } catch (error) {
+      console.error('Error fetching user by address:', error);
+      res.status(500).json({ error: 'Failed to fetch user data' });
     }
   });
 

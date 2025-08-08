@@ -31,20 +31,48 @@ export function FarcasterConnect() {
       try {
         setIsLoading(true)
         
-        // For development, create user data from wallet address
-        // In production, this would use real Farcaster Quick Auth
-        if (address) {
-          const userData = {
+        // Try to get real Farcaster user data
+        try {
+          const response = await fetch('/api/farcaster/user-by-address', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ address })
+          })
+          
+          if (response.ok) {
+            const userData = await response.json()
+            setUser(userData)
+            localStorage.setItem('farcaster_user', JSON.stringify(userData))
+          } else {
+            // Fallback if no Farcaster profile found
+            const fallbackUser = {
+              fid: parseInt(address.slice(-6), 16) % 100000 + 1000,
+              username: `user-${address.slice(-4)}`,
+              displayName: `Wallet User`,
+              bio: 'Wallet connected but no Farcaster profile found',
+              pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`,
+              custody: address,
+              verifications: [address]
+            }
+            setUser(fallbackUser)
+            localStorage.setItem('farcaster_user', JSON.stringify(fallbackUser))
+          }
+        } catch (apiError) {
+          console.log('Failed to fetch from Farcaster API:', apiError)
+          // Create fallback user data
+          const fallbackUser = {
             fid: parseInt(address.slice(-6), 16) % 100000 + 1000,
             username: `user-${address.slice(-4)}`,
-            displayName: `Farcaster User`,
-            bio: 'Connected via Farcaster Mini App',
+            displayName: `Wallet User`,
+            bio: 'Connected wallet - Farcaster profile unavailable',
             pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`,
             custody: address,
             verifications: [address]
           }
-          setUser(userData)
-          localStorage.setItem('farcaster_user', JSON.stringify(userData))
+          setUser(fallbackUser)
+          localStorage.setItem('farcaster_user', JSON.stringify(fallbackUser))
         }
       } catch (error) {
         console.log('Failed to fetch Farcaster user data:', error)
