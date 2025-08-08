@@ -151,11 +151,17 @@ export default function Home() {
               </div>
               <div className="relative">
                 <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
-                  <svg 
+                  <motion.svg 
                     className="w-8 h-8 text-white" 
                     viewBox="0 0 24 24" 
                     fill="none" 
                     xmlns="http://www.w3.org/2000/svg"
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
                   >
                     {/* Outer wheel circle */}
                     <circle 
@@ -203,7 +209,7 @@ export default function Home() {
                       points="12,1 10,4 14,4" 
                       fill="currentColor"
                     />
-                  </svg>
+                  </motion.svg>
                 </div>
                 <motion.button
                   className="bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg"
