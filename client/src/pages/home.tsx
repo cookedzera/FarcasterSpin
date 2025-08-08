@@ -218,7 +218,7 @@ export default function Home() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  →
+                  GO
                 </motion.button>
               </div>
             </div>
