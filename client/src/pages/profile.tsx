@@ -22,26 +22,16 @@ export default function Profile() {
     queryFn: () => Promise.resolve([]), // Would fetch real data in production
   });
 
-  // Remove loading state for smooth navigation
-  if (userLoading) return null;
+  // Render background immediately, show loading state for content only
+  const shouldShowContent = !userLoading && user;
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">No Profile Found</h2>
-          <p className="text-gray-600">Please return to the game to create your profile.</p>
-        </div>
-      </div>
-    );
-  }
+  // Only calculate when user data is available
+  const winRate = user && (user.totalSpins || 0) > 0 ? ((user.totalWins || 0) / (user.totalSpins || 1) * 100) : 0;
+  const level = user ? Math.floor((user.totalWins || 0) / 5) + 1 : 1;
+  const nextLevelProgress = user ? ((user.totalWins || 0) % 5) / 5 * 100 : 0;
 
-  const winRate = (user.totalSpins || 0) > 0 ? ((user.totalWins || 0) / (user.totalSpins || 1) * 100) : 0;
-  const level = Math.floor((user.totalWins || 0) / 5) + 1;
-  const nextLevelProgress = ((user.totalWins || 0) % 5) / 5 * 100;
-
-  // Calculate achievements
-  const achievements = [
+  // Calculate achievements - only when user data is available
+  const achievements = user ? [
     {
       id: 'first_win',
       name: 'First Victory',
@@ -74,7 +64,7 @@ export default function Profile() {
       unlocked: (user.totalWins || 0) >= 20,
       color: 'text-green-400'
     }
-  ];
+  ] : [];
 
   const tabs = [
     { id: 'stats', label: 'Statistics', icon: TrendingUp },
@@ -122,6 +112,17 @@ export default function Profile() {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-8 pb-24 max-w-4xl">
+        {!shouldShowContent ? (
+          // Loading state with same background
+          <div className="min-h-screen flex items-center justify-center -mt-8">
+            <div className="text-center">
+              <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4 opacity-60"></div>
+              <p className="text-white/60 text-sm">Loading profile...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+        {/* All profile content wrapped here */}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0.8 }}
@@ -346,6 +347,8 @@ export default function Profile() {
             )}
           </motion.div>
         </AnimatePresence>
+        </>
+        )}
       </div>
 
       {/* Navigation */}
