@@ -2,15 +2,14 @@ import { motion } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
 import { useFarcasterAuth } from "@/hooks/use-farcaster-auth";
 
-import { Trophy, Zap, Target, Star, Award, Coins, User, Link as LinkIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Trophy, Zap, Target, Star, Award, Coins, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/navigation";
+import { FarcasterConnect } from "@/components/farcaster-connect";
 
 export default function Profile() {
   const { user, farcasterUser, isFarcasterAuthenticated, isLoading: userLoading } = useGameState();
-  const { authenticate: connectFarcaster, signOut: disconnectFarcaster, isLoading: farcasterLoading } = useFarcasterAuth();
+  const { user: authUser, walletConnected } = useFarcasterAuth();
 
   // Render background immediately, show loading state for content only
   const shouldShowContent = !userLoading && user;
@@ -117,63 +116,7 @@ export default function Profile() {
           transition={{ duration: 0.4 }}
           className="mb-6"
         >
-          <Card className="bg-white/5 backdrop-blur-md border border-white/10">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <LinkIcon className="w-5 h-5" />
-                Farcaster Connection
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isFarcasterAuthenticated && farcasterUser ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    {farcasterUser.pfpUrl && (
-                      <img 
-                        src={farcasterUser.pfpUrl} 
-                        alt="Farcaster Profile" 
-                        className="w-16 h-16 rounded-full border-2 border-purple-400"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <h3 className="text-white font-semibold text-lg">
-                        {farcasterUser.displayName || farcasterUser.username}
-                      </h3>
-                      <p className="text-white/60">@{farcasterUser.username}</p>
-                      <p className="text-white/50 text-sm">FID: {farcasterUser.fid}</p>
-                      {farcasterUser.bio && (
-                        <p className="text-white/60 text-sm mt-2">{farcasterUser.bio}</p>
-                      )}
-                    </div>
-                    <Badge className="bg-green-500/20 text-green-400 border-green-400/30">
-                      Connected
-                    </Badge>
-                  </div>
-                  <Button 
-                    onClick={disconnectFarcaster}
-                    variant="outline"
-                    size="sm"
-                    className="border-red-400/30 text-red-400 hover:bg-red-500/10"
-                  >
-                    Disconnect
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4 text-center">
-                  <p className="text-white/60 text-sm">
-                    Connect your Farcaster account to show your real profile data and sync with the Farcaster ecosystem.
-                  </p>
-                  <Button 
-                    onClick={connectFarcaster}
-                    disabled={farcasterLoading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    {farcasterLoading ? 'Connecting...' : 'Connect Farcaster'}
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <FarcasterConnect />
         </motion.div>
 
         {/* User Profile Header - matching homepage style */}
