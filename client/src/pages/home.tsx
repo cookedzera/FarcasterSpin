@@ -39,19 +39,31 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen relative overflow-hidden" style={{
+      background: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 50%, #2c2c2e 100%)'
+    }}>
+      {/* Subtle noise texture overlay */}
+      <div className="fixed inset-0 opacity-10" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+      }} />
+      
+      {/* Radial gradient overlay */}
+      <div className="fixed inset-0" style={{
+        background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
+      }} />
+      
       {/* Status Bar */}
-      <div className="bg-gray-50 pt-4 px-6">
-        <div className="flex justify-between items-center text-sm font-medium text-gray-900">
+      <div className="relative z-10 pt-4 px-6">
+        <div className="flex justify-between items-center text-sm font-medium text-white">
           <span>9:41</span>
           <div className="flex items-center space-x-1">
             <div className="flex space-x-1">
-              <div className="w-1 h-3 bg-gray-900 rounded-full"></div>
-              <div className="w-1 h-3 bg-gray-900 rounded-full"></div>
-              <div className="w-1 h-3 bg-gray-900 rounded-full"></div>
-              <div className="w-1 h-3 bg-gray-400 rounded-full"></div>
+              <div className="w-1 h-3 bg-white rounded-full"></div>
+              <div className="w-1 h-3 bg-white rounded-full"></div>
+              <div className="w-1 h-3 bg-white rounded-full"></div>
+              <div className="w-1 h-3 bg-white/40 rounded-full"></div>
             </div>
-            <svg className="w-6 h-4" viewBox="0 0 24 16" fill="currentColor">
+            <svg className="w-6 h-4 text-white" viewBox="0 0 24 16" fill="currentColor">
               <path d="M1 5h22v6H1z" fill="currentColor"/>
               <path d="M23 6v4h1a1 1 0 001-1V7a1 1 0 00-1-1h-1z" fill="currentColor"/>
             </svg>
@@ -60,7 +72,7 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <div className="px-6 py-8 pb-24">
+      <div className="relative z-10 px-6 py-8 pb-24">
         {/* User Profile */}
         <motion.div 
           className="text-center mb-8"
@@ -68,27 +80,61 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
         >
           <motion.div 
-            className="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold shadow-lg"
-            whileHover={{ scale: 1.05 }}
+            className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
+            style={{
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+              boxShadow: '0 10px 30px rgba(139, 92, 246, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
+              backdropFilter: 'blur(20px)'
+            }}
+            whileHover={{ scale: 1.05, y: -2 }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
             {user?.username?.charAt(0) || 'P'}
           </motion.div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          <h1 className="text-2xl font-bold text-white mb-1">
             Hello, {user?.username || 'Player'}!
           </h1>
         </motion.div>
 
         {/* Main Action Cards */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-6 mb-8">
           {/* Spin Challenge Card */}
           <motion.div
-            className="bg-gradient-to-br from-teal-400 to-teal-500 rounded-3xl p-6 text-white shadow-lg"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            whileHover={{ scale: 1.02 }}
+            className="rounded-3xl p-6 text-white relative overflow-hidden"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              transform: 'perspective(1000px) rotateX(2deg) rotateY(-1deg)',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+            }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
+            whileHover={{ 
+              scale: 1.02, 
+              y: -5,
+              transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+              transition: { duration: 0.3 }
+            }}
             whileTap={{ scale: 0.98 }}
           >
+            {/* Gradient overlay */}
+            <div 
+              className="absolute inset-0 rounded-3xl"
+              style={{
+                background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
+                opacity: 0.9
+              }}
+            />
+            {/* Top highlight */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-px"
+              style={{
+                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)'
+              }}
+            />
+            <div className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <h2 className="text-xl font-bold mb-2">Spin a Wheel</h2>
@@ -112,16 +158,45 @@ export default function Home() {
                 </motion.button>
               </div>
             </div>
+            </div>
           </motion.div>
 
           {/* Rewards Card */}
           <motion.div
-            className="bg-gradient-to-br from-orange-300 to-pink-400 rounded-3xl p-6 text-white shadow-lg"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.02 }}
+            className="rounded-3xl p-6 text-white relative overflow-hidden"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              transform: 'perspective(1000px) rotateX(-1deg) rotateY(1deg)',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+            }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+            whileHover={{ 
+              scale: 1.02, 
+              y: -5,
+              transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+              transition: { duration: 0.3 }
+            }}
           >
+            {/* Gradient overlay */}
+            <div 
+              className="absolute inset-0 rounded-3xl"
+              style={{
+                background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+                opacity: 0.9
+              }}
+            />
+            {/* Top highlight */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-px"
+              style={{
+                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)'
+              }}
+            />
+            <div className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
@@ -138,6 +213,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            </div>
           </motion.div>
         </div>
 
@@ -149,8 +225,8 @@ export default function Home() {
           transition={{ delay: 0.3 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-900">Goal Progress</h3>
-            <span className="text-sm text-gray-600">{user?.spinsUsed || 0}/5 days</span>
+            <h3 className="text-lg font-bold text-white">Goal Progress</h3>
+            <span className="text-sm text-white/70">{user?.spinsUsed || 0}/5 days</span>
           </div>
           
           {/* Days of Week */}
@@ -172,9 +248,30 @@ export default function Home() {
 
           {/* Current Challenge */}
           <motion.div 
-            className="bg-gradient-to-br from-green-400 to-green-500 rounded-2xl p-4 text-white shadow-md"
-            whileHover={{ scale: 1.01 }}
+            className="rounded-2xl p-4 text-white relative overflow-hidden"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              transform: 'perspective(1000px) rotateX(1deg) rotateY(-0.5deg)',
+              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+            }}
+            whileHover={{ 
+              scale: 1.01, 
+              y: -3,
+              transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+              transition: { duration: 0.3 }
+            }}
           >
+            {/* Gradient overlay */}
+            <div 
+              className="absolute inset-0 rounded-2xl"
+              style={{
+                background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
+                opacity: 0.8
+              }}
+            />
+            <div className="relative z-10">
             <div className="flex items-center justify-between mb-2">
               <h4 className="font-semibold">Daily Spin Challenge</h4>
               <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Active</span>
@@ -188,9 +285,10 @@ export default function Home() {
               </div>
               <span className="text-xs font-medium">{((user?.spinsUsed || 0) / 5 * 100).toFixed(0)}%</span>
             </div>
-            <p className="text-xs text-green-100">
+            <p className="text-xs text-white/80">
               {5 - (user?.spinsUsed || 0)} spins remaining for today!
             </p>
+            </div>
           </motion.div>
         </motion.div>
 
@@ -200,7 +298,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Token Collection</h3>
+          <h3 className="text-lg font-bold text-white mb-4">Token Collection</h3>
           <div className="space-y-3">
             {[
               { name: 'AIDOGE', icon: aidogeLogo, amount: '1.2K', time: '2h 14 min' },
@@ -209,18 +307,40 @@ export default function Home() {
             ].map((token, index) => (
               <motion.div
                 key={index}
-                className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border border-gray-100"
-                whileHover={{ scale: 1.01, y: -2 }}
+                className="rounded-2xl p-4 flex items-center justify-between relative overflow-hidden"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  transform: `perspective(1000px) rotateX(${index % 2 === 0 ? '0.5deg' : '-0.5deg'}) rotateY(${index % 2 === 0 ? '-0.3deg' : '0.3deg'})`,
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+                }}
+                whileHover={{ 
+                  scale: 1.02, 
+                  y: -3,
+                  transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+                  transition: { duration: 0.3 }
+                }}
                 transition={{ type: "spring", stiffness: 300 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
               >
+                {/* Top highlight */}
+                <div 
+                  className="absolute top-0 left-0 right-0 h-px"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)'
+                  }}
+                />
                 <div className="flex items-center space-x-3">
                   <img src={token.icon} alt={token.name} className="w-10 h-10 rounded-xl" />
                   <div>
-                    <div className="font-semibold text-gray-900">{token.name}</div>
-                    <div className="text-sm text-gray-500">{token.time}</div>
+                    <div className="font-semibold text-white">{token.name}</div>
+                    <div className="text-sm text-white/60">{token.time}</div>
                   </div>
                 </div>
-                <div className="text-green-600 font-bold">+{token.amount}</div>
+                <div className="text-green-400 font-bold">+{token.amount}</div>
               </motion.div>
             ))}
           </div>
@@ -228,12 +348,20 @@ export default function Home() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4">
+      <div className="fixed bottom-0 left-0 right-0 px-6 py-4 relative z-20" style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(20px)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
         <div className="flex justify-center space-x-8">
           <motion.button
-            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full ${
-              activeTab === 'home' ? 'bg-green-500 text-white' : 'text-gray-600'
+            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
+              activeTab === 'home' ? 'text-white' : 'text-white/60'
             }`}
+            style={activeTab === 'home' ? {
+              background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
+              boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
+            } : {}}
             whileTap={{ scale: 0.95 }}
             onClick={() => setActiveTab('home')}
           >
@@ -243,9 +371,13 @@ export default function Home() {
           </motion.button>
           
           <motion.button
-            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full ${
-              activeTab === 'stats' ? 'bg-green-500 text-white' : 'text-gray-600'
+            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
+              activeTab === 'stats' ? 'text-white' : 'text-white/60'
             }`}
+            style={activeTab === 'stats' ? {
+              background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
+              boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
+            } : {}}
             whileTap={{ scale: 0.95 }}
             onClick={() => setActiveTab('stats')}
           >
@@ -255,9 +387,13 @@ export default function Home() {
           </motion.button>
           
           <motion.button
-            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full ${
-              activeTab === 'settings' ? 'bg-green-500 text-white' : 'text-gray-600'
+            className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
+              activeTab === 'settings' ? 'text-white' : 'text-white/60'
             }`}
+            style={activeTab === 'settings' ? {
+              background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
+              boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
+            } : {}}
             whileTap={{ scale: 0.95 }}
             onClick={() => setActiveTab('settings')}
           >
@@ -279,17 +415,30 @@ export default function Home() {
             onClick={() => setShowSpinWheel(false)}
           >
             <motion.div
-              className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl"
+              className="rounded-3xl p-6 max-w-md w-full relative overflow-hidden"
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+              }}
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Top highlight */}
+              <div 
+                className="absolute top-0 left-0 right-0 h-px"
+                style={{
+                  background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)'
+                }}
+              />
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900">Spin the Wheel!</h3>
+                <h3 className="text-xl font-bold text-white">Spin the Wheel!</h3>
                 <button
                   onClick={() => setShowSpinWheel(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-white/60 hover:text-white transition-colors"
                 >
                   ✕
                 </button>
