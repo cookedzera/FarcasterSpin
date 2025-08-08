@@ -1,11 +1,16 @@
 import { motion } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
+import { useFarcasterAuth } from "@/hooks/use-farcaster-auth";
 
-import { Trophy, Zap, Target, Star, Award, Coins } from "lucide-react";
+import { Trophy, Zap, Target, Star, Award, Coins, User, Link as LinkIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/navigation";
 
 export default function Profile() {
-  const { user, isLoading: userLoading } = useGameState();
+  const { user, farcasterUser, isFarcasterAuthenticated, isLoading: userLoading } = useGameState();
+  const { authenticate: connectFarcaster, signOut: disconnectFarcaster, isLoading: farcasterLoading } = useFarcasterAuth();
 
   // Render background immediately, show loading state for content only
   const shouldShowContent = !userLoading && user;
@@ -101,16 +106,85 @@ export default function Profile() {
           </div>
         ) : (
           <>
+        {/* Navigation */}
+        <Navigation />
+
         {/* All profile content wrapped here */}
+        {/* Farcaster Connection Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-6"
+        >
+          <Card className="bg-white/5 backdrop-blur-md border border-white/10">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <LinkIcon className="w-5 h-5" />
+                Farcaster Connection
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isFarcasterAuthenticated && farcasterUser ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    {farcasterUser.pfpUrl && (
+                      <img 
+                        src={farcasterUser.pfpUrl} 
+                        alt="Farcaster Profile" 
+                        className="w-16 h-16 rounded-full border-2 border-purple-400"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h3 className="text-white font-semibold text-lg">
+                        {farcasterUser.displayName || farcasterUser.username}
+                      </h3>
+                      <p className="text-white/60">@{farcasterUser.username}</p>
+                      <p className="text-white/50 text-sm">FID: {farcasterUser.fid}</p>
+                      {farcasterUser.bio && (
+                        <p className="text-white/60 text-sm mt-2">{farcasterUser.bio}</p>
+                      )}
+                    </div>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-400/30">
+                      Connected
+                    </Badge>
+                  </div>
+                  <Button 
+                    onClick={disconnectFarcaster}
+                    variant="outline"
+                    size="sm"
+                    className="border-red-400/30 text-red-400 hover:bg-red-500/10"
+                  >
+                    Disconnect
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 text-center">
+                  <p className="text-white/60 text-sm">
+                    Connect your Farcaster account to show your real profile data and sync with the Farcaster ecosystem.
+                  </p>
+                  <Button 
+                    onClick={connectFarcaster}
+                    disabled={farcasterLoading}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {farcasterLoading ? 'Connecting...' : 'Connect Farcaster'}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* User Profile Header - matching homepage style */}
         <motion.div 
           className="text-center mb-8"
-          initial={{ opacity: 0.8 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
         >
           <motion.div 
-            className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold relative"
+            className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden"
             style={{
               background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
               boxShadow: '0 10px 30px rgba(139, 92, 246, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
@@ -119,7 +193,15 @@ export default function Profile() {
             whileHover={{ scale: 1.05, y: -2 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            {user?.username?.charAt(0) || 'P'}
+            {isFarcasterAuthenticated && farcasterUser?.pfpUrl ? (
+              <img 
+                src={farcasterUser.pfpUrl} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              user?.username?.charAt(0) || 'P'
+            )}
             <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-gray-900">
               <span className="text-white text-xs font-bold">{level}</span>
             </div>
@@ -131,8 +213,16 @@ export default function Profile() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
-              {user?.username}
+              {isFarcasterAuthenticated && farcasterUser 
+                ? (farcasterUser.displayName || farcasterUser.username)
+                : user?.username
+              }
             </motion.h1>
+            {isFarcasterAuthenticated && farcasterUser && (
+              <Badge className="mb-2 bg-purple-500/20 text-purple-400 border-purple-400/30 text-xs">
+                Farcaster Verified
+              </Badge>
+            )}
             <div className="w-20 h-0.5 bg-blue-400 mx-auto mb-2 rounded-full"></div>
           </div>
           <h2 className="text-xl font-semibold text-white/80 mb-1">

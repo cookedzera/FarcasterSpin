@@ -43,6 +43,14 @@ Navigation preferences: Fast, smooth transitions without loading animations betw
 - **Wallet Integration**: Automatic token distribution via Arbitrum network
 - **Leaderboard**: Real-time ranking based on total wins
 
+## Farcaster Integration
+- **Mini App SDK**: Integrated @farcaster/miniapp-sdk for native Farcaster functionality
+- **Authentication**: Quick Auth implementation with JWT token verification
+- **User Profiles**: Real Farcaster user data (FID, username, display name, profile pictures)
+- **Backend Verification**: Server-side token validation and user data resolution
+- **Database Schema**: Extended user table with Farcaster-specific fields
+- **Connection Management**: Connect/disconnect functionality with persistent storage
+
 ## Development Environment
 - **Hot Reload**: Vite dev server with custom Replit integration
 - **TypeScript**: Strict type checking across frontend, backend, and shared schemas

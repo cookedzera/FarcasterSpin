@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertSpinResultSchema, insertTokenSchema } from "@shared/schema";
 import { ethers } from "ethers";
 import { z } from "zod";
+import { createFarcasterAuthMiddleware, verifyFarcasterToken } from "./farcaster";
 
 // Wallet configuration - Using Base Sepolia testnet
 const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
@@ -241,6 +242,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(token);
     } catch (error) {
       res.status(500).json({ error: "Failed to update token" });
+    }
+  });
+
+  // Farcaster authentication endpoint
+  app.get("/api/farcaster/me", async (req, res) => {
+    try {
+      const authorization = req.headers.authorization;
+      
+      if (!authorization || !authorization.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or invalid authorization header' });
+      }
+
+      const token = authorization.split(' ')[1];
+      const domain = req.headers.host || 'localhost';
+      
+      const farcasterUser = await verifyFarcasterToken(token, domain);
+      
+      res.json(farcasterUser);
+    } catch (error) {
+      console.error('Farcaster auth error:', error);
+      res.status(401).json({ error: 'Invalid Farcaster authentication' });
     }
   });
 
