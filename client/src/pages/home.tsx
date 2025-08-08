@@ -105,7 +105,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              🎰 ARB<span className="text-blue-400">CASINO</span> ✨
+              ARB<span className="text-blue-400">CASINO</span>
             </motion.h1>
             <div className="w-20 h-0.5 bg-blue-400 mx-auto mb-2 rounded-full"></div>
           </div>
