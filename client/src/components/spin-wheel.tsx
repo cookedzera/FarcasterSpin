@@ -207,24 +207,28 @@ export default function SpinWheel() {
                   }}
                   exit={{ opacity: 0 }}
                 >
-                  ✨
+                  ●
                 </motion.div>
               ))}
             </>
           )}
         </AnimatePresence>
 
-        {/* Header */}
+        {/* Header with ArbCasino Branding */}
         <motion.div 
           className="text-center mb-6"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-2xl font-bold text-white mb-2">
-            WHEEL OF FORTUNE
+          <h1 className="text-2xl font-bold text-white mb-1">
+            ARB<span className="text-primary">CASINO</span>
           </h1>
-          <p className="text-sm text-muted-foreground italic">
-            "Spin the wheel & win meme tokens"
+          <div className="w-16 h-0.5 bg-primary mx-auto mb-3 rounded-full"></div>
+          <h2 className="text-lg font-semibold text-white mb-2">
+            WHEEL OF FORTUNE
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Spin the wheel & win meme tokens
           </p>
         </motion.div>
 
@@ -284,9 +288,9 @@ export default function SpinWheel() {
                       className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold mb-1 border border-white/50"
                       style={{ backgroundColor: segment.color }}
                     >
-                      {segment.name === 'BUST' ? '✗' : 
+                      {segment.name === 'BUST' ? 'X' : 
                        segment.name === 'BONUS' ? '$' : 
-                       segment.name === 'JACKPOT' ? '★' : '?'}
+                       segment.name === 'JACKPOT' ? 'J' : '?'}
                     </div>
                   )}
                   <span 
@@ -364,7 +368,7 @@ export default function SpinWheel() {
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1, repeat: Infinity }}
                 >
-                  🎉 WINNER! 🎉
+                  WINNER!
                 </motion.div>
                 <div className="text-white">
                   <span className="text-lg font-bold">+{(Number(winResult.rewardAmount) / Math.pow(10, 18)).toFixed(4)}</span>
