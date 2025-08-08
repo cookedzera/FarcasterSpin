@@ -102,15 +102,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // TOKEN3
       ];
       
-      // Generate three random symbols for slot machine
-      const result = [
-        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
-        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
-        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)]
-      ];
-
-      // Check if all three symbols match (winning condition)
-      const isWin = result[0] === result[1] && result[1] === result[2];
+      // Generate slot machine result with higher win rate for testing
+      let result;
+      let isWin = false;
+      
+      // 30% chance of winning for testing purposes
+      if (Math.random() < 0.3) {
+        // Force a win - all symbols match
+        const winningSymbol = tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)];
+        result = [winningSymbol, winningSymbol, winningSymbol];
+        isWin = true;
+        console.log(`🎉 Forced win for testing: ${winningSymbol}`);
+      } else {
+        // Generate random symbols (likely no match)
+        result = [
+          tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
+          tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
+          tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)]
+        ];
+        isWin = result[0] === result[1] && result[1] === result[2];
+      }
       
       let rewardAmount = 0;
       let selectedToken = null;
@@ -124,10 +135,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           rewardAmount = selectedToken.rewardAmount || 0;
           
           // Send token reward to user's wallet address
+          console.log(`💰 Sending ${rewardAmount} ${selectedToken.symbol} to ${user.walletAddress}`);
           try {
             transactionHash = await sendTokenReward(user.walletAddress, selectedToken, rewardAmount);
+            console.log(`✅ Token transfer successful: ${transactionHash}`);
           } catch (error) {
-            console.error("Token transfer failed:", error);
+            console.error("❌ Token transfer failed:", error);
             // Still record the win but without transaction hash
             transactionHash = null;
           }
