@@ -66,6 +66,18 @@
   body {
     @apply font-sans antialiased text-foreground;
     background: var(--casino-dark);
+    overflow-x: hidden;
+  }
+  
+  /* Hide scrollbars globally */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  *::-webkit-scrollbar {
+    display: none;
   }
 }
 

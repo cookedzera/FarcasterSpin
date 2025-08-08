@@ -150,7 +150,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="relative">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mb-4 font-bold text-white">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-sm mb-4 font-bold text-white">
                   SPIN
                 </div>
                 <motion.button
