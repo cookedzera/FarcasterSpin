@@ -153,7 +153,10 @@ export default function SpinWheel() {
     <>
       <div 
         ref={containerRef}
-        className="bg-card rounded-xl border border-border neon-border p-6 relative overflow-hidden select-none"
+        className="bg-gradient-to-b from-blue-900 via-blue-800 to-slate-900 rounded-xl border-2 border-cyan-400 shadow-2xl p-6 relative overflow-hidden select-none"
+        style={{
+          boxShadow: '0 0 30px rgba(6, 182, 212, 0.4), inset 0 0 30px rgba(6, 182, 212, 0.1)'
+        }}
       >
         {/* Premium sparkles effect for wins */}
         <AnimatePresence>
@@ -185,6 +188,7 @@ export default function SpinWheel() {
           )}
         </AnimatePresence>
 
+        {/* Header with BrbCasino branding */}
         <motion.div 
           className="text-center mb-4"
           animate={isSpinning ? {
@@ -192,12 +196,29 @@ export default function SpinWheel() {
           } : {}}
           transition={{ duration: 2, repeat: isSpinning ? Infinity : 0 }}
         >
-          <h1 className="font-pixel text-red-500 text-2xl md:text-3xl font-bold tracking-wider mb-1" 
-              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+          <div className="mb-2">
+            <h3 className="text-cyan-400 text-lg font-bold tracking-wider" 
+                style={{ textShadow: '0 0 10px rgba(6, 182, 212, 0.8)' }}>
+              BrbCasino
+            </h3>
+            <p className="text-cyan-300 text-xs">• Arbitrum One Only</p>
+          </div>
+          <h1 className="font-bold text-3xl md:text-4xl font-bold tracking-wider mb-1 text-red-400" 
+              style={{ 
+                textShadow: '0 0 20px rgba(248, 113, 113, 0.8), 2px 2px 4px rgba(0,0,0,0.8)',
+                background: 'linear-gradient(45deg, #f87171, #ef4444)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
             MEME SLOT
           </h1>
-          <h2 className="font-pixel text-red-500 text-2xl md:text-3xl font-bold tracking-wider" 
-              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+          <h2 className="font-bold text-3xl md:text-4xl font-bold tracking-wider text-red-400" 
+              style={{ 
+                textShadow: '0 0 20px rgba(248, 113, 113, 0.8), 2px 2px 4px rgba(0,0,0,0.8)',
+                background: 'linear-gradient(45deg, #f87171, #ef4444)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
             MACHINE
           </h2>
         </motion.div>
@@ -209,13 +230,13 @@ export default function SpinWheel() {
             opacity: isSpinning ? 0.4 : [0.6, 1, 0.6],
           }}
           transition={{ duration: 2, repeat: Infinity }}
-          style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+          style={{ textShadow: '0 0 10px rgba(34, 197, 94, 0.6)' }}
         >
           Swipe or Double-Tap to Win Meme Coins!
         </motion.p>
       
         {/* Classic Slot Machine Reels */}
-        <div className="flex justify-center space-x-2 mb-6 px-4">
+        <div className="flex justify-center space-x-3 mb-6 px-4">
           {slotResults.map((symbol, index) => (
             <motion.div
               key={index}
@@ -224,10 +245,13 @@ export default function SpinWheel() {
               transition={{ delay: index * 0.1 }}
               className="relative"
             >
-              {/* Reel Frame */}
-              <div className="w-24 h-32 bg-black border-4 border-white rounded-lg shadow-2xl relative overflow-hidden">
+              {/* Reel Frame - Card Style */}
+              <div className="w-24 h-32 bg-gradient-to-b from-gray-100 to-white border-4 border-gray-800 rounded-lg shadow-2xl relative overflow-hidden"
+                   style={{
+                     boxShadow: '0 8px 25px rgba(0,0,0,0.4), inset 0 2px 5px rgba(255,255,255,0.8)'
+                   }}>
                 {/* Inner content area */}
-                <div className="absolute inset-2 bg-white rounded-sm overflow-hidden">
+                <div className="absolute inset-2 bg-white rounded-sm overflow-hidden border border-gray-200">
                   <MemeReel 
                     symbol={symbol} 
                     isSpinning={isSpinning}
@@ -235,9 +259,9 @@ export default function SpinWheel() {
                   />
                 </div>
                 
-                {/* Reel number */}
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-red-600 border-2 border-white rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">{index + 1}</span>
+                {/* "ALMOST" text at bottom */}
+                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 bg-red-600 rounded px-2 py-0.5">
+                  <span className="text-white font-bold text-xs">ALMOST</span>
                 </div>
               </div>
             </motion.div>
@@ -261,17 +285,26 @@ export default function SpinWheel() {
               }}
             >
               {/* Handle Shaft */}
-              <div className="w-4 h-20 bg-gradient-to-b from-gray-300 via-gray-400 to-gray-600 rounded-full border-2 border-gray-800 shadow-lg relative">
+              <div className="w-5 h-24 bg-gradient-to-b from-gray-300 via-gray-400 to-gray-600 rounded-full border-3 border-gray-800 shadow-xl relative"
+                   style={{
+                     boxShadow: '0 4px 15px rgba(0,0,0,0.5), inset 2px 0 8px rgba(255,255,255,0.3)'
+                   }}>
                 {/* Shaft highlights */}
-                <div className="absolute top-2 left-0.5 w-1 h-16 bg-gradient-to-b from-white/60 to-transparent rounded-full"></div>
+                <div className="absolute top-2 left-1 w-1.5 h-20 bg-gradient-to-b from-white/70 to-transparent rounded-full"></div>
+                {/* Shaft base */}
+                <div className="absolute -bottom-1 -left-1 w-7 h-4 bg-gradient-to-b from-gray-600 to-gray-800 rounded-b-lg border-x-2 border-b-2 border-gray-900"></div>
               </div>
               
               {/* Handle Knob */}
-              <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-red-400 via-red-500 to-red-700 rounded-full border-4 border-gray-800 shadow-2xl">
+              <div className="absolute -top-5 -left-5 w-16 h-16 bg-gradient-to-br from-red-400 via-red-500 to-red-700 rounded-full border-4 border-gray-800 shadow-2xl"
+                   style={{
+                     boxShadow: '0 6px 20px rgba(0,0,0,0.6), inset 2px 2px 10px rgba(255,255,255,0.3)'
+                   }}>
                 {/* Knob highlight */}
-                <div className="absolute top-1 left-2 w-4 h-4 bg-white/50 rounded-full blur-sm"></div>
-                {/* Knob detail ring */}
-                <div className="absolute inset-1 border-2 border-red-300/30 rounded-full"></div>
+                <div className="absolute top-2 left-3 w-6 h-6 bg-white/50 rounded-full blur-sm"></div>
+                {/* Knob detail rings */}
+                <div className="absolute inset-2 border-3 border-red-300/40 rounded-full"></div>
+                <div className="absolute inset-4 border-2 border-red-200/30 rounded-full"></div>
               </div>
             </motion.div>
 
@@ -291,26 +324,38 @@ export default function SpinWheel() {
                 onClick={handleSpin}
                 disabled={isSpinning || !user || (user.spinsUsed || 0) >= 5}
                 data-testid="button-spin"
-                className="relative w-24 h-24 rounded-full bg-gradient-to-br from-yellow-300 via-orange-400 to-red-500 hover:from-yellow-200 hover:via-orange-300 hover:to-red-400 border-6 border-yellow-100 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden touch-manipulation"
+                className="relative w-28 h-28 rounded-full bg-gradient-to-br from-orange-300 via-orange-400 to-orange-600 hover:from-orange-200 hover:via-orange-300 hover:to-orange-500 border-6 border-orange-100 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden touch-manipulation"
                 style={{ 
                   WebkitTapHighlightColor: 'transparent',
                   touchAction: 'manipulation',
-                  boxShadow: '0 8px 25px rgba(0,0,0,0.4), inset 0 2px 10px rgba(255,255,255,0.3)'
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5), inset 0 3px 15px rgba(255,255,255,0.4), 0 0 20px rgba(251, 146, 60, 0.4)'
                 }}
               >
                 {/* Button Center */}
-                <div className="absolute inset-3 rounded-full bg-gradient-to-br from-yellow-200 to-orange-300 border-2 border-orange-400 flex items-center justify-center">
+                <div className="absolute inset-4 rounded-full bg-gradient-to-br from-orange-200 to-orange-400 border-3 border-orange-500 flex items-center justify-center"
+                     style={{
+                       boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.2)'
+                     }}>
                   <motion.span
-                    animate={isSpinning ? { scale: [1, 1.2, 1] } : {}}
+                    animate={isSpinning ? { 
+                      scale: [1, 1.2, 1],
+                      textShadow: ['0 0 5px rgba(251, 146, 60, 0.8)', '0 0 15px rgba(251, 146, 60, 1)', '0 0 5px rgba(251, 146, 60, 0.8)']
+                    } : {}}
                     transition={{ duration: 1, repeat: isSpinning ? Infinity : 0 }}
-                    className="text-orange-800 font-bold text-sm"
+                    className="text-orange-900 font-bold text-lg"
+                    style={{
+                      textShadow: '0 0 8px rgba(251, 146, 60, 0.6)'
+                    }}
                   >
                     {isSpinning ? "..." : "SPIN"}
                   </motion.span>
                 </div>
 
                 {/* Button shine effect */}
-                <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-white/40 via-transparent to-transparent"></div>
+                <div className="absolute inset-2 rounded-full bg-gradient-to-tr from-white/50 via-transparent to-transparent"></div>
+                
+                {/* Glow ring */}
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-orange-400/20 to-orange-600/20 blur-md -z-10"></div>
               </Button>
             </motion.div>
           </div>

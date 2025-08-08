@@ -122,7 +122,7 @@ export default function MemeReel({ symbol, isSpinning, delay = 0 }: MemeReelProp
   };
 
   return (
-    <div className="w-full h-full relative flex items-center justify-center">
+    <div className="w-full h-full relative flex items-center justify-center bg-gradient-to-b from-gray-50 to-white">
       {/* Reel content */}
       <motion.div
         className="w-full h-full flex flex-col items-center justify-center relative bg-white"
@@ -132,19 +132,26 @@ export default function MemeReel({ symbol, isSpinning, delay = 0 }: MemeReelProp
         }}
       >
         {/* Meme image - larger and cleaner */}
-        <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-200 mb-2 bg-white shadow-sm">
+        <div className="w-14 h-14 rounded-lg overflow-hidden border-2 border-gray-300 mb-1 bg-white shadow-lg"
+             style={{
+               boxShadow: '0 4px 8px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.8)'
+             }}>
           <img 
             src={currentMeme.image} 
             alt={currentMeme.name}
             className="w-full h-full object-cover"
             style={{
-              filter: animationPhase === 'spinning' ? "blur(2px) brightness(1.2)" : "none"
+              filter: animationPhase === 'spinning' ? "blur(2px) brightness(1.2)" : "brightness(1.1) contrast(1.1)"
             }}
           />
         </div>
 
         {/* Token name - cleaner typography */}
-        <div className="text-xs font-bold text-gray-900 text-center px-1 leading-tight" style={{ fontSize: '10px' }}>
+        <div className="text-xs font-bold text-gray-800 text-center px-1 leading-tight" 
+             style={{ 
+               fontSize: '9px',
+               textShadow: '0 1px 2px rgba(255,255,255,0.8)'
+             }}>
           {currentMeme.name}
         </div>
 
