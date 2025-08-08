@@ -1,14 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useGameState } from "@/hooks/use-game-state";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import WinPopup from "./win-popup";
-import { type SpinResult } from "@shared/schema";
-import { HapticFeedback } from "@/lib/haptics";
-import { GestureHandler } from "@/lib/gesture-handler";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
 import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
@@ -25,156 +16,15 @@ const wheelSegments = [
 ];
 
 export default function SpinWheel() {
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [winResult, setWinResult] = useState<SpinResult | null>(null);
-  const [showWinPopup, setShowWinPopup] = useState(false);
-  const [wheelRotation, setWheelRotation] = useState(0);
-  const [landedSegment, setLandedSegment] = useState<number | null>(null);
-  const [showSparkles, setShowSparkles] = useState(false);
-  const [pointerRotation, setPointerRotation] = useState(0);
-  const spinButtonRef = useRef<HTMLButtonElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { user } = useGameState();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
+  const [wheelRotation] = useState(0);
   const segmentAngle = 360 / wheelSegments.length;
 
-  const spinMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/spin", {
-        userId: user?.id
-      });
-      return response.json() as Promise<SpinResult>;
-    },
-    onSuccess: (result) => {
-      // Calculate which segment to land on
-      const winningSegmentIndex = result.isWin 
-        ? wheelSegments.findIndex(seg => seg.id === result.symbols?.[0])
-        : wheelSegments.findIndex(seg => seg.id === 'bankrupt');
-      
-      const finalSegment = winningSegmentIndex >= 0 ? winningSegmentIndex : 1; // Default to bankrupt
-      
-      // Calculate rotation to land on the winning segment
-      const targetAngle = -(finalSegment * segmentAngle) + (segmentAngle / 2);
-      const spins = 5 + Math.random() * 3; // 5-8 full rotations
-      const finalRotation = wheelRotation + (spins * 360) + targetAngle;
-      
-      setWheelRotation(finalRotation);
-      setLandedSegment(finalSegment);
-      
-      if (result.isWin && result.rewardAmount) {
-        setTimeout(() => {
-          setWinResult(result);
-          setShowWinPopup(true);
-          setShowSparkles(true);
-          HapticFeedback.success();
-          setTimeout(() => setShowSparkles(false), 3000);
-        }, 3000); // Wait for wheel to stop
-      } else {
-        setTimeout(() => {
-          HapticFeedback.light();
-        }, 3000);
-      }
-      
-      // Invalidate queries to refresh user data and stats
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
-    },
-    onError: (error: any) => {
-      HapticFeedback.error();
-      toast({
-        title: "Spin Failed",
-        description: error.message || "Failed to perform spin",
-        variant: "destructive",
-      });
-    },
-    onSettled: () => {
-      setTimeout(() => setIsSpinning(false), 3500);
-    }
-  });
 
-  const handleSpin = () => {
-    if (isSpinning || !user) return;
-    
-    if ((user.spinsUsed || 0) >= 5) {
-      HapticFeedback.error();
-      toast({
-        title: "Daily Limit Reached",
-        description: "You've used all your spins for today. Come back tomorrow!",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    HapticFeedback.medium();
-    setIsSpinning(true);
-    setLandedSegment(null);
-    spinMutation.mutate();
-  };
-
-  // Setup gesture handling
-  useEffect(() => {
-    if (containerRef.current) {
-      const gestureHandler = new GestureHandler(containerRef.current);
-      
-      gestureHandler.onSwipeLeft = () => {
-        if (!isSpinning) {
-          HapticFeedback.light();
-          handleSpin();
-        }
-      };
-      
-      gestureHandler.onSwipeRight = () => {
-        if (!isSpinning) {
-          HapticFeedback.light();
-          handleSpin();
-        }
-      };
-
-      let lastTapTime = 0;
-      gestureHandler.onTap = () => {
-        const now = Date.now();
-        if (now - lastTapTime < 300) {
-          if (!isSpinning) {
-            HapticFeedback.medium();
-            handleSpin();
-          }
-        }
-        lastTapTime = now;
-      };
-
-      return () => gestureHandler.destroy();
-    }
-  }, [isSpinning, user]);
-
-  const getTokenInfo = (tokenAddress: string | null | undefined) => {
-    const tokenMap: Record<string, any> = {
-      "0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b": {
-        name: "AiDoge",
-        symbol: "AIDOGE",
-        logo: "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg"
-      },
-      "0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3": {
-        name: "Boop",
-        symbol: "BOOP", 
-        logo: "@assets/Boop_resized_1754468548333.webp"
-      },
-      "0xbc4c97fb9befaa8b41448e1dfcc5236da543217f": {
-        name: "Catch",
-        symbol: "CATCH",
-        logo: "@assets/Logomark_colours_1754468507462.webp"
-      }
-    };
-    return tokenAddress ? tokenMap[tokenAddress] : null;
-  };
 
   return (
     <>
       {/* Paper Texture Background */}
       <div 
-        ref={containerRef}
         className="relative w-full max-w-lg mx-auto rounded-none p-8 select-none"
         style={{
           background: `
@@ -187,52 +37,9 @@ export default function SpinWheel() {
           fontFamily: 'Georgia, serif'
         }}
       >
-        {/* Sketch-style Sparkles */}
-        <AnimatePresence>
-          {showSparkles && (
-            <>
-              {[...Array(12)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute pointer-events-none"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                  }}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0, 1.2, 0],
-                    rotate: [0, 180],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    delay: i * 0.15,
-                    repeat: 2,
-                  }}
-                  exit={{ opacity: 0 }}
-                >
-                  <div 
-                    className="text-lg"
-                    style={{ 
-                      color: '#2d3748',
-                      filter: 'blur(0.3px)',
-                      fontFamily: 'serif'
-                    }}
-                  >
-                    ✦
-                  </div>
-                </motion.div>
-              ))}
-            </>
-          )}
-        </AnimatePresence>
-
         {/* Hand-drawn Header */}
         <motion.div 
           className="text-center mb-8 relative"
-          animate={isSpinning ? { scale: [1, 1.005, 1] } : {}}
-          transition={{ duration: 2, repeat: isSpinning ? Infinity : 0 }}
         >
           {/* Title with hand-drawn underline */}
           <motion.h1 
