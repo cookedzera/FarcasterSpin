@@ -1,28 +1,6 @@
-import { type User, type InsertUser, type GameStats, type InsertGameStats, type SpinResult, type InsertSpinResult, type Token, type InsertToken } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
-  getGameStats(): Promise<GameStats>;
-  updateGameStats(updates: Partial<GameStats>): Promise<GameStats>;
-  createSpinResult(result: InsertSpinResult): Promise<SpinResult>;
-  getLeaderboard(): Promise<User[]>;
-  getUserSpinsToday(userId: string): Promise<number>;
-  getTokens(): Promise<Token[]>;
-  createToken(token: InsertToken): Promise<Token>;
-  updateToken(id: string, updates: Partial<Token>): Promise<Token | undefined>;
-  getActiveTokens(): Promise<Token[]>;
-}
-
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private gameStats: GameStats;
-  private spinResults: Map<string, SpinResult>;
-  private tokens: Map<string, Token>;
-
+export class MemStorage {
   constructor() {
     this.users = new Map();
     this.gameStats = {
@@ -39,7 +17,7 @@ export class MemStorage implements IStorage {
     this.initializeTokens();
   }
 
-  private initializeMockData() {
+  initializeMockData() {
     const generateMockAddress = () => `0x${Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
     
     const mockUsers = [
@@ -52,7 +30,7 @@ export class MemStorage implements IStorage {
 
     mockUsers.forEach(user => {
       const id = randomUUID();
-      const fullUser: User = {
+      const fullUser = {
         id,
         ...user,
         lastSpinDate: new Date(),
@@ -62,7 +40,7 @@ export class MemStorage implements IStorage {
     });
   }
 
-  private initializeTokens() {
+  initializeTokens() {
     const tokensData = [
       {
         address: "0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b",
@@ -70,7 +48,7 @@ export class MemStorage implements IStorage {
         name: "First Token",
         decimals: 18,
         isActive: true,
-        rewardAmount: 50000000000000 // 0.00005 tokens (very small amount)
+        rewardAmount: 50000000000000 // 0.00005 tokens
       },
       {
         address: "0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3",
@@ -92,7 +70,7 @@ export class MemStorage implements IStorage {
 
     tokensData.forEach(tokenData => {
       const id = randomUUID();
-      const token: Token = {
+      const token = {
         id,
         ...tokenData,
       };
@@ -100,19 +78,19 @@ export class MemStorage implements IStorage {
     });
   }
 
-  async getUser(id: string): Promise<User | undefined> {
+  async getUser(id) {
     return this.users.get(id);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
+  async getUserByUsername(username) {
     return Array.from(this.users.values()).find(
       (user) => user.username === username,
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createUser(insertUser) {
     const id = randomUUID();
-    const user: User = { 
+    const user = { 
       ...insertUser,
       walletAddress: insertUser.walletAddress || null,
       id,
@@ -126,7 +104,7 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+  async updateUser(id, updates) {
     const user = this.users.get(id);
     if (!user) return undefined;
     
@@ -135,18 +113,18 @@ export class MemStorage implements IStorage {
     return updatedUser;
   }
 
-  async getGameStats(): Promise<GameStats> {
+  async getGameStats() {
     return this.gameStats;
   }
 
-  async updateGameStats(updates: Partial<GameStats>): Promise<GameStats> {
+  async updateGameStats(updates) {
     this.gameStats = { ...this.gameStats, ...updates };
     return this.gameStats;
   }
 
-  async createSpinResult(result: InsertSpinResult): Promise<SpinResult> {
+  async createSpinResult(result) {
     const id = randomUUID();
-    const spinResult: SpinResult = {
+    const spinResult = {
       ...result,
       rewardAmount: result.rewardAmount || 0,
       userId: result.userId || null,
@@ -162,13 +140,13 @@ export class MemStorage implements IStorage {
     return spinResult;
   }
 
-  async getLeaderboard(): Promise<User[]> {
+  async getLeaderboard() {
     return Array.from(this.users.values())
       .sort((a, b) => (b.totalWins || 0) - (a.totalWins || 0))
       .slice(0, 10);
   }
 
-  async getUserSpinsToday(userId: string): Promise<number> {
+  async getUserSpinsToday(userId) {
     const user = this.users.get(userId);
     if (!user || !user.lastSpinDate) return 0;
     
@@ -187,13 +165,13 @@ export class MemStorage implements IStorage {
     return 0;
   }
 
-  async getTokens(): Promise<Token[]> {
+  async getTokens() {
     return Array.from(this.tokens.values());
   }
 
-  async createToken(insertToken: InsertToken): Promise<Token> {
+  async createToken(insertToken) {
     const id = randomUUID();
-    const token: Token = {
+    const token = {
       ...insertToken,
       decimals: insertToken.decimals || 18,
       isActive: insertToken.isActive !== undefined ? insertToken.isActive : true,
@@ -204,7 +182,7 @@ export class MemStorage implements IStorage {
     return token;
   }
 
-  async updateToken(id: string, updates: Partial<Token>): Promise<Token | undefined> {
+  async updateToken(id, updates) {
     const token = this.tokens.get(id);
     if (!token) return undefined;
     
@@ -213,7 +191,7 @@ export class MemStorage implements IStorage {
     return updatedToken;
   }
 
-  async getActiveTokens(): Promise<Token[]> {
+  async getActiveTokens() {
     return Array.from(this.tokens.values()).filter(token => token.isActive);
   }
 }

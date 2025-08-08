@@ -22,8 +22,7 @@ async function sendTokenReward(recipientAddress: string | null, token: any, amou
   }
   
   if (!PRIVATE_KEY) {
-    console.warn("No private key configured - using mock transaction hash");
-    return `0x${Math.random().toString(16).substr(2, 64)}`;
+    throw new Error("Wallet private key not configured");
   }
   
   try {
@@ -44,8 +43,7 @@ async function sendTokenReward(recipientAddress: string | null, token: any, amou
     return tx.hash;
   } catch (error) {
     console.error("Token transfer failed:", error);
-    // Return mock hash for demo purposes
-    return `0x${Math.random().toString(16).substr(2, 64)}`;
+    throw error;
   }
 }
 
@@ -97,18 +95,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Daily spin limit reached" });
       }
 
-      // ⚠️ TESTING MODE: Force wins for testing purposes
+      // Generate random slot machine symbols
       const tokenSymbols = [
-        '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', // AIDOGE
-        '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', // BOOP
-        '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // CATCH
+        '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', // TOKEN1
+        '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', // TOKEN2
+        '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // TOKEN3
       ];
       
-      // Force winning combination - all three symbols must match
-      const winningSymbol = tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)];
-      const result = [winningSymbol, winningSymbol, winningSymbol];
+      // Generate three random symbols for slot machine
+      const result = [
+        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
+        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
+        tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)]
+      ];
 
-      // Always win in testing mode - verify all symbols match
+      // Check if all three symbols match (winning condition)
       const isWin = result[0] === result[1] && result[1] === result[2];
       
       let rewardAmount = 0;
@@ -122,14 +123,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           selectedToken = activeTokens[Math.floor(Math.random() * activeTokens.length)];
           rewardAmount = selectedToken.rewardAmount || 0;
           
-          // ⚠️ TESTING MODE: Send tokens to specific test address
-          const testAddress = "0xc64FabCF0A4BE88C5d7f67fE2e674ed81e00bB20";
+          // Send token reward to user's wallet address
           try {
-            transactionHash = await sendTokenReward(testAddress, selectedToken, rewardAmount);
+            transactionHash = await sendTokenReward(user.walletAddress, selectedToken, rewardAmount);
           } catch (error) {
-            console.log("Token transfer simulation:", error);
-            // For demo purposes, create a mock transaction hash
-            transactionHash = `0x${Math.random().toString(16).substr(2, 64)}`;
+            console.error("Token transfer failed:", error);
+            // Still record the win but without transaction hash
+            transactionHash = null;
           }
         }
       }
