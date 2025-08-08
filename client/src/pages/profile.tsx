@@ -22,25 +22,8 @@ export default function Profile() {
     queryFn: () => Promise.resolve([]), // Would fetch real data in production
   });
 
-  if (userLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <motion.div 
-          className="text-center"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div 
-            className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-          <p className="text-gray-600 font-medium">Loading profile...</p>
-        </motion.div>
-      </div>
-    );
-  }
+  // Remove loading state for smooth navigation
+  if (userLoading) return null;
 
   if (!user) {
     return (
@@ -140,8 +123,9 @@ export default function Profile() {
       <div className="relative z-10 container mx-auto px-4 py-8 pb-24 max-w-4xl">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0.8 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
           className="text-center mb-8"
         >
           {/* Avatar */}
@@ -173,9 +157,9 @@ export default function Profile() {
 
         {/* Quick Stats Cards */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 0.9 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
         >
           <Card className="bg-gray-800/50 border-gray-700">
@@ -213,9 +197,9 @@ export default function Profile() {
 
         {/* Tab Navigation */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0.9 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
           className="flex justify-center mb-6"
         >
           <div className="bg-gray-800/30 rounded-lg p-1 backdrop-blur-sm">
@@ -242,10 +226,10 @@ export default function Profile() {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0.8 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0.8 }}
+            transition={{ duration: 0.15 }}
           >
             {activeTab === 'stats' && (
               <div className="space-y-6">

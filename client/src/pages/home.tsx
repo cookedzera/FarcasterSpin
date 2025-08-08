@@ -19,25 +19,8 @@ export default function Home() {
     queryKey: ["/api/stats"],
   });
 
-  if (userLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <motion.div 
-          className="text-center"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div 
-            className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-          <p className="text-gray-600 font-medium">Loading...</p>
-        </motion.div>
-      </div>
-    );
-  }
+  // Remove loading state for smooth navigation
+  if (userLoading) return null;
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{
@@ -84,8 +67,9 @@ export default function Home() {
         {/* User Profile */}
         <motion.div 
           className="text-center mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0.8 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
         >
           <motion.div 
             className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
@@ -102,9 +86,9 @@ export default function Home() {
           <div className="mb-3">
             <motion.h1 
               className="text-3xl font-bold text-white mb-1"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              initial={{ opacity: 0.8 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
             >
               ARB<span className="text-blue-400">CASINO</span>
             </motion.h1>
@@ -127,9 +111,9 @@ export default function Home() {
               transform: 'perspective(1000px) rotateX(2deg) rotateY(-1deg)',
               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
+            initial={{ opacity: 0.9 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
             whileHover={{ 
               scale: 1.02, 
               y: -5,

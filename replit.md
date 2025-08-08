@@ -7,6 +7,7 @@ ArbCasino is a web-based slot machine game built exclusively for the Base blockc
 Preferred communication style: Simple, everyday language.
 Code preferences: Clean, production-ready code without testing/debug code.
 Project focus: Fully Replit-compatible without external dependencies like tsx.
+Navigation preferences: Fast, smooth transitions without loading animations between pages.
 
 # System Architecture
 

@@ -24,14 +24,15 @@ export default function Navigation() {
     }}>
       <div className="flex justify-center space-x-8">
         <motion.button
-          className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
+          className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-150 ${
             activeTab === 'home' ? 'text-white' : 'text-white/60'
           }`}
           style={activeTab === 'home' ? {
             background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
             boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
           } : {}}
-          whileTap={{ scale: 0.95 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ duration: 0.1 }}
           onClick={() => handleNavigation('home', '/')}
         >
           <Home className="w-6 h-6" />
@@ -39,7 +40,7 @@ export default function Navigation() {
         </motion.button>
         
         <motion.button
-          className="flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 text-white/40 cursor-not-allowed relative"
+          className="flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-150 text-white/40 cursor-not-allowed relative"
           disabled={true}
         >
           <div className="relative">
@@ -54,15 +55,16 @@ export default function Navigation() {
         </motion.button>
         
         <motion.button
-          className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-300 ${
+          className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-150 ${
             activeTab === 'profile' ? 'text-white' : 'text-white/60'
           }`}
           style={activeTab === 'profile' ? {
             background: 'linear-gradient(135deg, #4ade80 0%, #22d3ee 100%)',
             boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)'
           } : {}}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ duration: 0.1 }}
           onClick={() => handleNavigation('profile', '/profile')}
         >
           <User className="w-6 h-6" />
