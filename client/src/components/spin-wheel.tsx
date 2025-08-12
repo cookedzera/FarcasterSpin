@@ -187,48 +187,16 @@ export default function SpinWheel() {
 
   return (
     <>
-      {/* Modern Dark Container matching your UI */}
+      {/* Clean Container */}
       <div 
         ref={containerRef}
-        className="relative w-full max-w-xs mx-auto bg-card rounded-xl p-4 select-none border border-border shadow-xl"
+        className="relative w-full max-w-xs mx-auto rounded-xl p-4 select-none"
         style={{
           background: 'hsl(223, 29%, 12%)',
-          borderColor: 'hsl(223, 18%, 22%)',
-          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.05) inset'
+          border: 'none'
         }}
       >
-        {/* Sparkles for wins */}
-        <AnimatePresence>
-          {showSparkles && (
-            <>
-              {[...Array(8)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute pointer-events-none text-yellow-400 text-2xl"
-                  style={{
-                    left: `${20 + Math.random() * 60}%`,
-                    top: `${20 + Math.random() * 60}%`,
-                    zIndex: 50
-                  }}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0, 1.5, 0],
-                    rotate: [0, 360],
-                  }}
-                  transition={{
-                    duration: 2,
-                    delay: i * 0.2,
-                    repeat: 1,
-                  }}
-                  exit={{ opacity: 0 }}
-                >
-                  ●
-                </motion.div>
-              ))}
-            </>
-          )}
-        </AnimatePresence>
+
 
         {/* Header with ArbCasino Branding */}
         <motion.div 
@@ -259,7 +227,7 @@ export default function SpinWheel() {
               ease: isSpinning ? [0.25, 0.46, 0.45, 0.94] : "linear"
             }}
           >
-            <svg width="224" height="224" viewBox="0 0 224 224" className="drop-shadow-2xl">
+            <svg width="224" height="224" viewBox="0 0 224 224">
               {/* Wheel segments */}
               {wheelSegments.map((segment, index) => {
                 const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
