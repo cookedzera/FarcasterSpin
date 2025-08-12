@@ -174,11 +174,11 @@ export default function SpinWheel() {
       {/* Modern Dark Container matching your UI */}
       <div 
         ref={containerRef}
-        className="relative w-full max-w-sm mx-auto bg-card rounded-2xl p-6 select-none border border-border shadow-xl"
+        className="relative w-full max-w-xs mx-auto bg-card rounded-xl p-4 select-none border border-border shadow-xl"
         style={{
           background: 'hsl(223, 29%, 12%)',
           borderColor: 'hsl(223, 18%, 22%)',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.05) inset'
+          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.05) inset'
         }}
       >
         {/* Sparkles for wins */}
@@ -216,27 +216,27 @@ export default function SpinWheel() {
 
         {/* Header with ArbCasino Branding */}
         <motion.div 
-          className="text-center mb-6"
+          className="text-center mb-4"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-2xl font-bold text-white mb-1">
+          <h1 className="text-xl font-bold text-white mb-1">
             ARB<span className="text-primary">CASINO</span>
           </h1>
-          <div className="w-16 h-0.5 bg-primary mx-auto mb-3 rounded-full"></div>
-          <h2 className="text-lg font-semibold text-white mb-2">
+          <div className="w-12 h-0.5 bg-primary mx-auto mb-2 rounded-full"></div>
+          <h2 className="text-base font-semibold text-white mb-1">
             WHEEL OF FORTUNE
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Spin the wheel & win meme tokens
           </p>
         </motion.div>
 
         {/* Wheel Container */}
-        <div className="relative flex items-center justify-center mb-6">
+        <div className="relative flex items-center justify-center mb-4">
           {/* Main Wheel */}
           <motion.div
-            className="relative w-64 h-64 rounded-full border-4 border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden"
+            className="relative w-48 h-48 rounded-full border-3 border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden"
             animate={{ rotate: wheelRotation }}
             transition={{ 
               duration: isSpinning ? 3 : 0,
@@ -248,7 +248,7 @@ export default function SpinWheel() {
             
             {/* Center Circle */}
             <div 
-              className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-card border-2 border-white/30 flex items-center justify-center z-20"
+              className="absolute inset-0 m-auto w-10 h-10 rounded-full bg-card border-2 border-white/30 flex items-center justify-center z-20"
               style={{ background: 'hsl(223, 29%, 12%)' }}
             >
               <span className="text-xs font-bold text-white">SPIN</span>
@@ -259,7 +259,7 @@ export default function SpinWheel() {
               <div key={index} className="absolute inset-0">
                 {/* Segment divider line */}
                 <div 
-                  className="absolute w-32 h-0.5 bg-white/30 origin-right"
+                  className="absolute w-24 h-0.5 bg-white/30 origin-right"
                   style={{
                     top: '50%',
                     right: '50%',
@@ -271,21 +271,21 @@ export default function SpinWheel() {
                 <div 
                   className="absolute flex flex-col items-center"
                   style={{
-                    top: '20px',
+                    top: '16px',
                     left: '50%',
                     transform: `translateX(-50%) rotate(${index * segmentAngle + segmentAngle/2}deg)`,
-                    transformOrigin: '50% 108px'
+                    transformOrigin: '50% 80px'
                   }}
                 >
                   {segment.image ? (
                     <img 
                       src={segment.image} 
                       alt={segment.name}
-                      className="w-6 h-6 rounded-full object-cover mb-1 border border-white/50"
+                      className="w-5 h-5 rounded-full object-cover mb-1 border border-white/50"
                     />
                   ) : (
                     <div 
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold mb-1 border border-white/50"
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold mb-1 border border-white/50"
                       style={{ backgroundColor: segment.color }}
                     >
                       {segment.name === 'BUST' ? 'X' : 
@@ -297,7 +297,7 @@ export default function SpinWheel() {
                     className="text-xs text-white font-medium text-center leading-tight"
                     style={{ 
                       transform: `rotate(${-(index * segmentAngle + segmentAngle/2)}deg)`,
-                      maxWidth: '40px'
+                      maxWidth: '35px'
                     }}
                   >
                     {segment.name}
@@ -328,7 +328,7 @@ export default function SpinWheel() {
             onClick={handleSpin}
             disabled={isSpinning || !user || (user.spinsUsed || 0) >= 5}
             data-testid="button-spin"
-            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             style={{
               background: 'hsl(207, 90%, 54%)',
               boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)'

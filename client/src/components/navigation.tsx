@@ -17,14 +17,14 @@ export default function Navigation() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 px-6 py-4 relative z-20" style={{
+    <div className="fixed bottom-0 left-0 right-0 px-4 py-3 relative z-20" style={{
       background: 'rgba(255, 255, 255, 0.05)',
       backdropFilter: 'blur(20px)',
       borderTop: '1px solid rgba(255, 255, 255, 0.1)'
     }}>
-      <div className="flex justify-center space-x-8">
+      <div className="flex justify-center space-x-6">
         <motion.button
-          className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-150 ${
+          className={`flex flex-col items-center space-y-1 px-4 py-2 rounded-full transition-all duration-150 ${
             activeTab === 'home' ? 'text-white' : 'text-white/60'
           }`}
           style={activeTab === 'home' ? {
@@ -35,16 +35,16 @@ export default function Navigation() {
           transition={{ duration: 0.1 }}
           onClick={() => handleNavigation('home', '/')}
         >
-          <Home className="w-6 h-6" />
+          <Home className="w-5 h-5" />
           <span className="text-xs font-medium">Home</span>
         </motion.button>
         
         <motion.button
-          className="flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-150 text-white/40 cursor-not-allowed relative"
+          className="flex flex-col items-center space-y-1 px-4 py-2 rounded-full transition-all duration-150 text-white/40 cursor-not-allowed relative"
           disabled={true}
         >
           <div className="relative">
-            <Gamepad2 className="w-6 h-6" />
+            <Gamepad2 className="w-5 h-5" />
             <div className="absolute -top-1 -right-1 flex space-x-0.5">
               <span className="text-xs">🎮</span>
               <span className="text-xs">🃏</span>
@@ -55,7 +55,7 @@ export default function Navigation() {
         </motion.button>
         
         <motion.button
-          className={`flex flex-col items-center space-y-1 px-6 py-2 rounded-full transition-all duration-150 ${
+          className={`flex flex-col items-center space-y-1 px-4 py-2 rounded-full transition-all duration-150 ${
             activeTab === 'profile' ? 'text-white' : 'text-white/60'
           }`}
           style={activeTab === 'profile' ? {
@@ -67,7 +67,7 @@ export default function Navigation() {
           transition={{ duration: 0.1 }}
           onClick={() => handleNavigation('profile', '/profile')}
         >
-          <User className="w-6 h-6" />
+          <User className="w-5 h-5" />
           <span className="text-xs font-medium">Profile</span>
         </motion.button>
       </div>

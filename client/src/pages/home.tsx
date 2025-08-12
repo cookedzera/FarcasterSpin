@@ -133,19 +133,19 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 px-6 py-8 pb-24">
-        {/* User Profile */}
+      <div className="relative z-10 px-4 py-4 pb-24">
+        {/* User Profile - Compact */}
         <motion.div 
-          className="text-center mb-8"
+          className="text-center mb-4"
           initial={{ opacity: 0.8 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
         >
           <motion.div 
-            className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
+            className="w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center text-white text-lg font-bold"
             style={{
               background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
-              boxShadow: '0 10px 30px rgba(139, 92, 246, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
+              boxShadow: '0 8px 20px rgba(139, 92, 246, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
               backdropFilter: 'blur(20px)'
             }}
             whileHover={{ scale: 1.05, y: -2 }}
@@ -153,40 +153,40 @@ export default function Home() {
           >
             {user?.username?.charAt(0) || 'P'}
           </motion.div>
-          <div className="mb-3">
+          <div className="mb-2">
             <motion.h1 
-              className="text-3xl font-bold text-white mb-1"
+              className="text-2xl font-bold text-white mb-1"
               initial={{ opacity: 0.8 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
               ARB<span className="text-blue-400">CASINO</span>
             </motion.h1>
-            <div className="w-20 h-0.5 bg-blue-400 mx-auto mb-2 rounded-full"></div>
+            <div className="w-16 h-0.5 bg-blue-400 mx-auto mb-1 rounded-full"></div>
           </div>
-          <h2 className="text-xl font-semibold text-white mb-1">
+          <h2 className="text-lg font-semibold text-white">
             Hello, {user?.username || 'Player'}!
           </h2>
         </motion.div>
 
-        {/* Main Action Cards */}
-        <div className="space-y-6 mb-8">
+        {/* Main Action Cards - Compact */}
+        <div className="space-y-4 mb-4">
           {/* Spin Challenge Card */}
           <motion.div
-            className="rounded-3xl p-6 text-white relative overflow-hidden"
+            className="rounded-2xl p-4 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(2deg) rotateY(-1deg)',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
             initial={{ opacity: 0.9 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
             whileHover={{ 
               scale: 1.02, 
-              y: -5,
+              y: -3,
               transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
               transition: { duration: 0.3 }
             }}
@@ -210,16 +210,16 @@ export default function Home() {
             <div className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h2 className="text-xl font-bold mb-2">🎡 Spin a Wheel</h2>
-                <p className="text-teal-100 text-sm mb-4">💰 Win meme tokens daily</p>
-                <div className="text-sm text-teal-100">
+                <h2 className="text-lg font-bold mb-1">🎡 Spin a Wheel</h2>
+                <p className="text-teal-100 text-sm mb-2">💰 Win meme tokens daily</p>
+                <div className="text-xs text-teal-100">
                   <CountdownTimer />
                 </div>
               </div>
               <div className="relative">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-2">
                   <motion.svg 
-                    className="w-8 h-8 text-white" 
+                    className="w-6 h-6 text-white" 
                     viewBox="0 0 24 24" 
                     fill="none" 
                     xmlns="http://www.w3.org/2000/svg"
@@ -280,20 +280,20 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col items-center">
                   <motion.button
-                    className="bg-black text-white w-14 h-14 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden border-2 border-white/20"
+                    className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden border-2 border-white/20"
                     onClick={() => setShowSpinWheel(true)}
                     disabled={(user?.spinsUsed || 0) >= 5}
                     whileHover={{ 
                       scale: 1.1,
-                      boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)',
+                      boxShadow: '0 6px 20px rgba(59, 130, 246, 0.4)',
                       transition: { duration: 0.2 }
                     }}
                     whileTap={{ scale: 0.95 }}
                     animate={{
                       boxShadow: [
-                        '0 4px 15px rgba(59, 130, 246, 0.2)',
-                        '0 6px 20px rgba(147, 51, 234, 0.3)',
-                        '0 4px 15px rgba(59, 130, 246, 0.2)'
+                        '0 4px 12px rgba(59, 130, 246, 0.2)',
+                        '0 5px 16px rgba(147, 51, 234, 0.3)',
+                        '0 4px 12px rgba(59, 130, 246, 0.2)'
                       ]
                     }}
                     transition={{
@@ -305,11 +305,11 @@ export default function Home() {
                     }}
                   >
                     <motion.svg 
-                      className="w-6 h-6 text-white relative z-10" 
+                      className="w-5 h-5 text-white relative z-10" 
                       viewBox="0 0 24 24" 
                       fill="none" 
                       xmlns="http://www.w3.org/2000/svg"
-                      animate={{ x: [0, 3, 0] }}
+                      animate={{ x: [0, 2, 0] }}
                       transition={{
                         duration: 1.5,
                         repeat: Infinity,
@@ -331,7 +331,7 @@ export default function Home() {
                     />
                   </motion.button>
                   <motion.p 
-                    className="text-xs text-white/80 mt-2 font-medium"
+                    className="text-xs text-white/80 mt-1 font-medium"
                     animate={{ opacity: [0.6, 1, 0.6] }}
                     transition={{
                       duration: 2,
@@ -339,7 +339,7 @@ export default function Home() {
                       ease: "easeInOut"
                     }}
                   >
-                    Click to Spin
+                    Spin
                   </motion.p>
                 </div>
               </div>
@@ -349,20 +349,20 @@ export default function Home() {
 
           {/* Rewards Card */}
           <motion.div
-            className="rounded-3xl p-6 text-white relative overflow-hidden"
+            className="rounded-2xl p-4 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(-1deg) rotateY(1deg)',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
             whileHover={{ 
               scale: 1.02, 
-              y: -5,
+              y: -3,
               transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
               transition: { duration: 0.3 }
             }}
@@ -384,19 +384,19 @@ export default function Home() {
             />
             <div className="relative z-10">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 15L8 19H16L12 15Z" fill="currentColor"/>
                     <path d="M7 9V4C7 3.45 7.45 3 8 3H16C16.55 3 17 3.45 17 4V9L19 11V12H5V11L7 9Z" fill="currentColor"/>
                     <rect x="8" y="13" width="8" height="2" fill="currentColor"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">🏆 Rewards</h3>
+                  <h3 className="font-bold text-base">🏆 Rewards</h3>
                   <div className="flex items-center space-x-2 mt-1">
-                    <div className="w-16 h-2 bg-white/30 rounded-full">
-                      <div className="w-10 h-2 bg-white rounded-full"></div>
+                    <div className="w-12 h-1.5 bg-white/30 rounded-full">
+                      <div className="w-8 h-1.5 bg-white rounded-full"></div>
                     </div>
                     <span className="text-xs text-white/80">{user?.totalWins || 0}/10</span>
                   </div>
@@ -409,21 +409,21 @@ export default function Home() {
 
         {/* Goal Progress */}
         <motion.div 
-          className="mb-8"
+          className="mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white">🎯 Goal Progress</h3>
-            <span className="text-sm text-white/70">{user?.spinsUsed || 0}/5 days</span>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-base font-bold text-white">🎯 Goal Progress</h3>
+            <span className="text-xs text-white/70">{user?.spinsUsed || 0}/5 days</span>
           </div>
           
           {/* Days of Week */}
-          <div className="flex justify-between mb-4">
+          <div className="flex justify-between mb-3">
             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
               <div key={index} className="text-center">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-medium mb-1 ${
+                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-medium mb-1 ${
                   index < (user?.spinsUsed || 0) 
                     ? index === 0 ? 'bg-red-500 text-white' :
                       index === 1 ? 'bg-purple-500 text-white' :
@@ -438,17 +438,17 @@ export default function Home() {
 
           {/* Current Challenge */}
           <motion.div 
-            className="rounded-2xl p-4 text-white relative overflow-hidden"
+            className="rounded-xl p-3 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(1deg) rotateY(-0.5deg)',
-              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+              boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
             whileHover={{ 
               scale: 1.01, 
-              y: -3,
+              y: -2,
               transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
               transition: { duration: 0.3 }
             }}
@@ -463,13 +463,13 @@ export default function Home() {
             />
             <div className="relative z-10">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold">⚡ Daily Spin Challenge</h4>
-              <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Active</span>
+              <h4 className="font-medium text-sm">⚡ Daily Spin Challenge</h4>
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Active</span>
             </div>
-            <div className="flex items-center space-x-2 mb-2">
-              <div className="flex-1 bg-white/30 rounded-full h-2">
+            <div className="flex items-center space-x-2 mb-1">
+              <div className="flex-1 bg-white/30 rounded-full h-1.5">
                 <div 
-                  className="bg-white rounded-full h-2 transition-all duration-500"
+                  className="bg-white rounded-full h-1.5 transition-all duration-500"
                   style={{ width: `${((user?.spinsUsed || 0) / 5) * 100}%` }}
                 ></div>
               </div>
@@ -488,8 +488,8 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <h3 className="text-lg font-bold text-white mb-4">🪙 Token Collection</h3>
-          <div className="space-y-3">
+          <h3 className="text-base font-bold text-white mb-3">🪙 Token Collection</h3>
+          <div className="space-y-2">
             {[
               { name: 'AIDOGE', icon: aidogeLogo, amount: balances?.token1 || '0', time: '2h 14 min', emoji: '🐕' },
               { name: 'BOOP', icon: boopLogo, amount: balances?.token2 || '0', time: '5h 22 min', emoji: '🎭' },
@@ -501,17 +501,17 @@ export default function Home() {
               return (
                 <motion.div
                   key={index}
-                  className="rounded-2xl p-4 relative overflow-hidden"
+                  className="rounded-xl p-3 relative overflow-hidden"
                   style={{
                     background: 'rgba(255, 255, 255, 0.08)',
                     backdropFilter: 'blur(20px)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     transform: `perspective(1000px) rotateX(${index % 2 === 0 ? '0.5deg' : '-0.5deg'}) rotateY(${index % 2 === 0 ? '-0.3deg' : '0.3deg'})`,
-                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
                   }}
                   whileHover={{ 
                     scale: 1.02, 
-                    y: -3,
+                    y: -2,
                     transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
                     transition: { duration: 0.3 }
                   }}
