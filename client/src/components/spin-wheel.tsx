@@ -258,98 +258,135 @@ export default function SpinWheel() {
             <div className="w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent border-b-white"></div>
           </div>
 
-          {/* Main Wheel - Simplified Design */}
+          {/* Main Wheel - Fixed Design with SVG */}
           <motion.div
-            className="relative w-56 h-56 rounded-full shadow-2xl overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-              border: '3px solid rgba(139, 92, 246, 0.4)'
-            }}
+            className="relative w-56 h-56"
             animate={{ rotate: wheelRotation }}
             transition={{ 
               duration: isSpinning ? 3 : 0,
               ease: isSpinning ? [0.25, 0.46, 0.45, 0.94] : "linear"
             }}
           >
-            {/* Clean segment divisions */}
-            {wheelSegments.map((segment, index) => {
-              const angle = index * segmentAngle;
-              const isWinning = landedSegment === index;
+            <svg width="224" height="224" viewBox="0 0 224 224" className="drop-shadow-2xl">
+              <defs>
+                {/* Define gradients for each segment */}
+                {wheelSegments.map((segment, index) => (
+                  <radialGradient key={`grad-${index}`} id={`gradient-${index}`} cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor={segment.color + '40'} />
+                    <stop offset="100%" stopColor={segment.color + '80'} />
+                  </radialGradient>
+                ))}
+              </defs>
               
-              return (
-                <div key={index} className="absolute inset-0">
-                  {/* Segment background */}
-                  <div 
-                    className={`absolute w-28 h-28 origin-bottom-right transition-all duration-300 ${
-                      isWinning ? 'z-10' : 'z-0'
-                    }`}
-                    style={{
-                      top: '50%',
-                      right: '50%',
-                      background: segment.isToken 
-                        ? `linear-gradient(45deg, ${segment.color}30, ${segment.color}50)` 
-                        : segment.name === 'BUST' 
-                          ? 'linear-gradient(45deg, #ef444430, #ef444450)'
-                          : segment.name === 'JACKPOT'
-                            ? 'linear-gradient(45deg, #f9731630, #f9731650)'
-                            : 'linear-gradient(45deg, #f59e0b30, #f59e0b50)',
-                      clipPath: `polygon(0% 100%, 100% 100%, 100% ${100 - (100 * segmentAngle / 180)}%)`,
-                      transform: `rotate(${angle}deg)`,
-                      borderRight: '1px solid rgba(255,255,255,0.1)'
-                    }}
-                  />
-                  
-                  {/* Segment label */}
-                  <div 
-                    className="absolute text-center"
-                    style={{
-                      top: '30px',
-                      left: '50%',
-                      transform: `translate(-50%, 0) rotate(${angle + segmentAngle/2}deg)`,
-                      width: '60px'
-                    }}
-                  >
-                    {segment.isToken && segment.image ? (
-                      <div className="flex flex-col items-center">
-                        <img 
-                          src={segment.image} 
-                          alt={segment.name}
-                          className="w-6 h-6 rounded-full mb-1 border border-white/30"
-                        />
-                        <span className="text-xs font-bold text-white leading-tight">
-                          {segment.name}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center">
-                        <div className={`w-6 h-6 rounded-full mb-1 flex items-center justify-center text-xs font-bold ${
-                          segment.name === 'BUST' ? 'bg-red-500 text-white' :
-                          segment.name === 'JACKPOT' ? 'bg-orange-500 text-white' :
-                          'bg-yellow-500 text-black'
-                        }`}>
-                          {segment.name === 'BUST' ? '💀' : 
-                           segment.name === 'JACKPOT' ? '💎' : '💰'}
-                        </div>
-                        <span className="text-xs font-bold text-white leading-tight">
-                          {segment.name}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-            
-            {/* Center hub */}
-            <div 
-              className="absolute inset-0 m-auto w-12 h-12 rounded-full border-2 border-white/40 flex items-center justify-center z-20"
-              style={{ 
-                background: 'linear-gradient(135deg, #1e293b, #334155)',
-                boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)'
-              }}
-            >
-              <span className="text-xs font-bold text-white">SPIN</span>
-            </div>
+              {/* Outer border circle */}
+              <circle cx="112" cy="112" r="110" fill="none" stroke="rgba(139, 92, 246, 0.6)" strokeWidth="2"/>
+              
+              {/* Wheel segments */}
+              {wheelSegments.map((segment, index) => {
+                const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
+                const endAngle = ((index + 1) * segmentAngle - 90) * (Math.PI / 180);
+                const largeArc = segmentAngle > 180 ? 1 : 0;
+                
+                const x1 = 112 + 106 * Math.cos(startAngle);
+                const y1 = 112 + 106 * Math.sin(startAngle);
+                const x2 = 112 + 106 * Math.cos(endAngle);
+                const y2 = 112 + 106 * Math.sin(endAngle);
+                
+                const isWinning = landedSegment === index;
+                
+                return (
+                  <g key={index}>
+                    {/* Segment path */}
+                    <path
+                      d={`M 112 112 L ${x1} ${y1} A 106 106 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                      fill={`url(#gradient-${index})`}
+                      stroke="rgba(255,255,255,0.2)"
+                      strokeWidth="1"
+                      className={`transition-all duration-300 ${isWinning ? 'brightness-125' : ''}`}
+                    />
+                    
+                    {/* Segment content */}
+                    <g>
+                      {/* Calculate position for text/image */}
+                      {(() => {
+                        const midAngle = (startAngle + endAngle) / 2;
+                        const textRadius = 70;
+                        const textX = 112 + textRadius * Math.cos(midAngle);
+                        const textY = 112 + textRadius * Math.sin(midAngle);
+                        
+                        return (
+                          <g transform={`translate(${textX}, ${textY}) rotate(${(midAngle * 180 / Math.PI) + 90})`}>
+                            {segment.isToken && segment.image ? (
+                              <>
+                                <image
+                                  x="-12"
+                                  y="-20"
+                                  width="24"
+                                  height="24"
+                                  href={segment.image}
+                                  className="rounded-full"
+                                  clipPath="circle(12px)"
+                                />
+                                <text
+                                  x="0"
+                                  y="8"
+                                  textAnchor="middle"
+                                  className="fill-white text-xs font-bold"
+                                  fontSize="10"
+                                >
+                                  {segment.name}
+                                </text>
+                              </>
+                            ) : (
+                              <>
+                                <circle
+                                  cx="0"
+                                  cy="-12"
+                                  r="12"
+                                  fill={segment.name === 'BUST' ? '#ef4444' : 
+                                       segment.name === 'JACKPOT' ? '#f97316' : '#f59e0b'}
+                                />
+                                <text
+                                  x="0"
+                                  y="-8"
+                                  textAnchor="middle"
+                                  className="fill-white text-xs font-bold"
+                                  fontSize="8"
+                                >
+                                  {segment.name === 'BUST' ? '💀' : 
+                                   segment.name === 'JACKPOT' ? '💎' : '💰'}
+                                </text>
+                                <text
+                                  x="0"
+                                  y="8"
+                                  textAnchor="middle"
+                                  className="fill-white text-xs font-bold"
+                                  fontSize="9"
+                                >
+                                  {segment.name}
+                                </text>
+                              </>
+                            )}
+                          </g>
+                        );
+                      })()}
+                    </g>
+                  </g>
+                );
+              })}
+              
+              {/* Center hub */}
+              <circle cx="112" cy="112" r="20" fill="url(#centerGrad)" stroke="rgba(255,255,255,0.4)" strokeWidth="2"/>
+              <text x="112" y="118" textAnchor="middle" className="fill-white text-xs font-bold" fontSize="10">SPIN</text>
+              
+              {/* Center gradient definition */}
+              <defs>
+                <radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#334155" />
+                  <stop offset="100%" stopColor="#1e293b" />
+                </radialGradient>
+              </defs>
+            </svg>
           </motion.div>
         </div>
 
