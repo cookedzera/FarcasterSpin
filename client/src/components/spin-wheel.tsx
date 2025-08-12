@@ -234,91 +234,107 @@ export default function SpinWheel() {
 
         {/* Wheel Container */}
         <div className="relative flex items-center justify-center mb-4">
-          {/* Main Wheel */}
+          {/* Pointer */}
+          <div 
+            className="absolute top-0 left-1/2 transform -translate-x-1/2 z-30"
+            style={{ marginTop: '-4px' }}
+          >
+            <div className="w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent border-b-white"></div>
+          </div>
+
+          {/* Main Wheel - Simplified Design */}
           <motion.div
-            className="relative w-48 h-48 rounded-full border-3 border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden"
+            className="relative w-56 h-56 rounded-full shadow-2xl overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+              border: '3px solid rgba(139, 92, 246, 0.4)'
+            }}
             animate={{ rotate: wheelRotation }}
             transition={{ 
               duration: isSpinning ? 3 : 0,
               ease: isSpinning ? [0.25, 0.46, 0.45, 0.94] : "linear"
             }}
           >
-            {/* Wheel Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5" />
+            {/* Clean segment divisions */}
+            {wheelSegments.map((segment, index) => {
+              const angle = index * segmentAngle;
+              const isWinning = landedSegment === index;
+              
+              return (
+                <div key={index} className="absolute inset-0">
+                  {/* Segment background */}
+                  <div 
+                    className={`absolute w-28 h-28 origin-bottom-right transition-all duration-300 ${
+                      isWinning ? 'z-10' : 'z-0'
+                    }`}
+                    style={{
+                      top: '50%',
+                      right: '50%',
+                      background: segment.isToken 
+                        ? `linear-gradient(45deg, ${segment.color}30, ${segment.color}50)` 
+                        : segment.name === 'BUST' 
+                          ? 'linear-gradient(45deg, #ef444430, #ef444450)'
+                          : segment.name === 'JACKPOT'
+                            ? 'linear-gradient(45deg, #f9731630, #f9731650)'
+                            : 'linear-gradient(45deg, #f59e0b30, #f59e0b50)',
+                      clipPath: `polygon(0% 100%, 100% 100%, 100% ${100 - (100 * segmentAngle / 180)}%)`,
+                      transform: `rotate(${angle}deg)`,
+                      borderRight: '1px solid rgba(255,255,255,0.1)'
+                    }}
+                  />
+                  
+                  {/* Segment label */}
+                  <div 
+                    className="absolute text-center"
+                    style={{
+                      top: '30px',
+                      left: '50%',
+                      transform: `translate(-50%, 0) rotate(${angle + segmentAngle/2}deg)`,
+                      width: '60px'
+                    }}
+                  >
+                    {segment.isToken && segment.image ? (
+                      <div className="flex flex-col items-center">
+                        <img 
+                          src={segment.image} 
+                          alt={segment.name}
+                          className="w-6 h-6 rounded-full mb-1 border border-white/30"
+                        />
+                        <span className="text-xs font-bold text-white leading-tight">
+                          {segment.name}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <div className={`w-6 h-6 rounded-full mb-1 flex items-center justify-center text-xs font-bold ${
+                          segment.name === 'BUST' ? 'bg-red-500 text-white' :
+                          segment.name === 'JACKPOT' ? 'bg-orange-500 text-white' :
+                          'bg-yellow-500 text-black'
+                        }`}>
+                          {segment.name === 'BUST' ? '💀' : 
+                           segment.name === 'JACKPOT' ? '💎' : '💰'}
+                        </div>
+                        <span className="text-xs font-bold text-white leading-tight">
+                          {segment.name}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
             
-            {/* Center Circle */}
+            {/* Center hub */}
             <div 
-              className="absolute inset-0 m-auto w-10 h-10 rounded-full bg-card border-2 border-white/30 flex items-center justify-center z-20"
-              style={{ background: 'hsl(223, 29%, 12%)' }}
+              className="absolute inset-0 m-auto w-12 h-12 rounded-full border-2 border-white/40 flex items-center justify-center z-20"
+              style={{ 
+                background: 'linear-gradient(135deg, #1e293b, #334155)',
+                boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)'
+              }}
             >
               <span className="text-xs font-bold text-white">SPIN</span>
             </div>
-
-            {/* Segment lines and labels */}
-            {wheelSegments.map((segment, index) => (
-              <div key={index} className="absolute inset-0">
-                {/* Segment divider line */}
-                <div 
-                  className="absolute w-24 h-0.5 bg-white/30 origin-right"
-                  style={{
-                    top: '50%',
-                    right: '50%',
-                    transform: `rotate(${index * segmentAngle}deg) translateY(-50%)`
-                  }}
-                />
-                
-                {/* Segment content */}
-                <div 
-                  className="absolute flex flex-col items-center"
-                  style={{
-                    top: '16px',
-                    left: '50%',
-                    transform: `translateX(-50%) rotate(${index * segmentAngle + segmentAngle/2}deg)`,
-                    transformOrigin: '50% 80px'
-                  }}
-                >
-                  {segment.image ? (
-                    <img 
-                      src={segment.image} 
-                      alt={segment.name}
-                      className="w-5 h-5 rounded-full object-cover mb-1 border border-white/50"
-                    />
-                  ) : (
-                    <div 
-                      className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold mb-1 border border-white/50"
-                      style={{ backgroundColor: segment.color }}
-                    >
-                      {segment.name === 'BUST' ? 'X' : 
-                       segment.name === 'BONUS' ? '$' : 
-                       segment.name === 'JACKPOT' ? 'J' : '?'}
-                    </div>
-                  )}
-                  <span 
-                    className="text-xs text-white font-medium text-center leading-tight"
-                    style={{ 
-                      transform: `rotate(${-(index * segmentAngle + segmentAngle/2)}deg)`,
-                      maxWidth: '35px'
-                    }}
-                  >
-                    {segment.name}
-                  </span>
-                </div>
-              </div>
-            ))}
           </motion.div>
-
-          {/* Pointer */}
-          <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-30">
-            <div 
-              className="w-0 h-0 border-l-3 border-r-3 border-t-6 border-transparent border-t-white filter drop-shadow-md"
-              style={{
-                borderLeftWidth: '8px',
-                borderRightWidth: '8px', 
-                borderTopWidth: '20px',
-                borderTopColor: '#ffffff'
-              }}
-            />
-          </div>
         </div>
 
         {/* Spin Button */}
