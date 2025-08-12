@@ -133,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const winningSymbol = result[0];
         
         // Map token addresses to token types and amounts
-        const tokenRewards = {
+        const tokenRewards: Record<string, { type: string; amount: string }> = {
           '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b': { type: 'TOKEN1', amount: '10000000000000000' }, // 0.01 tokens
           '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3': { type: 'TOKEN2', amount: '5000000000000000' },  // 0.005 tokens  
           '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f': { type: 'TOKEN3', amount: '2000000000000000' }   // 0.002 tokens
@@ -157,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isWin,
         rewardAmount,
         tokenType,
-        tokenId: selectedToken?.id,
+        tokenId: null,
         tokenAddress: result[0], // Store the winning symbol address
         isAccumulated: true,
         transactionHash: null // No immediate transaction
