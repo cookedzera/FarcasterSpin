@@ -105,9 +105,6 @@ export default function Profile() {
           </div>
         ) : (
           <>
-        {/* Navigation */}
-        <Navigation />
-
         {/* All profile content wrapped here */}
         {/* Farcaster Connection Card */}
         <motion.div
