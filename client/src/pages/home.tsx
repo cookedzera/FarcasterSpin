@@ -292,7 +292,10 @@ export default function Home() {
                 <div className="flex flex-col items-center">
                   <motion.button
                     className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden border-2 border-white/20"
-                    onClick={() => setShowSpinWheel(true)}
+                    onClick={() => {
+                      console.log('Button clicked, setting showSpinWheel to true');
+                      setShowSpinWheel(true);
+                    }}
                     disabled={(user?.spinsUsed || 0) >= 5}
                     whileHover={{ 
                       scale: 1.1,
@@ -624,6 +627,9 @@ export default function Home() {
       {/* Navigation */}
       <Navigation />
 
+      {/* Debug info */}
+      {console.log('showSpinWheel state:', showSpinWheel)}
+      
       {/* Spin Wheel Modal */}
       <AnimatePresence>
         {showSpinWheel && (
