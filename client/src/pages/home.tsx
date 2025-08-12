@@ -289,47 +289,17 @@ export default function Home() {
                     />
                   </motion.svg>
                 </div>
-                <div className="flex flex-col items-center z-30 relative">
-                  <motion.button
-                    className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden border-2 border-white/20 z-50 cursor-pointer"
-                    onClick={() => {
-                      console.log('Button clicked, setting showSpinWheel to true');
-                      setShowSpinWheel(true);
-                    }}
+                <div className="flex flex-col items-center">
+                  <button
+                    className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white/20 cursor-pointer hover:scale-110 transition-transform"
+                    onClick={() => setShowSpinWheel(true)}
                     disabled={(user?.spinsUsed || 0) >= 5}
-                    style={{ pointerEvents: 'auto' }}
-                    whileHover={{ 
-                      scale: 1.1,
-                      boxShadow: '0 6px 20px rgba(59, 130, 246, 0.4)',
-                      transition: { duration: 0.2 }
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    animate={{
-                      boxShadow: [
-                        '0 4px 12px rgba(59, 130, 246, 0.2)',
-                        '0 5px 16px rgba(147, 51, 234, 0.3)',
-                        '0 4px 12px rgba(59, 130, 246, 0.2)'
-                      ]
-                    }}
-                    transition={{
-                      boxShadow: {
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }
-                    }}
                   >
-                    <motion.svg 
-                      className="w-5 h-5 text-white relative z-10" 
+                    <svg 
+                      className="w-5 h-5 text-white" 
                       viewBox="0 0 24 24" 
                       fill="none" 
                       xmlns="http://www.w3.org/2000/svg"
-                      animate={{ x: [0, 2, 0] }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
                     >
                       <path 
                         d="M5 12H19M19 12L12 5M19 12L12 19" 
@@ -338,36 +308,11 @@ export default function Home() {
                         strokeLinecap="round" 
                         strokeLinejoin="round"
                       />
-                    </motion.svg>
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0"
-                      whileHover={{ opacity: 0.3 }}
-                      transition={{ duration: 0.2 }}
-                    />
-                  </motion.button>
-                  <motion.p 
-                    className="text-xs text-white/80 mt-1 font-medium"
-                    animate={{ opacity: [0.6, 1, 0.6] }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    Spin
-                  </motion.p>
-                  
-                  {/* Simple test button */}
-                  <button
-                    onClick={() => {
-                      console.log('TEST BUTTON CLICKED');
-                      setShowSpinWheel(true);
-                    }}
-                    className="mt-2 px-4 py-1 bg-red-500 text-white rounded text-xs z-50"
-                    style={{ position: 'relative', zIndex: 999 }}
-                  >
-                    TEST
+                    </svg>
                   </button>
+                  <p className="text-xs text-white/80 mt-1 font-medium">
+                    Spin
+                  </p>
                 </div>
               </div>
             </div>
@@ -640,8 +585,7 @@ export default function Home() {
       {/* Navigation */}
       <Navigation />
 
-      {/* Debug info */}
-      {console.log('showSpinWheel state:', showSpinWheel)}
+
       
       {/* Spin Wheel Modal */}
       <AnimatePresence>
@@ -674,7 +618,9 @@ export default function Home() {
                 }}
               />
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">Spin the Wheel!</h3>
+                <h3 className="text-xl font-bold text-white">
+                  ARB<span className="text-blue-400">CASINO</span> - Wheel of Fortune
+                </h3>
                 <button
                   onClick={() => setShowSpinWheel(false)}
                   className="text-white/60 hover:text-white transition-colors"

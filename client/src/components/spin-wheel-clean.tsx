@@ -80,19 +80,7 @@ export default function SpinWheelClean() {
 
   return (
     <div className="w-full mx-auto">
-      {/* Header */}
-      <div className="text-center mb-4">
-        <h1 className="text-xl font-bold text-white mb-1">
-          ARB<span className="text-blue-400">CASINO</span>
-        </h1>
-        <div className="w-12 h-0.5 bg-blue-400 mx-auto mb-2"></div>
-        <h2 className="text-base font-semibold text-white mb-1">
-          WHEEL OF FORTUNE
-        </h2>
-        <p className="text-xs text-gray-400">
-          Spin the wheel & win meme tokens
-        </p>
-      </div>
+
 
       {/* Wheel */}
       <div className="relative flex items-center justify-center mb-4">
