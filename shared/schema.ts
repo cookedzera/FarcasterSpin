@@ -16,6 +16,15 @@ export const users = pgTable("users", {
   totalWins: integer("total_wins").default(0),
   totalSpins: integer("total_spins").default(0),
   lastSpinDate: timestamp("last_spin_date"),
+  // Accumulated token balances (pending claim)
+  accumulatedToken1: text("accumulated_token1").default("0"), // Store as string to handle large numbers
+  accumulatedToken2: text("accumulated_token2").default("0"),
+  accumulatedToken3: text("accumulated_token3").default("0"),
+  // Claimed token balances (already transferred)
+  claimedToken1: text("claimed_token1").default("0"),
+  claimedToken2: text("claimed_token2").default("0"),
+  claimedToken3: text("claimed_token3").default("0"),
+  lastClaimDate: timestamp("last_claim_date"),
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
@@ -41,10 +50,25 @@ export const spinResults = pgTable("spin_results", {
   userId: varchar("user_id").references(() => users.id),
   symbols: jsonb("symbols").$type<string[]>(),
   isWin: boolean("is_win").default(false),
-  rewardAmount: integer("reward_amount").default(0),
+  rewardAmount: text("reward_amount").default("0"), // Changed to text for large numbers
+  tokenType: text("token_type"), // TOKEN1, TOKEN2, TOKEN3
   tokenId: varchar("token_id").references(() => tokens.id),
   tokenAddress: text("token_address"),
+  isAccumulated: boolean("is_accumulated").default(true), // True = added to balance, False = claimed
+  transactionHash: text("transaction_hash"), // Only set when actually claimed
+  timestamp: timestamp("timestamp").default(sql`now()`),
+});
+
+// New table for tracking claims
+export const tokenClaims = pgTable("token_claims", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  token1Amount: text("token1_amount").default("0"),
+  token2Amount: text("token2_amount").default("0"), 
+  token3Amount: text("token3_amount").default("0"),
+  totalValueUSD: text("total_value_usd").default("0"),
   transactionHash: text("transaction_hash"),
+  status: text("status").default("pending"), // pending, confirmed, failed
   timestamp: timestamp("timestamp").default(sql`now()`),
 });
 
@@ -67,6 +91,11 @@ export const insertSpinResultSchema = createInsertSchema(spinResults).omit({
   timestamp: true,
 });
 
+export const insertTokenClaimSchema = createInsertSchema(tokenClaims).omit({
+  id: true,
+  timestamp: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertGameStats = z.infer<typeof insertGameStatsSchema>;
@@ -75,3 +104,5 @@ export type InsertToken = z.infer<typeof insertTokenSchema>;
 export type Token = typeof tokens.$inferSelect;
 export type InsertSpinResult = z.infer<typeof insertSpinResultSchema>;
 export type SpinResult = typeof spinResults.$inferSelect;
+export type InsertTokenClaim = z.infer<typeof insertTokenClaimSchema>;
+export type TokenClaim = typeof tokenClaims.$inferSelect;

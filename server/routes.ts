@@ -124,39 +124,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isWin = result[0] === result[1] && result[1] === result[2];
       }
       
-      let rewardAmount = 0;
+      let rewardAmount = "0";
       let selectedToken = null;
-      let transactionHash = null;
+      let tokenType = "";
 
       if (isWin) {
-        // Get a random active token for reward
-        const activeTokens = await storage.getActiveTokens();
-        if (activeTokens.length > 0) {
-          selectedToken = activeTokens[Math.floor(Math.random() * activeTokens.length)];
-          rewardAmount = selectedToken.rewardAmount || 0;
+        // Determine reward based on winning symbol
+        const winningSymbol = result[0];
+        
+        // Map token addresses to token types and amounts
+        const tokenRewards = {
+          '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b': { type: 'TOKEN1', amount: '10000000000000000' }, // 0.01 tokens
+          '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3': { type: 'TOKEN2', amount: '5000000000000000' },  // 0.005 tokens  
+          '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f': { type: 'TOKEN3', amount: '2000000000000000' }   // 0.002 tokens
+        };
+        
+        const reward = tokenRewards[winningSymbol];
+        if (reward) {
+          tokenType = reward.type;
+          rewardAmount = reward.amount;
           
-          // Send token reward to user's wallet address
-          console.log(`💰 Sending ${rewardAmount} ${selectedToken.symbol} to ${user.walletAddress}`);
-          try {
-            transactionHash = await sendTokenReward(user.walletAddress, selectedToken, rewardAmount);
-            console.log(`✅ Token transfer successful: ${transactionHash}`);
-          } catch (error) {
-            console.error("❌ Token transfer failed:", error);
-            // Still record the win but without transaction hash
-            transactionHash = null;
-          }
+          // Add to user's accumulated balance instead of immediate transfer
+          console.log(`💰 Adding ${rewardAmount} ${tokenType} to accumulated balance for user ${userId}`);
+          await storage.addAccumulatedReward(userId, tokenType, rewardAmount);
         }
       }
 
-      // Create spin result
+      // Create spin result  
       const spinResult = await storage.createSpinResult({
         userId,
         symbols: result,
         isWin,
         rewardAmount,
+        tokenType,
         tokenId: selectedToken?.id,
-        tokenAddress: selectedToken?.address,
-        transactionHash
+        tokenAddress: result[0], // Store the winning symbol address
+        isAccumulated: true,
+        transactionHash: null // No immediate transaction
       });
 
       // Update user stats
@@ -199,6 +203,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(leaderboard);
     } catch (error) {
       res.status(500).json({ error: "Failed to get leaderboard" });
+    }
+  });
+
+  // Get user's accumulated token balances
+  app.get("/api/user/:id/balances", async (req, res) => {
+    try {
+      const balances = await storage.getUserAccumulatedBalances(req.params.id);
+      const claimInfo = await storage.canUserClaim(req.params.id);
+      res.json({ ...balances, ...claimInfo });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get user balances" });
+    }
+  });
+
+  // Claim accumulated tokens
+  app.post("/api/claim", async (req, res) => {
+    try {
+      const { userId } = req.body;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.walletAddress) {
+        return res.status(400).json({ error: "Wallet address required for claiming" });
+      }
+
+      const claimInfo = await storage.canUserClaim(userId);
+      if (!claimInfo.canClaim) {
+        return res.status(400).json({ error: "Minimum claim threshold not met" });
+      }
+
+      const balances = await storage.getUserAccumulatedBalances(userId);
+      
+      // Prepare token transfers
+      const tokenAddresses = {
+        TOKEN1: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b',
+        TOKEN2: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', 
+        TOKEN3: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'
+      };
+
+      let transactionHash = null;
+      let claimStatus = "pending";
+
+      try {
+        // For now, we'll simulate the transfer and just record the claim
+        // In production, you'd batch transfer all tokens in a single transaction
+        console.log(`🚀 Claiming tokens for user ${userId}:`);
+        console.log(`  TOKEN1: ${balances.token1}`);
+        console.log(`  TOKEN2: ${balances.token2}`);
+        console.log(`  TOKEN3: ${balances.token3}`);
+        console.log(`  Total Value: $${claimInfo.totalValueUSD}`);
+
+        // Create the claim record
+        const tokenClaim = await storage.createTokenClaim({
+          userId,
+          token1Amount: balances.token1,
+          token2Amount: balances.token2,
+          token3Amount: balances.token3,
+          totalValueUSD: claimInfo.totalValueUSD,
+          transactionHash: null, // Will be updated when transaction is confirmed
+          status: "pending"
+        });
+
+        // Reset user's accumulated balances and update claimed totals
+        await storage.updateUser(userId, {
+          accumulatedToken1: "0",
+          accumulatedToken2: "0", 
+          accumulatedToken3: "0",
+          claimedToken1: (BigInt(user.claimedToken1 || '0') + BigInt(balances.token1)).toString(),
+          claimedToken2: (BigInt(user.claimedToken2 || '0') + BigInt(balances.token2)).toString(),
+          claimedToken3: (BigInt(user.claimedToken3 || '0') + BigInt(balances.token3)).toString(),
+          lastClaimDate: new Date()
+        });
+
+        res.json({ 
+          success: true, 
+          claim: tokenClaim,
+          message: "Tokens claimed successfully! They will be transferred to your wallet soon."
+        });
+
+      } catch (error) {
+        console.error("❌ Claim failed:", error);
+        res.status(500).json({ error: "Failed to process claim" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to claim tokens" });
+    }
+  });
+
+  // Get user's claim history
+  app.get("/api/user/:id/claims", async (req, res) => {
+    try {
+      const claims = await storage.getUserClaims(req.params.id);
+      res.json(claims);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get user claims" });
     }
   });
 

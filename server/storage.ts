@@ -1,4 +1,6 @@
-import { type User, type InsertUser, type GameStats, type InsertGameStats, type SpinResult, type InsertSpinResult, type Token, type InsertToken } from "@shared/schema";
+import { type User, type InsertUser, type GameStats, type InsertGameStats, type SpinResult, type InsertSpinResult, type Token, type InsertToken, type TokenClaim, type InsertTokenClaim, users, gameStats, spinResults, tokens, tokenClaims } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -15,6 +17,196 @@ export interface IStorage {
   createToken(token: InsertToken): Promise<Token>;
   updateToken(id: string, updates: Partial<Token>): Promise<Token | undefined>;
   getActiveTokens(): Promise<Token[]>;
+  // New methods for accumulated rewards
+  addAccumulatedReward(userId: string, tokenType: string, amount: string): Promise<User | undefined>;
+  getUserAccumulatedBalances(userId: string): Promise<{ token1: string; token2: string; token3: string }>;
+  createTokenClaim(claim: InsertTokenClaim): Promise<TokenClaim>;
+  getUserClaims(userId: string): Promise<TokenClaim[]>;
+  canUserClaim(userId: string): Promise<{ canClaim: boolean; totalValueUSD: string }>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+
+  async getGameStats(): Promise<GameStats> {
+    const [stats] = await db.select().from(gameStats).limit(1);
+    if (!stats) {
+      // Create initial stats if none exist
+      const [newStats] = await db
+        .insert(gameStats)
+        .values({ totalClaims: 1024, contractTxs: 839 })
+        .returning();
+      return newStats;
+    }
+    return stats;
+  }
+
+  async updateGameStats(updates: Partial<GameStats>): Promise<GameStats> {
+    const currentStats = await this.getGameStats();
+    const [updatedStats] = await db
+      .update(gameStats)
+      .set(updates)
+      .where(eq(gameStats.id, currentStats.id))
+      .returning();
+    return updatedStats;
+  }
+
+  async createSpinResult(result: InsertSpinResult): Promise<SpinResult> {
+    const [spinResult] = await db
+      .insert(spinResults)
+      .values(result)
+      .returning();
+    return spinResult;
+  }
+
+  async getLeaderboard(): Promise<User[]> {
+    return await db
+      .select()
+      .from(users)
+      .orderBy(desc(users.totalWins))
+      .limit(10);
+  }
+
+  async getUserSpinsToday(userId: string): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(spinResults)
+      .where(
+        sql`${spinResults.userId} = ${userId} AND ${spinResults.timestamp} >= ${today}`
+      );
+    
+    return result[0]?.count || 0;
+  }
+
+  async getTokens(): Promise<Token[]> {
+    return await db.select().from(tokens);
+  }
+
+  async createToken(token: InsertToken): Promise<Token> {
+    const [newToken] = await db
+      .insert(tokens)
+      .values(token)
+      .returning();
+    return newToken;
+  }
+
+  async updateToken(id: string, updates: Partial<Token>): Promise<Token | undefined> {
+    const [token] = await db
+      .update(tokens)
+      .set(updates)
+      .where(eq(tokens.id, id))
+      .returning();
+    return token || undefined;
+  }
+
+  async getActiveTokens(): Promise<Token[]> {
+    return await db
+      .select()
+      .from(tokens)
+      .where(eq(tokens.isActive, true));
+  }
+
+  // New methods for accumulated rewards
+  async addAccumulatedReward(userId: string, tokenType: string, amount: string): Promise<User | undefined> {
+    const user = await this.getUser(userId);
+    if (!user) return undefined;
+
+    let updates: Partial<User> = {};
+    
+    switch (tokenType) {
+      case 'TOKEN1':
+        const newToken1 = (BigInt(user.accumulatedToken1 || '0') + BigInt(amount)).toString();
+        updates.accumulatedToken1 = newToken1;
+        break;
+      case 'TOKEN2':
+        const newToken2 = (BigInt(user.accumulatedToken2 || '0') + BigInt(amount)).toString();
+        updates.accumulatedToken2 = newToken2;
+        break;
+      case 'TOKEN3':
+        const newToken3 = (BigInt(user.accumulatedToken3 || '0') + BigInt(amount)).toString();
+        updates.accumulatedToken3 = newToken3;
+        break;
+      default:
+        return user;
+    }
+
+    return await this.updateUser(userId, updates);
+  }
+
+  async getUserAccumulatedBalances(userId: string): Promise<{ token1: string; token2: string; token3: string }> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      return { token1: '0', token2: '0', token3: '0' };
+    }
+    
+    return {
+      token1: user.accumulatedToken1 || '0',
+      token2: user.accumulatedToken2 || '0',
+      token3: user.accumulatedToken3 || '0'
+    };
+  }
+
+  async createTokenClaim(claim: InsertTokenClaim): Promise<TokenClaim> {
+    const [newClaim] = await db
+      .insert(tokenClaims)
+      .values(claim)
+      .returning();
+    return newClaim;
+  }
+
+  async getUserClaims(userId: string): Promise<TokenClaim[]> {
+    return await db
+      .select()
+      .from(tokenClaims)
+      .where(eq(tokenClaims.userId, userId))
+      .orderBy(desc(tokenClaims.timestamp));
+  }
+
+  async canUserClaim(userId: string): Promise<{ canClaim: boolean; totalValueUSD: string }> {
+    const balances = await this.getUserAccumulatedBalances(userId);
+    
+    // Simple calculation: assume each token is worth $0.0001 USD for demo purposes
+    // In reality, you'd fetch real prices from a price oracle
+    const token1ValueUSD = (BigInt(balances.token1) * BigInt(1)) / BigInt(10000); // $0.0001 per token
+    const token2ValueUSD = (BigInt(balances.token2) * BigInt(2)) / BigInt(10000); // $0.0002 per token  
+    const token3ValueUSD = (BigInt(balances.token3) * BigInt(5)) / BigInt(10000); // $0.0005 per token
+    
+    const totalValueUSD = (token1ValueUSD + token2ValueUSD + token3ValueUSD).toString();
+    const minClaimThreshold = BigInt(100); // $1.00 minimum claim threshold
+    
+    return {
+      canClaim: (token1ValueUSD + token2ValueUSD + token3ValueUSD) >= minClaimThreshold,
+      totalValueUSD
+    };
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -216,6 +408,34 @@ export class MemStorage implements IStorage {
   async getActiveTokens(): Promise<Token[]> {
     return Array.from(this.tokens.values()).filter(token => token.isActive);
   }
+
+  // New methods for accumulated rewards (placeholder implementations)
+  async addAccumulatedReward(userId: string, tokenType: string, amount: string): Promise<User | undefined> {
+    // For memory storage, we'll just return the user - this is a placeholder
+    return this.users.get(userId);
+  }
+
+  async getUserAccumulatedBalances(userId: string): Promise<{ token1: string; token2: string; token3: string }> {
+    return { token1: '0', token2: '0', token3: '0' };
+  }
+
+  async createTokenClaim(claim: InsertTokenClaim): Promise<TokenClaim> {
+    const id = randomUUID();
+    const tokenClaim: TokenClaim = {
+      ...claim,
+      id,
+      timestamp: new Date(),
+    };
+    return tokenClaim;
+  }
+
+  async getUserClaims(userId: string): Promise<TokenClaim[]> {
+    return [];
+  }
+
+  async canUserClaim(userId: string): Promise<{ canClaim: boolean; totalValueUSD: string }> {
+    return { canClaim: false, totalValueUSD: '0' };
+  }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
