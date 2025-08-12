@@ -419,21 +419,24 @@ export default function Home() {
             <span className="text-xs text-white/70">{user?.spinsUsed || 0}/5 days</span>
           </div>
           
-          {/* Days of Week */}
-          <div className="flex justify-between mb-3">
-            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
-              <div key={index} className="text-center">
-                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-medium mb-1 ${
-                  index < (user?.spinsUsed || 0) 
-                    ? index === 0 ? 'bg-red-500 text-white' :
-                      index === 1 ? 'bg-purple-500 text-white' :
-                      index === 2 ? 'bg-green-500 text-white' : 'bg-gray-300'
-                    : 'bg-gray-200 text-gray-500'
-                }`}>
-                  {day}
-                </div>
-              </div>
-            ))}
+          {/* Progress Bar Instead of Days */}
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-white/60">Daily Progress</span>
+              <span className="text-xs text-white/60">{user?.spinsUsed || 0}/5</span>
+            </div>
+            <div className="flex space-x-1">
+              {Array.from({ length: 5 }, (_, index) => (
+                <div 
+                  key={index}
+                  className={`flex-1 h-2 rounded-full transition-all duration-300 ${
+                    index < (user?.spinsUsed || 0) 
+                      ? 'bg-gradient-to-r from-green-500 to-blue-500' 
+                      : 'bg-gray-600'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Current Challenge */}
@@ -529,17 +532,17 @@ export default function Home() {
                   />
                   
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
                       <div className="relative">
-                        <img src={token.icon} alt={token.name} className="w-10 h-10 rounded-xl" />
+                        <img src={token.icon} alt={token.name} className="w-8 h-8 rounded-lg" />
                         <span className="absolute -top-1 -right-1 text-xs">{token.emoji}</span>
                       </div>
                       <div>
-                        <div className="font-semibold text-white">{token.name}</div>
-                        <div className="text-sm text-white/60">🔒 {token.time}</div>
+                        <div className="font-semibold text-white text-sm">{token.name}</div>
+                        <div className="text-xs text-white/60">🔒 {token.time}</div>
                       </div>
                     </div>
-                    <div className={`font-bold ${hasBalance ? 'text-green-400' : 'text-gray-500'}`}>
+                    <div className={`font-bold text-sm ${hasBalance ? 'text-green-400' : 'text-gray-500'}`}>
                       +{formattedAmount}
                     </div>
                   </div>
@@ -547,7 +550,7 @@ export default function Home() {
                   {/* Claim button for tokens with balance */}
                   {hasBalance && (
                     <motion.div 
-                      className="mt-3 pt-3 border-t border-white/10"
+                      className="mt-2 pt-2 border-t border-white/10"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       transition={{ delay: 0.2 }}
@@ -556,7 +559,7 @@ export default function Home() {
                         onClick={() => claimMutation.mutate()}
                         disabled={!balances?.canClaim || claimMutation.isPending}
                         size="sm"
-                        className={`w-full ${
+                        className={`w-full h-8 text-xs ${
                           balances?.canClaim 
                             ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white' 
                             : 'bg-gray-700/50 text-gray-400 cursor-not-allowed'
@@ -580,7 +583,7 @@ export default function Home() {
           {/* Global Claim All Button */}
           {balances && (BigInt(balances.token1) > 0 || BigInt(balances.token2) > 0 || BigInt(balances.token3) > 0) && (
             <motion.div
-              className="mt-6"
+              className="mt-3"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
@@ -588,11 +591,11 @@ export default function Home() {
               <Button
                 onClick={() => claimMutation.mutate()}
                 disabled={!balances?.canClaim || claimMutation.isPending}
-                className={`w-full py-3 ${
+                className={`w-full h-10 text-sm ${
                   balances?.canClaim 
                     ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
                     : 'bg-gray-700 cursor-not-allowed'
-                } text-white transition-all duration-200 rounded-2xl`}
+                } text-white transition-all duration-200 rounded-xl`}
               >
                 {claimMutation.isPending ? (
                   "Processing..."
