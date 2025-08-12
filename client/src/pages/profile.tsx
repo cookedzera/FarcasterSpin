@@ -6,7 +6,7 @@ import { Trophy, Zap, Target, Star, Award, Coins, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
-import { TokenBalanceCard } from "@/components/token-balance-card";
+
 
 export default function Profile() {
   const { user, farcasterUser, isFarcasterAuthenticated, isLoading: userLoading } = useGameState();
@@ -388,12 +388,7 @@ export default function Profile() {
           </motion.div>
         </div>
 
-        {/* Token Balance Card */}
-        {shouldShowContent && (
-          <div className="mb-8">
-            <TokenBalanceCard userId={user.id} />
-          </div>
-        )}
+
 
         {/* Achievements Section */}
         <motion.div 

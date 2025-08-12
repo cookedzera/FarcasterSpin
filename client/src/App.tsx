@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/home";
 import Profile from "@/pages/profile";
+import TokenCollection from "@/pages/token-collection";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
@@ -14,6 +15,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/tokens" component={TokenCollection} />
       <Route path="/profile" component={Profile} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />

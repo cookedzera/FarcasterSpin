@@ -8,6 +8,7 @@ Preferred communication style: Simple, everyday language.
 Code preferences: Clean, production-ready code without testing/debug code.
 Project focus: Fully Replit-compatible without external dependencies like tsx.
 Navigation preferences: Fast, smooth transitions without loading animations between pages.
+UI preferences: Token collection display with real balances instead of accumulated rewards on profile.
 
 # System Architecture
 
