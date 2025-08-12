@@ -227,7 +227,7 @@ export default function Home() {
                   <CountdownTimer />
                 </div>
               </div>
-              <div className="relative">
+              <div className="relative z-20">
                 <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-2">
                   <motion.svg 
                     className="w-6 h-6 text-white" 
@@ -289,14 +289,15 @@ export default function Home() {
                     />
                   </motion.svg>
                 </div>
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center z-30 relative">
                   <motion.button
-                    className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden border-2 border-white/20"
+                    className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg relative overflow-hidden border-2 border-white/20 z-50 cursor-pointer"
                     onClick={() => {
                       console.log('Button clicked, setting showSpinWheel to true');
                       setShowSpinWheel(true);
                     }}
                     disabled={(user?.spinsUsed || 0) >= 5}
+                    style={{ pointerEvents: 'auto' }}
                     whileHover={{ 
                       scale: 1.1,
                       boxShadow: '0 6px 20px rgba(59, 130, 246, 0.4)',
@@ -355,6 +356,18 @@ export default function Home() {
                   >
                     Spin
                   </motion.p>
+                  
+                  {/* Simple test button */}
+                  <button
+                    onClick={() => {
+                      console.log('TEST BUTTON CLICKED');
+                      setShowSpinWheel(true);
+                    }}
+                    className="mt-2 px-4 py-1 bg-red-500 text-white rounded text-xs z-50"
+                    style={{ position: 'relative', zIndex: 999 }}
+                  >
+                    TEST
+                  </button>
                 </div>
               </div>
             </div>
