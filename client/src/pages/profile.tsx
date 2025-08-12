@@ -6,7 +6,6 @@ import { Trophy, Zap, Target, Star, Award, Coins, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
-import { TokenBalanceCard } from "@/components/token-balance-card";
 
 
 export default function Profile() {
@@ -101,7 +100,7 @@ export default function Profile() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 px-6 py-8 pb-24">
+      <div className="relative z-10 px-4 py-4 pb-24">
         {!shouldShowContent ? (
           // Loading state with same background
           <div className="min-h-screen flex items-center justify-center -mt-8">
@@ -114,18 +113,18 @@ export default function Profile() {
           <>
         {/* All profile content wrapped here */}
 
-        {/* User Profile Header - matching homepage style */}
+        {/* User Profile Header - Compact */}
         <motion.div 
-          className="text-center mb-8"
+          className="text-center mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <motion.div 
-            className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden"
+            className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-xl font-bold relative overflow-hidden"
             style={{
               background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
-              boxShadow: '0 10px 30px rgba(139, 92, 246, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
+              boxShadow: '0 8px 25px rgba(139, 92, 246, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
               backdropFilter: 'blur(20px)'
             }}
             whileHover={{ scale: 1.05, y: -2 }}
@@ -140,13 +139,13 @@ export default function Profile() {
             ) : (
               user?.username?.charAt(0) || 'P'
             )}
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-gray-900">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-3 border-gray-900">
               <span className="text-white text-xs font-bold">{level}</span>
             </div>
           </motion.div>
-          <div className="mb-3">
+          <div className="mb-2">
             <motion.h1 
-              className="text-3xl font-bold text-white mb-1"
+              className="text-2xl font-bold text-white mb-1"
               initial={{ opacity: 0.8 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
@@ -161,21 +160,21 @@ export default function Profile() {
                 Farcaster Verified
               </Badge>
             )}
-            <div className="w-20 h-0.5 bg-blue-400 mx-auto mb-2 rounded-full"></div>
+            <div className="w-16 h-0.5 bg-blue-400 mx-auto mb-1 rounded-full"></div>
           </div>
-          <h2 className="text-xl font-semibold text-white/80 mb-1">
+          <h2 className="text-lg font-semibold text-white/80 mb-1">
             Level {level} Player
           </h2>
           
           {/* Level Progress */}
-          <div className="max-w-xs mx-auto mt-4">
+          <div className="max-w-xs mx-auto mt-3">
             <div className="flex justify-between text-xs text-white/60 mb-2">
               <span>Level {level}</span>
               <span>Level {level + 1}</span>
             </div>
-            <div className="w-full bg-white/20 rounded-full h-2">
+            <div className="w-full bg-white/20 rounded-full h-1.5">
               <div 
-                className="h-2 rounded-full transition-all duration-300"
+                className="h-1.5 rounded-full transition-all duration-300"
                 style={{
                   width: `${nextLevelProgress}%`,
                   background: 'linear-gradient(90deg, #ec4899 0%, #8b5cf6 100%)'
@@ -185,24 +184,24 @@ export default function Profile() {
           </div>
         </motion.div>
 
-        {/* Stats Grid - matching homepage style */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
+        {/* Stats Grid - Compact */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
           {/* Total Spins Card */}
           <motion.div
-            className="rounded-3xl p-6 text-white relative overflow-hidden"
+            className="rounded-2xl p-4 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(2deg) rotateY(-1deg)',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
             initial={{ opacity: 0.9 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
             whileHover={{ 
               scale: 1.02, 
-              y: -5,
+              y: -3,
               transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
               transition: { duration: 0.3 }
             }}
@@ -210,7 +209,7 @@ export default function Profile() {
           >
             {/* Gradient overlay */}
             <div 
-              className="absolute inset-0 rounded-3xl"
+              className="absolute inset-0 rounded-2xl"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
                 opacity: 0.9
@@ -224,37 +223,37 @@ export default function Profile() {
               }}
             />
             <div className="relative z-10 text-center">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Zap className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                <Zap className="w-4 h-4 text-white" />
               </div>
-              <p className="text-3xl font-bold text-white mb-1">{user?.totalSpins || 0}</p>
-              <p className="text-sm text-white/80 font-medium">Total Spins</p>
+              <p className="text-2xl font-bold text-white mb-1">{user?.totalSpins || 0}</p>
+              <p className="text-xs text-white/80 font-medium">Total Spins</p>
             </div>
           </motion.div>
 
           {/* Total Wins Card */}
           <motion.div
-            className="rounded-3xl p-6 text-white relative overflow-hidden"
+            className="rounded-2xl p-4 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(-1deg) rotateY(1deg)',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
             whileHover={{ 
               scale: 1.02, 
-              y: -5,
+              y: -3,
               transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
               transition: { duration: 0.3 }
             }}
           >
             {/* Gradient overlay */}
             <div 
-              className="absolute inset-0 rounded-3xl"
+              className="absolute inset-0 rounded-2xl"
               style={{
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 opacity: 0.9
@@ -268,33 +267,33 @@ export default function Profile() {
               }}
             />
             <div className="relative z-10 text-center">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Trophy className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                <Trophy className="w-4 h-4 text-white" />
               </div>
-              <p className="text-3xl font-bold text-white mb-1">{user?.totalWins || 0}</p>
-              <p className="text-sm text-white/80 font-medium">Total Wins</p>
+              <p className="text-2xl font-bold text-white mb-1">{user?.totalWins || 0}</p>
+              <p className="text-xs text-white/80 font-medium">Total Wins</p>
             </div>
           </motion.div>
         </div>
 
-        {/* Performance Cards */}
-        <div className="space-y-6 mb-8">
+        {/* Performance Cards - Compact */}
+        <div className="space-y-3 mb-4">
           {/* Win Rate Card */}
           <motion.div
-            className="rounded-3xl p-6 text-white relative overflow-hidden"
+            className="rounded-2xl p-4 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(2deg) rotateY(-1deg)',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
             initial={{ opacity: 0.9 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
             whileHover={{ 
               scale: 1.02, 
-              y: -5,
+              y: -3,
               transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
               transition: { duration: 0.3 }
             }}
@@ -302,7 +301,7 @@ export default function Profile() {
           >
             {/* Gradient overlay */}
             <div 
-              className="absolute inset-0 rounded-3xl"
+              className="absolute inset-0 rounded-2xl"
               style={{
                 background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                 opacity: 0.9
@@ -317,17 +316,17 @@ export default function Profile() {
             />
             <div className="relative z-10">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-white" />
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <Target className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">🎯 Performance</h3>
-                    <p className="text-white/80 text-sm">Your success rate</p>
+                    <h3 className="font-bold text-sm">🎯 Performance</h3>
+                    <p className="text-white/80 text-xs">Your success rate</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold text-white">{winRate.toFixed(1)}%</p>
+                  <p className="text-xl font-bold text-white">{winRate.toFixed(1)}%</p>
                   <p className="text-xs text-white/60">Win Rate</p>
                 </div>
               </div>
@@ -336,27 +335,27 @@ export default function Profile() {
 
           {/* Daily Spins Card */}
           <motion.div
-            className="rounded-3xl p-6 text-white relative overflow-hidden"
+            className="rounded-2xl p-4 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(-1deg) rotateY(1deg)',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
+              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
             whileHover={{ 
               scale: 1.02, 
-              y: -5,
+              y: -3,
               transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
               transition: { duration: 0.3 }
             }}
           >
             {/* Gradient overlay */}
             <div 
-              className="absolute inset-0 rounded-3xl"
+              className="absolute inset-0 rounded-2xl"
               style={{
                 background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
                 opacity: 0.9
@@ -371,17 +370,17 @@ export default function Profile() {
             />
             <div className="relative z-10">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Coins className="w-6 h-6 text-white" />
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <Coins className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">⚡ Daily Challenge</h3>
-                    <p className="text-white/80 text-sm">Spins remaining today</p>
+                    <h3 className="font-bold text-sm">⚡ Daily Challenge</h3>
+                    <p className="text-white/80 text-xs">Spins remaining today</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold text-white">{5 - (user?.spinsUsed || 0)}</p>
+                  <p className="text-xl font-bold text-white">{5 - (user?.spinsUsed || 0)}</p>
                   <p className="text-xs text-white/60">Spins Left</p>
                 </div>
               </div>
@@ -389,31 +388,26 @@ export default function Profile() {
           </motion.div>
         </div>
 
-        {/* Token Collection Section */}
-        {shouldShowContent && (
-          <div className="mb-8">
-            <TokenBalanceCard userId={user.id} />
-          </div>
-        )}
 
-        {/* Achievements Section */}
+
+        {/* Achievements Section - Compact */}
         <motion.div 
-          className="mb-8"
+          className="mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white">🏆 Achievements</h3>
-            <span className="text-sm text-white/70">{achievements.filter(a => a.unlocked).length}/{achievements.length} unlocked</span>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-base font-bold text-white">🏆 Achievements</h3>
+            <span className="text-xs text-white/70">{achievements.filter(a => a.unlocked).length}/{achievements.length} unlocked</span>
           </div>
           
           {/* Achievement Grid */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             {achievements.map((achievement, index) => (
               <motion.div 
                 key={achievement.id}
-                className={`p-3 rounded-2xl text-center ${
+                className={`p-2 rounded-xl text-center ${
                   achievement.unlocked 
                     ? 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' 
                     : 'bg-white/5 border border-white/10'
@@ -423,7 +417,7 @@ export default function Profile() {
                 transition={{ delay: 0.4 + index * 0.1 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <achievement.icon className={`w-6 h-6 mx-auto mb-2 ${
+                <achievement.icon className={`w-5 h-5 mx-auto mb-1 ${
                   achievement.unlocked ? achievement.color : 'text-gray-500'
                 }`} />
                 <p className={`text-xs font-medium ${
