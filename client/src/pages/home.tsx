@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useGameState } from "@/hooks/use-game-state";
@@ -7,18 +7,82 @@ import SpinWheel from "@/components/spin-wheel";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { formatUnits } from "ethers";
 import { type GameStats } from "@shared/schema";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
 import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
 
+interface TokenBalances {
+  token1: string;
+  token2: string;
+  token3: string;
+  canClaim: boolean;
+  totalValueUSD: string;
+}
+
 export default function Home() {
   const { user, isLoading: userLoading } = useGameState();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: stats } = useQuery<GameStats>({
     queryKey: ["/api/stats"],
   });
+
+  // Get token balances for real data
+  const { data: balances, isLoading: balancesLoading } = useQuery<TokenBalances>({
+    queryKey: ['/api/user', user?.id, 'balances'],
+    enabled: !!user?.id,
+  });
+
+  const claimMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/claim', {
+        method: 'POST',
+        body: JSON.stringify({ userId: user?.id }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to claim tokens');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: "Tokens Claimed!",
+        description: data.message || "Tokens claimed successfully!",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id, 'balances'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Claim Failed",
+        description: error.message || "Failed to claim tokens",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const formatTokenAmount = (amount: string, decimals = 18) => {
+    try {
+      const parsed = parseFloat(formatUnits(amount, decimals));
+      if (parsed >= 1000) {
+        return `${(parsed / 1000).toFixed(1)}K`;
+      } else if (parsed >= 1) {
+        return `${parsed.toFixed(0)}`;
+      }
+      return "0";
+    } catch {
+      return "0";
+    }
+  };
 
   // Remove loading state for smooth navigation
   if (userLoading) return null;
@@ -427,52 +491,119 @@ export default function Home() {
           <h3 className="text-lg font-bold text-white mb-4">🪙 Token Collection</h3>
           <div className="space-y-3">
             {[
-              { name: 'AIDOGE', icon: aidogeLogo, amount: '1.2K', time: '2h 14 min', emoji: '🐕' },
-              { name: 'BOOP', icon: boopLogo, amount: '850', time: '5h 22 min', emoji: '🎭' },
-              { name: 'CATCH', icon: catchLogo, amount: '2.1K', time: '1h 8 min', emoji: '🎯' }
-            ].map((token, index) => (
-              <motion.div
-                key={index}
-                className="rounded-2xl p-4 flex items-center justify-between relative overflow-hidden"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  transform: `perspective(1000px) rotateX(${index % 2 === 0 ? '0.5deg' : '-0.5deg'}) rotateY(${index % 2 === 0 ? '-0.3deg' : '0.3deg'})`,
-                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
-                }}
-                whileHover={{ 
-                  scale: 1.02, 
-                  y: -3,
-                  transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
-                  transition: { duration: 0.3 }
-                }}
-                transition={{ type: "spring", stiffness: 300 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                {/* Top highlight */}
-                <div 
-                  className="absolute top-0 left-0 right-0 h-px"
+              { name: 'AIDOGE', icon: aidogeLogo, amount: balances?.token1 || '0', time: '2h 14 min', emoji: '🐕' },
+              { name: 'BOOP', icon: boopLogo, amount: balances?.token2 || '0', time: '5h 22 min', emoji: '🎭' },
+              { name: 'CATCH', icon: catchLogo, amount: balances?.token3 || '0', time: '1h 8 min', emoji: '🎯' }
+            ].map((token, index) => {
+              const hasBalance = BigInt(token.amount) > 0;
+              const formattedAmount = formatTokenAmount(token.amount);
+              
+              return (
+                <motion.div
+                  key={index}
+                  className="rounded-2xl p-4 relative overflow-hidden"
                   style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)'
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    transform: `perspective(1000px) rotateX(${index % 2 === 0 ? '0.5deg' : '-0.5deg'}) rotateY(${index % 2 === 0 ? '-0.3deg' : '0.3deg'})`,
+                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
                   }}
-                />
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <img src={token.icon} alt={token.name} className="w-10 h-10 rounded-xl" />
-                    <span className="absolute -top-1 -right-1 text-xs">{token.emoji}</span>
+                  whileHover={{ 
+                    scale: 1.02, 
+                    y: -3,
+                    transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+                    transition: { duration: 0.3 }
+                  }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                >
+                  {/* Top highlight */}
+                  <div 
+                    className="absolute top-0 left-0 right-0 h-px"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)'
+                    }}
+                  />
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <img src={token.icon} alt={token.name} className="w-10 h-10 rounded-xl" />
+                        <span className="absolute -top-1 -right-1 text-xs">{token.emoji}</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-white">{token.name}</div>
+                        <div className="text-sm text-white/60">🔒 {token.time}</div>
+                      </div>
+                    </div>
+                    <div className={`font-bold ${hasBalance ? 'text-green-400' : 'text-gray-500'}`}>
+                      +{formattedAmount}
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-semibold text-white">{token.name}</div>
-                    <div className="text-sm text-white/60">⏰ {token.time}</div>
-                  </div>
-                </div>
-                <div className="text-green-400 font-bold">+{token.amount}</div>
-              </motion.div>
-            ))}
+
+                  {/* Claim button for tokens with balance */}
+                  {hasBalance && (
+                    <motion.div 
+                      className="mt-3 pt-3 border-t border-white/10"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <Button
+                        onClick={() => claimMutation.mutate()}
+                        disabled={!balances?.canClaim || claimMutation.isPending}
+                        size="sm"
+                        className={`w-full ${
+                          balances?.canClaim 
+                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white' 
+                            : 'bg-gray-700/50 text-gray-400 cursor-not-allowed'
+                        } border border-white/20 transition-all duration-200`}
+                      >
+                        {claimMutation.isPending ? (
+                          "Processing..."
+                        ) : balances?.canClaim ? (
+                          "Claim"
+                        ) : (
+                          "Min $1 required"
+                        )}
+                      </Button>
+                    </motion.div>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
+
+          {/* Global Claim All Button */}
+          {balances && (BigInt(balances.token1) > 0 || BigInt(balances.token2) > 0 || BigInt(balances.token3) > 0) && (
+            <motion.div
+              className="mt-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Button
+                onClick={() => claimMutation.mutate()}
+                disabled={!balances?.canClaim || claimMutation.isPending}
+                className={`w-full py-3 ${
+                  balances?.canClaim 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
+                    : 'bg-gray-700 cursor-not-allowed'
+                } text-white transition-all duration-200 rounded-2xl`}
+              >
+                {claimMutation.isPending ? (
+                  "Processing..."
+                ) : balances?.canClaim ? (
+                  "Claim All Tokens"
+                ) : (
+                  "Minimum $1.00 required"
+                )}
+              </Button>
+            </motion.div>
+          )}
         </motion.div>
       </div>
 
