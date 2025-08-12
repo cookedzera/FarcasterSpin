@@ -250,8 +250,7 @@ export default function SpinWheel() {
 
         {/* Wheel Container */}
         <div className="relative flex items-center justify-center mb-4">
-
-          {/* Main Wheel - Fixed Design with SVG */}
+          {/* Main Wheel - Clean Design */}
           <motion.div
             className="relative w-56 h-56"
             animate={{ rotate: wheelRotation }}
@@ -261,32 +260,6 @@ export default function SpinWheel() {
             }}
           >
             <svg width="224" height="224" viewBox="0 0 224 224" className="drop-shadow-2xl">
-              <defs>
-                {/* Define gradients for each segment */}
-                {wheelSegments.map((segment, index) => (
-                  <radialGradient key={`grad-${index}`} id={`gradient-${index}`} cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor={segment.color + '40'} />
-                    <stop offset="100%" stopColor={segment.color + '80'} />
-                  </radialGradient>
-                ))}
-                {/* Center gradient definition */}
-                <radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#334155" />
-                  <stop offset="100%" stopColor="#1e293b" />
-                </radialGradient>
-              </defs>
-              
-              {/* Top pointer triangle */}
-              <polygon 
-                points="112,8 118,20 106,20" 
-                fill="white" 
-                stroke="rgba(139, 92, 246, 0.6)" 
-                strokeWidth="1"
-              />
-              
-              {/* Outer border circle */}
-              <circle cx="112" cy="112" r="108" fill="none" stroke="rgba(139, 92, 246, 0.6)" strokeWidth="3"/>
-              
               {/* Wheel segments */}
               {wheelSegments.map((segment, index) => {
                 const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
@@ -307,52 +280,47 @@ export default function SpinWheel() {
                       d={`M 112 112 L ${x1} ${y1} A 104 104 0 ${largeArc} 1 ${x2} ${y2} Z`}
                       fill={segment.color}
                       stroke="rgba(255,255,255,0.3)"
-                      strokeWidth="1.5"
+                      strokeWidth="2"
                       className={`transition-all duration-300 ${isWinning ? 'brightness-125' : ''}`}
                     />
                     
-                    {/* Segment content */}
-                    <g>
-                      {/* Calculate position for text/image */}
-                      {(() => {
-                        const midAngle = (startAngle + endAngle) / 2;
-                        const textRadius = 65;
-                        const textX = 112 + textRadius * Math.cos(midAngle);
-                        const textY = 112 + textRadius * Math.sin(midAngle);
-                        
-                        return (
-                          <g transform={`translate(${textX}, ${textY})`}>
-                            <text
-                              x="0"
-                              y="-2"
-                              textAnchor="middle"
-                              className="fill-white font-bold"
-                              fontSize="11"
-                              fontFamily="Arial, sans-serif"
-                            >
-                              {segment.name}
-                            </text>
-                            <text
-                              x="0"
-                              y="12"
-                              textAnchor="middle"
-                              className="fill-white"
-                              fontSize="9"
-                              fontFamily="Arial, sans-serif"
-                            >
-                              {segment.reward}
-                            </text>
-                          </g>
-                        );
-                      })()}
-                    </g>
+                    {/* Segment text */}
+                    {(() => {
+                      const midAngle = (startAngle + endAngle) / 2;
+                      const textRadius = 65;
+                      const textX = 112 + textRadius * Math.cos(midAngle);
+                      const textY = 112 + textRadius * Math.sin(midAngle);
+                      
+                      return (
+                        <g transform={`translate(${textX}, ${textY})`}>
+                          <text
+                            x="0"
+                            y="0"
+                            textAnchor="middle"
+                            className="fill-white font-bold"
+                            fontSize="12"
+                            fontFamily="Arial, sans-serif"
+                          >
+                            {segment.name}
+                          </text>
+                        </g>
+                      );
+                    })()}
                   </g>
                 );
               })}
               
-              {/* Center hub */}
-              <circle cx="112" cy="112" r="22" fill="url(#centerGrad)" stroke="rgba(255,255,255,0.6)" strokeWidth="2"/>
-              <text x="112" y="118" textAnchor="middle" className="fill-white font-bold" fontSize="11">SPIN</text>
+              {/* Center circle */}
+              <circle cx="112" cy="112" r="25" fill="#1e293b" stroke="rgba(255,255,255,0.8)" strokeWidth="3"/>
+              <text x="112" y="118" textAnchor="middle" className="fill-white font-bold" fontSize="12">SPIN</text>
+              
+              {/* Top pointer triangle */}
+              <polygon 
+                points="112,15 118,25 106,25" 
+                fill="white" 
+                stroke="#666" 
+                strokeWidth="1"
+              />
             </svg>
           </motion.div>
         </div>
