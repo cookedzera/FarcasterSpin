@@ -84,8 +84,19 @@ export default function Home() {
     }
   };
 
-  // Remove loading state for smooth navigation
-  if (userLoading) return null;
+  // Show minimal loading state while preserving background
+  if (userLoading) {
+    return (
+      <div className="min-h-screen relative overflow-hidden" style={{
+        background: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 50%, #2c2c2e 100%)'
+      }}>
+        {/* Loading spinner */}
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{

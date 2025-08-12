@@ -14,14 +14,14 @@ import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
 
 const wheelSegments = [
-  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000', color: '#3B82F6' },
-  { id: 'bankrupt', name: 'BUST', image: '', isToken: false, reward: '0', color: '#EF4444' },
-  { id: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', name: 'BOOP', image: boopLogo, isToken: true, reward: '2000', color: '#10B981' },
-  { id: 'bonus', name: 'BONUS', image: '', isToken: false, reward: '500', color: '#F59E0B' },
-  { id: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f', name: 'CATCH', image: catchLogo, isToken: true, reward: '1500', color: '#8B5CF6' },
-  { id: 'bankrupt', name: 'BUST', image: '', isToken: false, reward: '0', color: '#EF4444' },
-  { id: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000', color: '#3B82F6' },
-  { id: 'mega', name: 'JACKPOT', image: '', isToken: false, reward: '5000', color: '#F97316' }
+  { id: 'aidoge-1', tokenAddress: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000', color: '#3B82F6' },
+  { id: 'bankrupt-1', tokenAddress: null, name: 'BUST', image: '', isToken: false, reward: '0', color: '#EF4444' },
+  { id: 'boop-1', tokenAddress: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', name: 'BOOP', image: boopLogo, isToken: true, reward: '2000', color: '#10B981' },
+  { id: 'bonus-1', tokenAddress: null, name: 'BONUS', image: '', isToken: false, reward: '500', color: '#F59E0B' },
+  { id: 'catch-1', tokenAddress: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f', name: 'CATCH', image: catchLogo, isToken: true, reward: '1500', color: '#8B5CF6' },
+  { id: 'bankrupt-2', tokenAddress: null, name: 'BUST', image: '', isToken: false, reward: '0', color: '#EF4444' },
+  { id: 'aidoge-2', tokenAddress: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', name: 'AIDOGE', image: aidogeLogo, isToken: true, reward: '1000', color: '#3B82F6' },
+  { id: 'mega-1', tokenAddress: null, name: 'JACKPOT', image: '', isToken: false, reward: '5000', color: '#F97316' }
 ];
 
 export default function SpinWheel() {
@@ -48,11 +48,27 @@ export default function SpinWheel() {
     },
     onSuccess: (result) => {
       // Calculate which segment to land on
-      const winningSegmentIndex = result.isWin 
-        ? wheelSegments.findIndex(seg => seg.id === result.symbols?.[0])
-        : wheelSegments.findIndex(seg => seg.id === 'bankrupt');
+      let winningSegmentIndex = -1;
       
-      const finalSegment = winningSegmentIndex >= 0 ? winningSegmentIndex : 1; // Default to bankrupt
+      if (result.isWin) {
+        // Find a segment that matches the winning token address
+        const winningTokenAddress = result.symbols?.[0];
+        const tokenSegments = wheelSegments.filter(seg => seg.tokenAddress === winningTokenAddress);
+        if (tokenSegments.length > 0) {
+          // Choose a random matching segment for variety
+          const randomTokenSegment = tokenSegments[Math.floor(Math.random() * tokenSegments.length)];
+          winningSegmentIndex = wheelSegments.findIndex(seg => seg.id === randomTokenSegment.id);
+        }
+      } else {
+        // Find a random BUST segment for loses
+        const bustSegments = wheelSegments.filter(seg => seg.name === 'BUST');
+        if (bustSegments.length > 0) {
+          const randomBustSegment = bustSegments[Math.floor(Math.random() * bustSegments.length)];
+          winningSegmentIndex = wheelSegments.findIndex(seg => seg.id === randomBustSegment.id);
+        }
+      }
+      
+      const finalSegment = winningSegmentIndex >= 0 ? winningSegmentIndex : 1; // Default to first bankrupt
       
       // Calculate rotation to land on the winning segment
       const targetAngle = -(finalSegment * segmentAngle) + (segmentAngle / 2);
