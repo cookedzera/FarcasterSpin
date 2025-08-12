@@ -250,12 +250,11 @@ export default function SpinWheel() {
 
         {/* Wheel Container */}
         <div className="relative flex items-center justify-center mb-4">
-          {/* Pointer */}
+          {/* Pointer - Fixed positioning */}
           <div 
-            className="absolute top-0 left-1/2 transform -translate-x-1/2 z-30"
-            style={{ marginTop: '-4px' }}
+            className="absolute top-2 left-1/2 transform -translate-x-1/2 z-30"
           >
-            <div className="w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent border-b-white"></div>
+            <div className="w-0 h-0 border-l-3 border-r-3 border-b-5 border-l-transparent border-r-transparent border-b-white shadow-lg"></div>
           </div>
 
           {/* Main Wheel - Fixed Design with SVG */}
@@ -315,55 +314,64 @@ export default function SpinWheel() {
                         const textY = 112 + textRadius * Math.sin(midAngle);
                         
                         return (
-                          <g transform={`translate(${textX}, ${textY}) rotate(${(midAngle * 180 / Math.PI) + 90})`}>
-                            {segment.isToken && segment.image ? (
+                          <g transform={`translate(${textX}, ${textY})`}>
+                            {segment.isToken ? (
                               <>
-                                <image
-                                  x="-12"
-                                  y="-20"
-                                  width="24"
-                                  height="24"
-                                  href={segment.image}
-                                  className="rounded-full"
-                                  clipPath="circle(12px)"
+                                <circle
+                                  cx="0"
+                                  cy="-8"
+                                  r="14"
+                                  fill={segment.color}
+                                  opacity="0.8"
                                 />
+                                <text
+                                  x="0"
+                                  y="-4"
+                                  textAnchor="middle"
+                                  className="fill-white font-bold"
+                                  fontSize="11"
+                                  fontFamily="monospace"
+                                >
+                                  {segment.name}
+                                </text>
                                 <text
                                   x="0"
                                   y="8"
                                   textAnchor="middle"
-                                  className="fill-white text-xs font-bold"
-                                  fontSize="10"
+                                  className="fill-white"
+                                  fontSize="8"
                                 >
-                                  {segment.name}
+                                  {segment.reward}
                                 </text>
                               </>
                             ) : (
                               <>
                                 <circle
                                   cx="0"
-                                  cy="-12"
-                                  r="12"
+                                  cy="-8"
+                                  r="14"
                                   fill={segment.name === 'BUST' ? '#ef4444' : 
                                        segment.name === 'JACKPOT' ? '#f97316' : '#f59e0b'}
+                                  opacity="0.9"
                                 />
                                 <text
                                   x="0"
-                                  y="-8"
+                                  y="-4"
                                   textAnchor="middle"
-                                  className="fill-white text-xs font-bold"
-                                  fontSize="8"
+                                  className="fill-white font-bold"
+                                  fontSize="10"
+                                  fontFamily="monospace"
                                 >
-                                  {segment.name === 'BUST' ? '💀' : 
-                                   segment.name === 'JACKPOT' ? '💎' : '💰'}
+                                  {segment.name}
                                 </text>
                                 <text
                                   x="0"
                                   y="8"
                                   textAnchor="middle"
-                                  className="fill-white text-xs font-bold"
-                                  fontSize="9"
+                                  className="fill-white"
+                                  fontSize="8"
                                 >
-                                  {segment.name}
+                                  {segment.reward}
                                 </text>
                               </>
                             )}
