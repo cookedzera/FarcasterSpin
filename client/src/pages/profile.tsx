@@ -5,7 +5,7 @@ import { useFarcasterAuth } from "@/hooks/use-farcaster-auth";
 import { Trophy, Zap, Target, Star, Award, Coins, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/navigation";
-import { FarcasterConnect } from "@/components/farcaster-connect";
+import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 
 export default function Profile() {
   const { user, farcasterUser, isFarcasterAuthenticated, isLoading: userLoading } = useGameState();
@@ -93,6 +93,11 @@ export default function Profile() {
         ))}
       </div>
 
+      {/* Compact Wallet Connect - Top Right */}
+      <div className="fixed top-6 right-6 z-30">
+        <WalletConnectCompact />
+      </div>
+
       {/* Content */}
       <div className="relative z-10 px-6 py-8 pb-24">
         {!shouldShowContent ? (
@@ -106,15 +111,6 @@ export default function Profile() {
         ) : (
           <>
         {/* All profile content wrapped here */}
-        {/* Farcaster Connection Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-6"
-        >
-          <FarcasterConnect />
-        </motion.div>
 
         {/* User Profile Header - matching homepage style */}
         <motion.div 

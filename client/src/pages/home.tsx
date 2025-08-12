@@ -6,6 +6,7 @@ import { useGameState } from "@/hooks/use-game-state";
 import SpinWheel from "@/components/spin-wheel";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
+import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 import { type GameStats } from "@shared/schema";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
 import boopLogo from "@assets/Boop_resized_1754468548333.webp";
@@ -61,6 +62,11 @@ export default function Home() {
       </div>
       
 
+
+      {/* Compact Wallet Connect - Top Right */}
+      <div className="fixed top-6 right-6 z-30">
+        <WalletConnectCompact />
+      </div>
 
       {/* Main Content */}
       <div className="relative z-10 px-6 py-8 pb-24">
