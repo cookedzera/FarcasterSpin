@@ -79,7 +79,7 @@ export default function SpinWheelClean() {
   };
 
   return (
-    <div className="w-full max-w-xs mx-auto p-4" style={{ background: 'hsl(223, 29%, 12%)' }}>
+    <div className="w-full mx-auto">
       {/* Header */}
       <div className="text-center mb-4">
         <h1 className="text-xl font-bold text-white mb-1">
