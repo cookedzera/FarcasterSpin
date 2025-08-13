@@ -73,7 +73,7 @@ contract WheelGameTestnet is Ownable, ReentrancyGuard {
     /**
      * @dev Constructor initializes reward tiers with testnet tokens
      */
-    constructor() {
+    constructor() Ownable(msg.sender) {
         
         // Initialize reward tiers with testnet tokens
         rewards["JACKPOT"] = RewardToken({

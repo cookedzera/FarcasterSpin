@@ -1,0 +1,161 @@
+Explanation of the Error
+
+
+
+Base Constructor Parameters:
+
+
+
+The Ownable contract from OpenZeppelin has a constructor that requires an argument: constructor(address initialOwner). This argument specifies the initial owner of the contract.
+
+When you inherit from Ownable, you need to provide this argument in the constructor of your contract.
+
+
+
+
+No Arguments Passed:
+
+
+
+The WheelGameTestnet contract does not pass any arguments to the Ownable constructor. This causes the compiler to throw an error because it expects an argument for the Ownable constructor.
+
+
+
+
+How to Fix the Error
+
+To resolve this issue, you need to pass the initial owner's address to the Ownable constructor. Typically, you would use msg.sender to set the deployer of the contract as the initial owner.
+
+
+Here is how you can modify the WheelGameTestnet contract to fix the error:
+
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.30;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+/**
+ * @title WheelGameTestnet
+ * @dev Enhanced testnet version of WheelGame for Arbitrum Sepolia
+ * @notice Uses testnet tokens for safe testing with improved security
+ */
+contract WheelGameTestnet is Ownable, ReentrancyGuard {
+    struct RewardToken {
+        address token;
+        uint256 rewardAmount;
+        bool isActive;
+    }
+
+    struct PlayerStats {
+        uint256 totalSpins;
+        uint256 totalWins;
+        uint256 lastSpinDate;
+        uint256 dailySpins;
+        mapping(address => uint256) pendingRewards;
+    }
+
+    // Testnet token addresses (immutable for gas efficiency)
+    address public immutable IARB = 0x06d8c3f0e1cfb7e9d3f5b51d17dcd623acc1b3b7;  // IntArbTestToken
+    address public immutable JUICE = 0x1842887de1c7fdd59e3948a93cd41aad48a19cb2; // TestJuicy
+    address public immutable ABET = 0x0ba7a82d415500bebfa254502b655732cd678d07;  // ArbBETestt
+
+    // Game configuration (constants for gas efficiency)
+    uint256 public constant MAX_DAILY_SPINS = 5;
+    uint256 public constant SECONDS_PER_DAY = 86400;
+
+    // Wheel segments for randomness
+    string[] public wheelSegments = ["IARB", "BUST", "JUICE", "BONUS", "ABET", "BUST", "IARB", "JACKPOT"];
+
+    // State variables
+    mapping(string => RewardToken) public rewards;
+    mapping(address => PlayerStats) public players;
+
+    // Nonce for additional randomness entropy
+    uint256 private nonce;
+
+    // Custom errors (gas efficient)
+    error DailySpinLimitReached();
+    error NoRewardsToClaim();
+    error InvalidTokenAddress();
+    error InsufficientContractBalance();
+
+    // Events
+    event SpinResult(
+        address indexed player,
+        string segment,
+        bool isWin,
+        address tokenAddress,
+        uint256 rewardAmount,
+        uint256 randomSeed
+    );
+
+    event RewardsClaimed(
+        address indexed player,
+        address indexed token,
+        uint256 amount
+    );
+
+    event ContractFunded(
+        address indexed token,
+        uint256 amount
+    );
+
+    /**
+     * @dev Constructor initializes reward tiers with testnet tokens
+     */
+    constructor() Ownable(msg.sender) {
+        // Initialize reward tiers with testnet tokens
+        rewards["JACKPOT"] = RewardToken({
+            token: IARB,
+            rewardAmount: 5 * 10**18, // 5 IARB
+            isActive: true
+        });
+
+        rewards["IARB"] = RewardToken({
+            token: IARB,
+            rewardAmount: 1 * 10**18, // 1 IARB
+            isActive: true
+        });
+
+        rewards["JUICE"] = RewardToken({
+            token: JUICE,
+            rewardAmount: 2 * 10**18, // 2 JUICE
+            isActive: true
+        });
+
+        rewards["ABET"] = RewardToken({
+            token: ABET,
+            rewardAmount: 3 * 10**18, // 3 ABET
+            isActive: true
+        });
+
+        rewards["BONUS"] = RewardToken({
+            token: JUICE,
+            rewardAmount: 1 * 10**18, // 1 JUICE
+            isActive: true
+        });
+
+        rewards["BUST"] = RewardToken({
+            token: address(0),
+            rewardAmount: 0,
+            isActive: false
+        });
+    }
+
+    // Rest of the contract code remains the same
+    // ...
+}
+
+Explanation of the Fix
+
+
+Constructor Argument:
+
+The constructor of WheelGameTestnet now includes Ownable(msg.sender), which passes the address of the contract deployer as the initial owner to the Ownable constructor.
+
+
+
+
+By making this change, you ensure that the Ownable constructor receives the required argument, and the error should be resolved. This sets the deployer of the contract as the initial owner, which is a common practice for contracts that use the Ownable pattern.
