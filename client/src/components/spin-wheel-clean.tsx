@@ -179,8 +179,8 @@ export default function SpinWheelClean() {
         </div>
         
         {/* Fixed Premium Pointer (stays in place while wheel spins) */}
-        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-10">
-          <svg width="40" height="40" viewBox="0 0 40 40">
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10">
+          <svg width="30" height="30" viewBox="0 0 30 30">
             <defs>
               <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#fbbf24" />
@@ -193,12 +193,12 @@ export default function SpinWheelClean() {
                 <stop offset="100%" stopColor="#374151" />
               </linearGradient>
               <filter id="arrowShadow">
-                <feDropShadow dx="0" dy="3" stdDeviation="3" floodOpacity="0.4"/>
+                <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.5"/>
               </filter>
             </defs>
             {/* Main arrow pointing down into the wheel */}
             <polygon 
-              points="20,8 28,22 12,22" 
+              points="15,5 22,18 8,18" 
               fill="url(#arrowGradient)" 
               stroke="url(#arrowStroke)" 
               strokeWidth="2"
@@ -206,14 +206,14 @@ export default function SpinWheelClean() {
             />
             {/* Inner highlight for 3D effect */}
             <polygon 
-              points="20,10 25,20 15,20" 
-              fill="rgba(255,255,255,0.3)" 
+              points="15,7 20,16 10,16" 
+              fill="rgba(255,255,255,0.4)" 
             />
             {/* Central ridge line for premium detail */}
             <line 
-              x1="20" y1="10" 
-              x2="20" y2="20" 
-              stroke="rgba(255,255,255,0.6)" 
+              x1="15" y1="7" 
+              x2="15" y2="16" 
+              stroke="rgba(255,255,255,0.7)" 
               strokeWidth="1"
             />
           </svg>
