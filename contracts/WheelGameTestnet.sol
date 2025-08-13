@@ -130,10 +130,10 @@ contract WheelGameTestnet is Ownable, ReentrancyGuard {
             revert DailySpinLimitReached();
         }
         
-        // Generate random number
+        // Generate random number (using block.difficulty for compatibility)
         uint256 randomSeed = uint256(keccak256(abi.encodePacked(
             block.timestamp,
-            block.prevrandao,
+            block.difficulty,
             msg.sender,
             nonce++,
             blockhash(block.number - 1)
