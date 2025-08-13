@@ -11,6 +11,14 @@ Navigation preferences: Fast, smooth transitions without loading animations betw
 UI preferences: Token collection display with real balances instead of accumulated rewards on profile.
 
 # Recent Changes
+- **August 13, 2025**: Contract events-based leaderboard system implemented with improved security
+  - Enhanced WheelGame.sol contract with Remix IDE security suggestions: SafeERC20, immutable variables, admin event emissions
+  - Implemented Option 1 leaderboard system using contract events (SpinResult, RewardsClaimed) from Arbitrum mainnet
+  - Created comprehensive leaderboard service that syncs real player data from blockchain events
+  - Added leaderboard API routes: /api/leaderboard, /api/leaderboard/weekly, /api/player/:address/rank
+  - Built responsive leaderboard UI with tabs for Most Wins, Most Spins, Biggest Rewards, and Weekly Champions
+  - Added leaderboard navigation button to main app navigation bar with trophy icon and golden styling
+  - Leaderboard displays authentic on-chain player statistics, rankings, and achievement tracking
 - **August 13, 2025**: Successfully completed project migration and enhanced wheel mechanics
   - Completed migration from Replit Agent to standard Replit environment
   - Fixed missing tsx dependency installation and PostgreSQL database setup

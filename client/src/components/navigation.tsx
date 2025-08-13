@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
-import { Home, User, Gamepad2 } from "lucide-react";
+import { Home, User, Gamepad2, Trophy } from "lucide-react";
 
 export default function Navigation() {
   const [location, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState(() => {
     if (location === '/profile') return 'profile';
+    if (location === '/leaderboard') return 'leaderboard';
     if (location === '/admin') return 'admin';
     return 'home';
   });
@@ -22,9 +23,9 @@ export default function Navigation() {
       backdropFilter: 'blur(20px)',
       borderTop: '1px solid rgba(255, 255, 255, 0.1)'
     }}>
-      <div className="flex justify-center space-x-6">
+      <div className="flex justify-center space-x-4">
         <motion.button
-          className={`flex flex-col items-center space-y-1 px-4 py-2 rounded-full transition-all duration-150 ${
+          className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-full transition-all duration-150 ${
             activeTab === 'home' ? 'text-white' : 'text-white/60'
           }`}
           style={activeTab === 'home' ? {
@@ -40,7 +41,24 @@ export default function Navigation() {
         </motion.button>
         
         <motion.button
-          className="flex flex-col items-center space-y-1 px-4 py-2 rounded-full transition-all duration-150 text-white/40 cursor-not-allowed relative"
+          className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-full transition-all duration-150 ${
+            activeTab === 'leaderboard' ? 'text-white' : 'text-white/60'
+          }`}
+          style={activeTab === 'leaderboard' ? {
+            background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+            boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)'
+          } : {}}
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ duration: 0.1 }}
+          onClick={() => handleNavigation('leaderboard', '/leaderboard')}
+        >
+          <Trophy className="w-5 h-5" />
+          <span className="text-xs font-medium">Leaders</span>
+        </motion.button>
+        
+        <motion.button
+          className="flex flex-col items-center space-y-1 px-3 py-2 rounded-full transition-all duration-150 text-white/40 cursor-not-allowed relative"
           disabled={true}
         >
           <div className="relative">
@@ -55,7 +73,7 @@ export default function Navigation() {
         </motion.button>
         
         <motion.button
-          className={`flex flex-col items-center space-y-1 px-4 py-2 rounded-full transition-all duration-150 ${
+          className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-full transition-all duration-150 ${
             activeTab === 'profile' ? 'text-white' : 'text-white/60'
           }`}
           style={activeTab === 'profile' ? {

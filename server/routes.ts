@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { leaderboardService } from "./leaderboard";
 import { insertSpinResultSchema, insertTokenSchema } from "@shared/schema";
 import { ethers } from "ethers";
 import { z } from "zod";
@@ -196,13 +197,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get leaderboard
+  // Contract events-based leaderboard
   app.get("/api/leaderboard", async (req, res) => {
+    const { category = 'wins', limit = 10 } = req.query;
+    
     try {
-      const leaderboard = await storage.getLeaderboard();
+      // Sync latest data from contract
+      await leaderboardService.syncLeaderboardData();
+      
+      const leaderboard = await leaderboardService.getLeaderboard(
+        category as 'wins' | 'spins' | 'rewards',
+        parseInt(limit as string) || 10
+      );
+      
       res.json(leaderboard);
     } catch (error) {
-      res.status(500).json({ error: "Failed to get leaderboard" });
+      console.error("Leaderboard error:", error);
+      res.status(500).json({ error: "Failed to fetch leaderboard" });
+    }
+  });
+
+  app.get("/api/leaderboard/weekly", async (req, res) => {
+    const { limit = 10 } = req.query;
+    
+    try {
+      const weeklyLeaderboard = await leaderboardService.getWeeklyLeaderboard(
+        parseInt(limit as string) || 10
+      );
+      
+      res.json(weeklyLeaderboard);
+    } catch (error) {
+      console.error("Weekly leaderboard error:", error);
+      res.status(500).json({ error: "Failed to fetch weekly leaderboard" });
+    }
+  });
+
+  app.get("/api/player/:address/rank", async (req, res) => {
+    const { address } = req.params;
+    const { category = 'wins' } = req.query;
+    
+    try {
+      const playerRank = await leaderboardService.getPlayerRank(
+        address,
+        category as 'wins' | 'spins' | 'rewards'
+      );
+      
+      if (!playerRank) {
+        return res.status(404).json({ error: "Player not found" });
+      }
+      
+      res.json(playerRank);
+    } catch (error) {
+      console.error("Player rank error:", error);
+      res.status(500).json({ error: "Failed to fetch player rank" });
     }
   });
 
