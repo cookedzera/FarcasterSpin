@@ -1,6 +1,6 @@
 # Overview
 
-ArbCasino is a web-based slot machine game built exclusively for the Base blockchain network (currently configured for Base Sepolia testnet). The application is a single-page Farcaster Mini App designed to run within a 390px width frame. Users can spin a virtual slot machine up to 2 times per day (resets at UTC midnight) to win PEPE tokens, with a leaderboard system to track player performance and encourage engagement.
+ArbCasino is a web-based slot machine game built exclusively for the Arbitrum blockchain network (currently configured for Arbitrum Sepolia testnet). The application is a single-page Farcaster Mini App designed to run within a 390px width frame. Users can spin a virtual slot machine up to 5 times per day (resets at UTC midnight) to win AIDOGE, BOOP, and BOBOTRUM tokens, with a leaderboard system to track player performance and encourage engagement.
 
 # User Preferences
 
@@ -106,7 +106,7 @@ UI preferences: Token collection display with real balances instead of accumulat
 
 ## Security
 - **Private Key Management**: Wallet private key stored securely in WALLET_PRIVATE_KEY environment variable
-- **Network Configuration**: Base Sepolia testnet for safe development and testing
+- **Network Configuration**: Arbitrum Sepolia testnet for safe development and testing
 
 ## UI Components
 - **Radix UI**: Comprehensive set of accessible, unstyled React components for complex UI patterns
