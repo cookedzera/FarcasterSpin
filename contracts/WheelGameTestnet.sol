@@ -3,6 +3,7 @@ pragma solidity ^0.8.30;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title WheelGameTestnet
@@ -300,14 +301,4 @@ contract WheelGameTestnet is Ownable, ReentrancyGuard {
         bool success = token.transfer(owner(), balance);
         require(success, "Token transfer failed");
     }
-}
-
-/**
- * @dev IERC20 interface for token interactions
- */
-interface IERC20 {
-    function transfer(address to, uint256 amount) external returns (bool);
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-    function balanceOf(address account) external view returns (uint256);
-    function allowance(address owner, address spender) external view returns (uint256);
 }
