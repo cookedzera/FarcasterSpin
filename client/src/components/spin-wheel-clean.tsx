@@ -179,23 +179,42 @@ export default function SpinWheelClean() {
         </div>
         
         {/* Fixed Premium Pointer (stays in place while wheel spins) */}
-        <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
-          <svg width="32" height="32" viewBox="0 0 32 32">
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10">
+          <svg width="40" height="40" viewBox="0 0 40 40">
             <defs>
-              <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="100%" stopColor="#e2e8f0" />
+              <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#fbbf24" />
+                <stop offset="30%" stopColor="#ffffff" />
+                <stop offset="70%" stopColor="#e5e7eb" />
+                <stop offset="100%" stopColor="#9ca3af" />
+              </linearGradient>
+              <linearGradient id="arrowStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#d97706" />
+                <stop offset="100%" stopColor="#374151" />
               </linearGradient>
               <filter id="arrowShadow">
-                <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.3"/>
+                <feDropShadow dx="0" dy="3" stdDeviation="3" floodOpacity="0.4"/>
               </filter>
             </defs>
+            {/* Main arrow pointing down into the wheel */}
             <polygon 
-              points="16,4 22,16 10,16" 
+              points="20,8 28,22 12,22" 
               fill="url(#arrowGradient)" 
-              stroke="#1e293b" 
-              strokeWidth="1.5"
+              stroke="url(#arrowStroke)" 
+              strokeWidth="2"
               filter="url(#arrowShadow)"
+            />
+            {/* Inner highlight for 3D effect */}
+            <polygon 
+              points="20,10 25,20 15,20" 
+              fill="rgba(255,255,255,0.3)" 
+            />
+            {/* Central ridge line for premium detail */}
+            <line 
+              x1="20" y1="10" 
+              x2="20" y2="20" 
+              stroke="rgba(255,255,255,0.6)" 
+              strokeWidth="1"
             />
           </svg>
         </div>
