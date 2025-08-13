@@ -1,25 +1,25 @@
 import { ethers } from "ethers";
 
-// Arbitrum mainnet configuration
-const ARBITRUM_RPC = "https://arb1.arbitrum.io/rpc";
-const WHEEL_GAME_ADDRESS = "YOUR_DEPLOYED_CONTRACT_ADDRESS_HERE"; // Replace with your deployed contract address
+// Arbitrum Sepolia testnet configuration
+const ARBITRUM_RPC = "https://sepolia-rollup.arbitrum.io/rpc";
+const WHEEL_GAME_ADDRESS = process.env.DEPLOYED_CONTRACT_ADDRESS || ""; // Contract address from environment
 
-// Contract ABI for the WheelGame contract
+// Contract ABI for the WheelGameTestnet contract
 const WHEEL_GAME_ABI = [
-  "function spin(string memory segment) external",
-  "function claimRewards(address tokenAddress) external",
-  "function claimAllRewards() external",
+  "function spin() external",
+  "function claimRewards(address tokenAddress) external", 
   "function getPlayerStats(address playerAddress) external view returns (uint256, uint256, uint256, uint256, uint256)",
   "function getPendingRewards(address playerAddress) external view returns (uint256, uint256, uint256)",
-  "event SpinResult(address indexed player, string segment, bool isWin, address tokenAddress, uint256 rewardAmount)",
+  "function getWheelSegments() external view returns (string[] memory)",
+  "event SpinResult(address indexed player, string segment, bool isWin, address tokenAddress, uint256 rewardAmount, uint256 randomSeed)",
   "event RewardsClaimed(address indexed player, address indexed token, uint256 amount)"
 ];
 
-// Token addresses
+// Token addresses on Arbitrum Sepolia testnet
 export const TOKEN_ADDRESSES = {
-  AIDOGE: "0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b",
-  BOOP: "0x13A7DeDb7169a17bE92B0E3C7C2315B46f4772B3",
-  BOBOTRUM: "0x60460971a3D79ef265dfafA393ffBCe97d91E8B8"
+  IARB: "0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7",  // IntArbTestToken
+  JUICE: "0x1842887De1C7fDD59e3948A93CD41aad48a19cB2", // TestJuicy
+  ABET: "0x0BA7A82d415500BebFA254502B655732Cd678D07"  // ArbBETestt
 } as const;
 
 class BlockchainService {
@@ -36,19 +36,20 @@ class BlockchainService {
     }
   }
 
-  async executeSpin(playerAddress: string, segment: string): Promise<{
+  async executeSpin(playerAddress: string): Promise<{
     txHash: string;
     isWin: boolean;
     tokenAddress: string;
     rewardAmount: string;
+    segment: string;
   }> {
     if (!this.contract || !this.wallet) {
       throw new Error("Contract not initialized");
     }
 
     try {
-      // Execute spin transaction
-      const tx = await this.contract.spin(segment);
+      // Execute spin transaction (no parameters needed)
+      const tx = await this.contract.spin();
       const receipt = await tx.wait();
 
       // Parse the SpinResult event
@@ -68,7 +69,8 @@ class BlockchainService {
             txHash: receipt.hash,
             isWin: parsed.args.isWin,
             tokenAddress: parsed.args.tokenAddress,
-            rewardAmount: parsed.args.rewardAmount.toString()
+            rewardAmount: parsed.args.rewardAmount.toString(),
+            segment: parsed.args.segment
           };
         }
       }
@@ -95,20 +97,7 @@ class BlockchainService {
     }
   }
 
-  async claimAllRewards(playerAddress: string): Promise<string> {
-    if (!this.contract) {
-      throw new Error("Contract not initialized");
-    }
-
-    try {
-      const tx = await this.contract.claimAllRewards();
-      const receipt = await tx.wait();
-      return receipt.hash;
-    } catch (error: any) {
-      console.error("Blockchain claim all error:", error);
-      throw new Error(`Claim all failed: ${error.message}`);
-    }
-  }
+  // Note: claimAllRewards not available in testnet contract, use claimRewards for individual tokens
 
   async getPlayerStats(playerAddress: string): Promise<{
     totalSpins: number;
@@ -139,22 +128,22 @@ class BlockchainService {
   }
 
   async getPendingRewards(playerAddress: string): Promise<{
-    aidogeRewards: string;
-    boopRewards: string;
-    bobotrumRewards: string;
+    iarbRewards: string;
+    juiceRewards: string;
+    abetRewards: string;
   }> {
     if (!this.contract) {
       throw new Error("Contract not initialized");
     }
 
     try {
-      const [aidogeRewards, boopRewards, bobotrumRewards] = 
+      const [iarbRewards, juiceRewards, abetRewards] = 
         await this.contract.getPendingRewards(playerAddress);
 
       return {
-        aidogeRewards: aidogeRewards.toString(),
-        boopRewards: boopRewards.toString(),
-        bobotrumRewards: bobotrumRewards.toString()
+        iarbRewards: iarbRewards.toString(),
+        juiceRewards: juiceRewards.toString(),
+        abetRewards: abetRewards.toString()
       };
     } catch (error: any) {
       console.error("Get pending rewards error:", error);
