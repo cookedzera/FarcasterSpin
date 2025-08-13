@@ -97,7 +97,7 @@ export default function SpinWheelClean() {
       <div className="relative flex items-center justify-center mb-4">
         {/* Rotating Wheel */}
         <motion.div
-          className="relative w-56 h-56"
+          className="relative w-56 h-56 drop-shadow-2xl"
           animate={{ rotate: wheelRotation }}
           transition={{ 
             duration: isSpinning ? 3 : 0,
@@ -105,6 +105,19 @@ export default function SpinWheelClean() {
           }}
         >
           <svg width="224" height="224" viewBox="0 0 224 224">
+            <defs>
+              <filter id="wheelShadow">
+                <feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.3"/>
+              </filter>
+              <radialGradient id="wheelGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.1)" />
+                <stop offset="100%" stopColor="rgba(0,0,0,0.1)" />
+              </radialGradient>
+            </defs>
+            
+            {/* Outer ring for premium effect */}
+            <circle cx="112" cy="112" r="105" fill="none" stroke="#fbbf24" strokeWidth="3" opacity="0.8"/>
+            <circle cx="112" cy="112" r="102" fill="none" stroke="#ffffff" strokeWidth="1" opacity="0.6"/>
             {wheelSegments.map((segment, index) => {
               const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
               const endAngle = ((index + 1) * segmentAngle - 90) * (Math.PI / 180);
@@ -122,6 +135,13 @@ export default function SpinWheelClean() {
                     fill={segment.color}
                     stroke="white"
                     strokeWidth="2"
+                    filter="url(#wheelShadow)"
+                  />
+                  {/* Subtle gradient overlay for depth */}
+                  <path
+                    d={`M 112 112 L ${x1} ${y1} A 100 100 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                    fill="url(#wheelGlow)"
+                    opacity="0.3"
                   />
                   
                   {(() => {
@@ -145,16 +165,38 @@ export default function SpinWheelClean() {
               );
             })}
             
-            {/* Center Circle */}
-            <circle cx="112" cy="112" r="20" fill="#1e293b" stroke="white" strokeWidth="2"/>
-            <text x="112" y="118" textAnchor="middle" className="fill-white font-bold" fontSize="10">SPIN</text>
+            {/* Center Circle - only visual circle, no text */}
+            <circle cx="112" cy="112" r="22" fill="#0f172a" stroke="#fbbf24" strokeWidth="3"/>
+            <circle cx="112" cy="112" r="18" fill="#1e293b" stroke="white" strokeWidth="1"/>
           </svg>
         </motion.div>
         
-        {/* Fixed Pointer (stays in place while wheel spins) */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10">
-          <svg width="24" height="24" viewBox="0 0 24 24">
-            <polygon points="12,2 16,12 8,12" fill="white" stroke="#1e293b" strokeWidth="1"/>
+        {/* Fixed Center Text (stays in place while wheel spins) */}
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <div className="text-white font-bold text-xs bg-gradient-to-br from-slate-700 to-slate-900 rounded-full w-11 h-11 flex items-center justify-center border-2 border-amber-400 shadow-lg">
+            SPIN
+          </div>
+        </div>
+        
+        {/* Fixed Premium Pointer (stays in place while wheel spins) */}
+        <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
+          <svg width="32" height="32" viewBox="0 0 32 32">
+            <defs>
+              <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#ffffff" />
+                <stop offset="100%" stopColor="#e2e8f0" />
+              </linearGradient>
+              <filter id="arrowShadow">
+                <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.3"/>
+              </filter>
+            </defs>
+            <polygon 
+              points="16,4 22,16 10,16" 
+              fill="url(#arrowGradient)" 
+              stroke="#1e293b" 
+              strokeWidth="1.5"
+              filter="url(#arrowShadow)"
+            />
           </svg>
         </div>
       </div>
