@@ -36,16 +36,27 @@ export default function SpinWheelClean() {
       return response.json() as Promise<SpinResult>;
     },
     onSuccess: (result) => {
-      // Calculate landing segment
-      const finalSegment = result.isWin ? 0 : 1; // Simple logic for demo
-      const targetAngle = -(finalSegment * segmentAngle) + (segmentAngle / 2);
-      const spins = 5 + Math.random() * 3;
+      // Calculate which segment to land on based on win/lose
+      let targetSegmentIndex = 1; // Default to BUST
+      
+      if (result.isWin) {
+        // If win, pick a random winning segment (not BUST)
+        const winningSegments = wheelSegments.map((seg, idx) => ({ idx, seg }))
+          .filter(({ seg }) => seg.name !== 'BUST');
+        targetSegmentIndex = winningSegments[Math.floor(Math.random() * winningSegments.length)].idx;
+      }
+      
+      // Calculate rotation needed to land on target segment
+      // Since pointer is fixed at top (0 degrees), we need to rotate the wheel
+      // so the target segment aligns with the top
+      const targetAngle = -(targetSegmentIndex * segmentAngle);
+      const spins = 5 + Math.random() * 3; // 5-8 full rotations
       const finalRotation = wheelRotation + (spins * 360) + targetAngle;
       
       setWheelRotation(finalRotation);
-      setLandedSegment(finalSegment);
+      setLandedSegment(targetSegmentIndex);
       
-      // Invalidate queries
+      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
     },
@@ -84,6 +95,7 @@ export default function SpinWheelClean() {
 
       {/* Wheel */}
       <div className="relative flex items-center justify-center mb-4">
+        {/* Rotating Wheel */}
         <motion.div
           className="relative w-56 h-56"
           animate={{ rotate: wheelRotation }}
@@ -133,14 +145,18 @@ export default function SpinWheelClean() {
               );
             })}
             
-            {/* Center */}
+            {/* Center Circle */}
             <circle cx="112" cy="112" r="20" fill="#1e293b" stroke="white" strokeWidth="2"/>
             <text x="112" y="118" textAnchor="middle" className="fill-white font-bold" fontSize="10">SPIN</text>
-            
-            {/* Pointer */}
-            <polygon points="112,12 116,22 108,22" fill="white"/>
           </svg>
         </motion.div>
+        
+        {/* Fixed Pointer (stays in place while wheel spins) */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <polygon points="12,2 16,12 8,12" fill="white" stroke="#1e293b" strokeWidth="1"/>
+          </svg>
+        </div>
       </div>
 
       {/* Spin Button */}
