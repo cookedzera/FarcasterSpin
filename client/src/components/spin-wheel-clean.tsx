@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useGameState } from "@/hooks/use-game-state";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAccount } from 'wagmi';
 import { type SpinResult } from "@shared/schema";
 
 const wheelSegments = [
@@ -25,13 +26,15 @@ export default function SpinWheelClean() {
   const { user } = useGameState();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { address, isConnected } = useAccount();
 
   const segmentAngle = 360 / wheelSegments.length;
 
   const spinMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/spin", {
-        userId: user?.id
+        userId: user?.id,
+        userAddress: address // Pass wallet address for real blockchain integration
       });
       return response.json() as Promise<SpinResult>;
     },

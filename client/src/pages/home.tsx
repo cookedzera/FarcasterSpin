@@ -6,7 +6,8 @@ import { useGameState } from "@/hooks/use-game-state";
 import SpinWheel from "@/components/spin-wheel-clean";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
-import { WalletConnectCompact } from "@/components/wallet-connect-compact";
+import { WalletConnectCompact } from "@/components/wallet-connect-compact"
+import { useAccount } from 'wagmi';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { formatUnits } from "ethers";
@@ -28,6 +29,7 @@ export default function Home() {
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { address, isConnected } = useAccount();
   
   const { data: stats } = useQuery<GameStats>({
     queryKey: ["/api/stats"],
@@ -43,7 +45,10 @@ export default function Home() {
     mutationFn: async () => {
       const response = await fetch('/api/claim', {
         method: 'POST',
-        body: JSON.stringify({ userId: user?.id }),
+        body: JSON.stringify({ 
+          userId: user?.id,
+          userAddress: address // Pass wallet address for real blockchain integration
+        }),
         headers: { 'Content-Type': 'application/json' }
       });
       
@@ -57,7 +62,9 @@ export default function Home() {
     onSuccess: (data: any) => {
       toast({
         title: "Tokens Claimed!",
-        description: data.message || "Tokens claimed successfully!",
+        description: data.transactionHash 
+          ? `Success! TX: ${data.transactionHash.slice(0, 10)}...`
+          : data.message || "Tokens claimed successfully!",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id, 'balances'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id] });

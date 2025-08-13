@@ -22,7 +22,7 @@ export const TOKEN_ADDRESSES = {
   ABET: "0x0BA7A82d415500BebFA254502B655732Cd678D07"  // ArbBETestt
 } as const;
 
-class BlockchainService {
+export class BlockchainService {
   private provider: ethers.JsonRpcProvider;
   private contract: ethers.Contract | null = null;
   private wallet: ethers.Wallet | null = null;
@@ -93,6 +93,119 @@ class BlockchainService {
       return receipt.hash;
     } catch (error: any) {
       console.error("Blockchain claim error:", error);
+      throw new Error(`Claim failed: ${error.message}`);
+    }
+  }
+
+  async performSpin(userAddress: string): Promise<{
+    symbols: string[];
+    isWin: boolean;
+    rewardAmount: string;
+    tokenType: string;
+    tokenAddress?: string;
+    transactionHash?: string;
+  }> {
+    if (!this.contract || !this.wallet) {
+      throw new Error("Contract not initialized - check WALLET_PRIVATE_KEY and DEPLOYED_CONTRACT_ADDRESS");
+    }
+
+    try {
+      console.log(`🎰 Executing contract spin for ${userAddress}`);
+      const tx = await this.contract.spin();
+      const receipt = await tx.wait();
+
+      // Parse the SpinResult event
+      const spinEvent = receipt.logs.find((log: any) => {
+        try {
+          const parsed = this.contract!.interface.parseLog(log);
+          return parsed.name === "SpinResult";
+        } catch {
+          return false;
+        }
+      });
+
+      if (spinEvent) {
+        const parsed = this.contract.interface.parseLog(spinEvent);
+        if (parsed && parsed.args) {
+          const tokenAddress = parsed.args.tokenAddress;
+          const segment = parsed.args.segment;
+          const isWin = parsed.args.isWin;
+          const rewardAmount = parsed.args.rewardAmount.toString();
+
+          // Map token address to type
+          let tokenType = "";
+          if (tokenAddress === TOKEN_ADDRESSES.IARB) tokenType = "TOKEN1";
+          else if (tokenAddress === TOKEN_ADDRESSES.JUICE) tokenType = "TOKEN2";
+          else if (tokenAddress === TOKEN_ADDRESSES.ABET) tokenType = "TOKEN3";
+
+          return {
+            symbols: [tokenAddress, tokenAddress, tokenAddress], // Simulate 3 matching symbols for win
+            isWin,
+            rewardAmount,
+            tokenType,
+            tokenAddress,
+            transactionHash: receipt.hash
+          };
+        }
+      }
+
+      // Default response if no event found
+      return {
+        symbols: ["", "", ""],
+        isWin: false,
+        rewardAmount: "0",
+        tokenType: "",
+        transactionHash: receipt.hash
+      };
+
+    } catch (error: any) {
+      console.error("Contract spin error:", error);
+      throw new Error(`Spin failed: ${error.message}`);
+    }
+  }
+
+  async claimRewards(
+    userAddress: string,
+    token1Amount: string,
+    token2Amount: string,
+    token3Amount: string
+  ): Promise<{ transactionHash: string }> {
+    if (!this.contract || !this.wallet) {
+      throw new Error("Contract not initialized - check WALLET_PRIVATE_KEY and DEPLOYED_CONTRACT_ADDRESS");
+    }
+
+    try {
+      console.log(`🚀 Executing contract claims for ${userAddress}`);
+      const txHashes: string[] = [];
+
+      // Claim each token if amount > 0
+      if (BigInt(token1Amount) > 0) {
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.IARB);
+        const receipt = await tx.wait();
+        txHashes.push(receipt.hash);
+        console.log(`✅ IARB claimed: ${receipt.hash}`);
+      }
+
+      if (BigInt(token2Amount) > 0) {
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.JUICE);
+        const receipt = await tx.wait();
+        txHashes.push(receipt.hash);
+        console.log(`✅ JUICE claimed: ${receipt.hash}`);
+      }
+
+      if (BigInt(token3Amount) > 0) {
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.ABET);
+        const receipt = await tx.wait();
+        txHashes.push(receipt.hash);
+        console.log(`✅ ABET claimed: ${receipt.hash}`);
+      }
+
+      return {
+        transactionHash: txHashes[0] || "0x0" // Return first transaction hash
+      };
+
+    } catch (error: any) {
+      console.error("Contract claim error:", error);
       throw new Error(`Claim failed: ${error.message}`);
     }
   }

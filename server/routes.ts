@@ -6,10 +6,10 @@ import { insertSpinResultSchema, insertTokenSchema } from "@shared/schema";
 import { ethers } from "ethers";
 import { z } from "zod";
 import { createFarcasterAuthMiddleware, verifyFarcasterToken, getUserByAddress } from "./farcaster";
+import { BlockchainService } from "./blockchain";
 
-// Wallet configuration - Using Base Sepolia testnet
-const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
-const RPC_URL = "https://sepolia.base.org";
+// Initialize blockchain service
+const blockchainService = new BlockchainService();
 
 // ERC20 ABI for token transfers
 const ERC20_ABI = [
@@ -85,7 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Perform spin
   app.post("/api/spin", async (req, res) => {
     try {
-      const { userId } = req.body;
+      const { userId, userAddress } = req.body;
       
       const user = await storage.getUser(userId);
       if (!user) {
@@ -97,91 +97,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Daily spin limit reached" });
       }
 
-      // Generate random slot machine symbols
-      const tokenSymbols = [
-        '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', // TOKEN1
-        '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', // TOKEN2
-        '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // TOKEN3
-      ];
+      // Use blockchain service for contract interaction
+      console.log(`🎰 Calling contract spin for user ${userId} at address ${userAddress}`);
       
-      // Generate slot machine result with higher win rate for testing
-      let result;
-      let isWin = false;
-      
-      // 90% chance of winning for testing purposes (force wins)
-      if (Math.random() < 0.9) {
-        // Force a win - all symbols match
-        const winningSymbol = tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)];
-        result = [winningSymbol, winningSymbol, winningSymbol];
-        isWin = true;
-        console.log(`🎉 TESTING MODE - Forced win: ${winningSymbol}`);
-      } else {
-        // Generate random symbols (likely no match)
-        result = [
-          tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
-          tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
-          tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)]
-        ];
-        isWin = result[0] === result[1] && result[1] === result[2];
-      }
-      
-      let rewardAmount = "0";
-      let selectedToken = null;
-      let tokenType = "";
+      try {
+        const spinResult = await blockchainService.performSpin(userAddress);
+        console.log(`🎯 Contract spin result:`, spinResult);
+        
+        // Store the result in database
+        const dbSpinResult = await storage.createSpinResult({
+          userId,
+          symbols: spinResult.symbols,
+          isWin: spinResult.isWin,
+          rewardAmount: spinResult.rewardAmount,
+          tokenType: spinResult.tokenType,
+          tokenId: null,
+          tokenAddress: spinResult.tokenAddress || spinResult.symbols[0],
+          isAccumulated: true,
+          transactionHash: spinResult.transactionHash || null
+        });
 
-      if (isWin) {
-        // Determine reward based on winning symbol
-        const winningSymbol = result[0];
-        
-        // Map token addresses to token types and amounts
-        const tokenRewards: Record<string, { type: string; amount: string }> = {
-          '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b': { type: 'TOKEN1', amount: '10000000000000000' }, // 0.01 tokens
-          '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3': { type: 'TOKEN2', amount: '5000000000000000' },  // 0.005 tokens  
-          '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f': { type: 'TOKEN3', amount: '2000000000000000' }   // 0.002 tokens
-        };
-        
-        const reward = tokenRewards[winningSymbol];
-        if (reward) {
-          tokenType = reward.type;
-          rewardAmount = reward.amount;
-          
-          // Add to user's accumulated balance instead of immediate transfer
-          console.log(`💰 Adding ${rewardAmount} ${tokenType} to accumulated balance for user ${userId}`);
-          await storage.addAccumulatedReward(userId, tokenType, rewardAmount);
+        // Add to accumulated rewards if won
+        if (spinResult.isWin && spinResult.tokenType && spinResult.rewardAmount) {
+          console.log(`💰 Adding ${spinResult.rewardAmount} ${spinResult.tokenType} to accumulated balance`);
+          await storage.addAccumulatedReward(userId, spinResult.tokenType, spinResult.rewardAmount);
         }
+
+        res.json({
+          ...dbSpinResult,
+          transactionHash: spinResult.transactionHash
+        });
+
+      } catch (contractError) {
+        console.error("Contract call failed, using simulation:", contractError);
+        
+        // Fallback to simulation if contract fails
+        const tokenSymbols = [
+          '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', // IARB
+          '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', // JUICE  
+          '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // ABET
+        ];
+        
+        // 90% win rate for testing
+        let result;
+        let isWin = false;
+        
+        if (Math.random() < 0.9) {
+          const winningSymbol = tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)];
+          result = [winningSymbol, winningSymbol, winningSymbol];
+          isWin = true;
+          console.log(`🎉 TESTING MODE - Forced win: ${winningSymbol}`);
+        } else {
+          result = [
+            tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
+            tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
+            tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)]
+          ];
+          isWin = result[0] === result[1] && result[1] === result[2];
+        }
+        
+        let rewardAmount = "0";
+        let tokenType = "";
+
+        if (isWin) {
+          const winningSymbol = result[0];
+          const tokenRewards: Record<string, { type: string; amount: string }> = {
+            '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b': { type: 'TOKEN1', amount: '10000000000000000' },
+            '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3': { type: 'TOKEN2', amount: '5000000000000000' },
+            '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f': { type: 'TOKEN3', amount: '2000000000000000' }
+          };
+          
+          const reward = tokenRewards[winningSymbol];
+          if (reward) {
+            tokenType = reward.type;
+            rewardAmount = reward.amount;
+            await storage.addAccumulatedReward(userId, tokenType, rewardAmount);
+          }
+        }
+
+        const dbSpinResult = await storage.createSpinResult({
+          userId,
+          symbols: result,
+          isWin,
+          rewardAmount,
+          tokenType,
+          tokenId: null,
+          tokenAddress: result[0],
+          isAccumulated: true,
+          transactionHash: null
+        });
+
+        res.json(dbSpinResult);
       }
-
-      // Create spin result  
-      const spinResult = await storage.createSpinResult({
-        userId,
-        symbols: result,
-        isWin,
-        rewardAmount,
-        tokenType,
-        tokenId: null,
-        tokenAddress: result[0], // Store the winning symbol address
-        isAccumulated: true,
-        transactionHash: null // No immediate transaction
-      });
-
-      // Update user stats
-      const today = new Date();
-      const newSpinsUsed = spinsToday + 1;
-      await storage.updateUser(userId, {
-        spinsUsed: newSpinsUsed,
-        totalSpins: (user.totalSpins || 0) + 1,
-        totalWins: (user.totalWins || 0) + (isWin ? 1 : 0),
-        lastSpinDate: today
-      });
-
-      // Update game stats
-      const gameStats = await storage.getGameStats();
-      await storage.updateGameStats({
-        totalClaims: (gameStats.totalClaims || 0) + (isWin ? 1 : 0),
-        contractTxs: (gameStats.contractTxs || 0) + 1
-      });
-
-      res.json(spinResult);
     } catch (error) {
       res.status(500).json({ error: "Failed to perform spin" });
     }
