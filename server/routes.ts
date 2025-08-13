@@ -108,13 +108,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let result;
       let isWin = false;
       
-      // 30% chance of winning for testing purposes
-      if (Math.random() < 0.3) {
+      // 90% chance of winning for testing purposes (force wins)
+      if (Math.random() < 0.9) {
         // Force a win - all symbols match
         const winningSymbol = tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)];
         result = [winningSymbol, winningSymbol, winningSymbol];
         isWin = true;
-        console.log(`🎉 Forced win for testing: ${winningSymbol}`);
+        console.log(`🎉 TESTING MODE - Forced win: ${winningSymbol}`);
       } else {
         // Generate random symbols (likely no match)
         result = [
@@ -279,9 +279,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const claimInfo = await storage.canUserClaim(userId);
-      if (!claimInfo.canClaim) {
-        return res.status(400).json({ error: "Minimum claim threshold not met" });
-      }
+      
+      // For testing: allow claims even if threshold not met
+      console.log("🧪 TESTING MODE - Force claim: Bypassing minimum threshold requirements");
 
       const balances = await storage.getUserAccumulatedBalances(userId);
       

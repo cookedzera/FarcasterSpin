@@ -60,6 +60,7 @@ export default function Home() {
         description: data.message || "Tokens claimed successfully!",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id, 'balances'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id] });
     },
     onError: (error: Error) => {
       toast({
@@ -69,6 +70,10 @@ export default function Home() {
       });
     },
   });
+
+  const forceClaim = () => {
+    claimMutation.mutate();
+  };
 
   const formatTokenAmount = (amount: string, decimals = 18) => {
     try {
@@ -579,6 +584,41 @@ export default function Home() {
               </Button>
             </motion.div>
           )}
+
+          {/* Testing Panel - Force Win and Claim */}
+          <motion.div
+            className="mt-6 mb-4 p-4 rounded-xl"
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            <h3 className="text-sm font-bold text-white mb-3 text-center">🧪 Testing Panel</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                onClick={forceClaim}
+                disabled={claimMutation.isPending}
+                className="h-10 text-xs bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white border border-orange-400/30"
+              >
+                {claimMutation.isPending ? "Processing..." : "🚀 Force Claim"}
+              </Button>
+              <Button
+                onClick={() => setShowSpinWheel(true)}
+                disabled={!user}
+                className="h-10 text-xs bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white border border-green-400/30"
+              >
+                🎯 Force Spin (90% Win)
+              </Button>
+            </div>
+            <p className="text-xs text-white/60 mt-2 text-center">
+              Testing mode: 90% win rate, bypass claim thresholds
+            </p>
+          </motion.div>
+
         </motion.div>
       </div>
 
