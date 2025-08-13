@@ -26,7 +26,7 @@ contract WheelGameTestnet is Ownable, ReentrancyGuard {
     
     // Testnet token addresses (immutable for gas efficiency)
     address public immutable IARB = 0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7;  // IntArbTestToken
-    address public immutable JUICE = 0x1842887dE1c7FdD59e3948a93Cd41AAd48a19cb2; // TestJuicy
+    address public immutable JUICE = 0x1842887De1C7fDD59e3948A93CD41aad48a19cB2; // TestJuicy
     address public immutable ABET = 0x0Ba7a82d415500BebFa254502B655732Cd678d07;  // ArbBETestt
     
     // Game configuration (constants for gas efficiency)
