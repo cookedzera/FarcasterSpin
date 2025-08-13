@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 // Arbitrum mainnet configuration
 const ARBITRUM_RPC = "https://arb1.arbitrum.io/rpc";
-const WHEEL_GAME_ADDRESS = ""; // Will be set after deployment
+const WHEEL_GAME_ADDRESS = "YOUR_DEPLOYED_CONTRACT_ADDRESS_HERE"; // Replace with your deployed contract address
 
 // Contract ABI for the WheelGame contract
 const WHEEL_GAME_ABI = [
