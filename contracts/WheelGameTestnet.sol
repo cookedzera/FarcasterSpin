@@ -133,7 +133,7 @@ contract WheelGameTestnet is Ownable, ReentrancyGuard {
         // Generate random number
         uint256 randomSeed = uint256(keccak256(abi.encodePacked(
             block.timestamp,
-            block.difficulty,
+            block.prevrandao,
             msg.sender,
             nonce++,
             blockhash(block.number - 1)
