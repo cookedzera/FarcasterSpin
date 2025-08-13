@@ -47,13 +47,13 @@ export async function verifyFarcasterToken(token: string, domain: string): Promi
     
     // For now, we'll return the basic verified data
     return {
-      fid: parseInt(fid),
+      fid: parseInt(fid.toString()),
       username: `fc-user-${fid}`,
       displayName: `Farcaster User ${fid}`,
       bio: 'Authenticated Farcaster user',
       pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${fid}`,
-      custody: payload.custody as string,
-      verifications: payload.verifications as string[] || []
+      custody: (payload as any).custody || '',
+      verifications: (payload as any).verifications || []
     };
   } catch (error) {
     if (error instanceof Errors.InvalidTokenError) {
