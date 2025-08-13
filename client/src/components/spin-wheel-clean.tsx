@@ -179,7 +179,7 @@ export default function SpinWheelClean() {
         </div>
         
         {/* Fixed Premium Pointer (stays in place while wheel spins) */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-10">
           <svg width="40" height="40" viewBox="0 0 40 40">
             <defs>
               <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
