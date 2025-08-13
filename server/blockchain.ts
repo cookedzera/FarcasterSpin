@@ -63,7 +63,7 @@ class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed) {
+        if (parsed && parsed.args) {
           return {
             txHash: receipt.hash,
             isWin: parsed.args.isWin,

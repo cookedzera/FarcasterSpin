@@ -43,14 +43,27 @@ npm start
 ### Database Setup
 The app will automatically create tables on first run using Drizzle ORM migrations.
 
-### Token Configuration
-1. Access `/admin` after deployment
-2. Add your token contracts:
+### Contract Deployment & Configuration
+
+**Security Improvements Implemented:**
+- ✅ Secure pseudo-randomness using multiple entropy sources
+- ✅ Timelock protection for sensitive admin operations (24-hour delay)
+- ✅ Gas-optimized reward claiming with batch support
+- ✅ Enhanced input validation and safety checks
+- ✅ Immutable token addresses for gas efficiency
+
+**Contract Options:**
+1. **WheelGame.sol** - Original version (functional but basic randomness)
+2. **WheelGameImproved.sol** - Enhanced version with security improvements
+
+**Token Configuration:**
+1. Deploy contract to Arbitrum mainnet using Hardhat
+2. Fund contract with tokens:
    - AIDOGE: 0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b
-   - BOOP: 0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3
-   - CATCH: 0xbc4c97fb9befaa8b41448e1dfcc5236da543217f
-3. Set reward amounts (recommend 0.00005-0.0001 tokens)
-4. Activate tokens
+   - BOOP: 0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3  
+   - BOBOTRUM: 0x60460971a3D79ef265dfafA393ffBCe97d91E8B8
+3. Update blockchain service with deployed contract address
+4. Test all functions before going live
 
 ### Farcaster Integration
 - Frame size: 390px width
