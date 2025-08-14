@@ -99,14 +99,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Unlimited spins for testing purposes
       const spinsToday = await storage.getUserSpinsToday(userId);
-      console.log(`🎮 Testing mode: User has ${spinsToday} spins today - unlimited spinning enabled`);
-      
-      // Skip daily limit check for testing
-      // if (spinsToday >= 5) {
-      //   return res.status(400).json({ error: "Daily spin limit reached" });
-      // }
+      if (spinsToday >= 5) {
+        return res.status(400).json({ error: "Daily spin limit reached" });
+      }
 
       // Use blockchain service for contract interaction
       console.log(`🎰 Calling contract spin for user ${userId} at address ${userAddress}`);
