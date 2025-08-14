@@ -254,10 +254,16 @@
   }
 }
 
-/* Optimized mobile animations */
+/* Premium mobile animations */
 @keyframes mobile-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+  }
 }
 
 .mobile-pulse {
@@ -271,11 +277,10 @@
   }
 }
 
-/* Optimized for mobile performance */
-.mobile-optimized {
-  will-change: auto;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+/* Hardware acceleration for smooth animations */
+* {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .slot-reel {

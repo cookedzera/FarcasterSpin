@@ -12,14 +12,6 @@ UI preferences: Token collection display with real balances instead of accumulat
 Gas fee preference: Users should pay their own gas fees for both spinning and claiming transactions, not the project wallet.
 
 # Recent Changes
-- **August 14, 2025**: Major Farcaster Mini App UI optimization and code cleanup
-  - Removed all performance-draining floating particle animations and excessive Framer Motion effects
-  - Cleaned up home.tsx by removing unused blockchain transaction handlers and complex wallet integration
-  - Deleted unused components: loot-reel.tsx, win-popup.tsx, live-stats.tsx, token-balance-card.tsx, farcaster-connect.tsx
-  - Optimized CSS animations: simplified mobile-pulse keyframes, removed heavy box-shadow effects
-  - Streamlined profile.tsx with clean, lightweight UI components optimized for 390px Farcaster frame
-  - Improved mobile performance by reducing DOM complexity and eliminating unnecessary re-renders
-  - Maintained casino aesthetic while prioritizing smooth performance in Farcaster Mini App environment
 - **August 14, 2025**: Successfully completed project migration from Replit Agent to standard Replit environment
   - Fixed tsx dependency installation and PostgreSQL database setup
   - Database schema pushed successfully with all tables created
