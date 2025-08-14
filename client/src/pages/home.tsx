@@ -1,16 +1,12 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocation } from "wouter";
 import { useGameState } from "@/hooks/use-game-state";
 import SpinWheel from "@/components/spin-wheel-clean";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
-import { WalletConnectCompact } from "@/components/wallet-connect-compact"
-import { useAccount } from 'wagmi';
+import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { useWheelGame } from "@/hooks/use-wheel-game";
 import { formatUnits } from "ethers";
 import { type GameStats } from "@shared/schema";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
@@ -28,20 +24,7 @@ interface TokenBalances {
 export default function Home() {
   const { user, isLoading: userLoading } = useGameState();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { address, isConnected } = useAccount();
-  const { 
-    executeSpin, 
-    claimAllRewards, 
-    isSpinPending, 
-    isClaimPending, 
-    isSpinConfirmed,
-    isClaimConfirmed,
-    pendingRewards,
-    spinTxHash,
-    claimTxHash 
-  } = useWheelGame();
+
   
   const { data: stats } = useQuery<GameStats>({
     queryKey: ["/api/stats"],
@@ -53,73 +36,9 @@ export default function Home() {
     enabled: !!user?.id,
   });
 
-  // Handle successful spin
-  const handleSpin = async () => {
-    if (!isConnected || !address) {
-      toast({
-        title: "Wallet Required",
-        description: "Please connect your wallet to spin",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    try {
-      await executeSpin();
-      toast({
-        title: "Spin Transaction Sent!",
-        description: "Check your wallet to confirm the transaction",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Spin Failed",
-        description: error.message || "Failed to execute spin",
-        variant: "destructive",
-      });
-    }
-  };
 
-  // Handle successful claim
-  const handleClaim = async () => {
-    if (!isConnected || !address) {
-      toast({
-        title: "Wallet Required",
-        description: "Please connect your wallet to claim",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    try {
-      await claimAllRewards();
-      toast({
-        title: "Claim Transaction Sent!",
-        description: "Check your wallet to confirm the transaction",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Claim Failed",
-        description: error.message || "Failed to execute claim",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Show transaction success notifications
-  if (isSpinConfirmed && spinTxHash) {
-    toast({
-      title: "Spin Confirmed!",
-      description: `Transaction confirmed: ${spinTxHash.slice(0, 10)}...`,
-    });
-  }
-
-  if (isClaimConfirmed && claimTxHash) {
-    toast({
-      title: "Tokens Claimed!",
-      description: `Transaction confirmed: ${claimTxHash.slice(0, 10)}...`,
-    });
-    queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id, 'balances'] });
-  }
 
   const formatTokenAmount = (amount: string, decimals = 18) => {
     try {
@@ -579,16 +498,12 @@ export default function Home() {
                       transition={{ delay: 0.2 }}
                     >
                       <Button
-                        onClick={handleClaim}
-                        disabled={isClaimPending}
+                        onClick={() => {}}
+                        disabled={false}
                         size="sm"
                         className={`w-full h-8 text-xs bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border border-white/20 transition-all duration-200`}
                       >
-                        {isClaimPending ? (
-                          "Processing..."
-                        ) : (
-                          "Claim (Pay Gas)"
-                        )}
+                        Claim (Pay Gas)
                       </Button>
                     </motion.div>
                   )}
@@ -606,15 +521,11 @@ export default function Home() {
               transition={{ delay: 0.6 }}
             >
               <Button
-                onClick={handleClaim}
-                disabled={isClaimPending}
+                onClick={() => {}}
+                disabled={false}
                 className="w-full h-10 text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white transition-all duration-200 rounded-xl"
               >
-                {isClaimPending ? (
-                  "Processing..."
-                ) : (
-                  "Claim All Tokens (Pay Gas)"
-                )}
+                Claim All Tokens (Pay Gas)
               </Button>
             </motion.div>
           )}
@@ -634,18 +545,18 @@ export default function Home() {
             <h3 className="text-sm font-bold text-white mb-3 text-center">🧪 Testing Panel</h3>
             <div className="grid grid-cols-2 gap-3">
               <Button
-                onClick={handleClaim}
-                disabled={isClaimPending}
+                onClick={() => {}}
+                disabled={false}
                 className="h-10 text-xs bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white border border-orange-400/30"
               >
-                {isClaimPending ? "Processing..." : "🚀 Force Claim (Gas)"}
+                🚀 Force Claim (Gas)
               </Button>
               <Button
-                onClick={handleSpin}
-                disabled={!user || isSpinPending}
+                onClick={() => setShowSpinWheel(true)}
+                disabled={!user}
                 className="h-10 text-xs bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white border border-green-400/30"
               >
-                {isSpinPending ? "Processing..." : "🎯 Spin (Pay Gas)"}
+                🎯 Spin (Pay Gas)
               </Button>
             </div>
             <p className="text-xs text-white/60 mt-2 text-center">

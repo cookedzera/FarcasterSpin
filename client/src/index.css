@@ -107,14 +107,6 @@
     text-shadow: 0 0 10px var(--neon-yellow), 0 0 20px var(--neon-yellow);
   }
   
-  .pulse-neon {
-    animation: pulse-neon 2s infinite;
-  }
-  
-  .glow {
-    animation: glow 2s ease-in-out infinite alternate;
-  }
-  
   .font-pixel {
     font-family: 'Press Start 2P', monospace;
   }
@@ -124,25 +116,7 @@
   }
 }
 
-@keyframes pulse-neon {
-  0%, 100% {
-    box-shadow: 0 0 20px var(--arbitrum-blue), 0 0 40px var(--arbitrum-blue), 0 0 60px var(--arbitrum-blue);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 30px var(--arbitrum-blue), 0 0 60px var(--arbitrum-blue), 0 0 90px var(--arbitrum-blue);
-    transform: scale(1.05);
-  }
-}
 
-@keyframes glow {
-  from {
-    text-shadow: 0 0 10px var(--arbitrum-blue), 0 0 20px var(--arbitrum-blue), 0 0 30px var(--arbitrum-blue);
-  }
-  to {
-    text-shadow: 0 0 20px var(--arbitrum-blue), 0 0 30px var(--arbitrum-blue), 0 0 40px var(--arbitrum-blue);
-  }
-}
 
 @keyframes winning-glow {
   from {
@@ -201,30 +175,7 @@
   }
 }
 
-/* Slot machine gear rotation */
-@keyframes gear-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
 
-.gear-spin {
-  animation: gear-spin 2s linear infinite;
-}
-
-/* Slot handle pull effect */
-@keyframes handle-pull {
-  0% { transform: rotate(0deg); }
-  50% { transform: rotate(-15deg); }
-  100% { transform: rotate(0deg); }
-}
-
-.handle-pull {
-  animation: handle-pull 0.3s ease-in-out;
-}
 
 /* Mobile responsive adjustments and premium features */
 @media (max-width: 768px) {
@@ -254,21 +205,7 @@
   }
 }
 
-/* Premium mobile animations */
-@keyframes mobile-pulse {
-  0%, 100% { 
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-  }
-  50% { 
-    transform: scale(1.05);
-    box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
-  }
-}
 
-.mobile-pulse {
-  animation: mobile-pulse 2s infinite;
-}
 
 /* Touch-optimized hover states */
 @media (hover: none) and (pointer: coarse) {
@@ -277,11 +214,7 @@
   }
 }
 
-/* Hardware acceleration for smooth animations */
-* {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-}
+/* Selective hardware acceleration only for animations */
 
 .slot-reel {
   transition: transform 2s ease-out;
