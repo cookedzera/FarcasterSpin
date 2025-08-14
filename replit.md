@@ -9,21 +9,17 @@ Code preferences: Clean, production-ready code without testing/debug code.
 Project focus: Fully Replit-compatible without external dependencies like tsx.
 Navigation preferences: Fast, smooth transitions without loading animations between pages.
 UI preferences: Token collection display with real balances instead of accumulated rewards on profile.
+Gas fee preference: Users should pay their own gas fees for both spinning and claiming transactions, not the project wallet.
 
 # Recent Changes
-- **August 14, 2025**: Complete testnet token system implementation and testing ready
-  - Resolved tsx dependency issue and installed all required packages 
-  - Created PostgreSQL database and pushed schema successfully
-  - Server running properly on port 5000 with Express and Vite integration
-  - Successfully deployed test tokens to Arbitrum Sepolia testnet:
-    - AIDOGE: 0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4 (1M tokens funded)
-    - BOOP: 0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19 (1M tokens funded)
-    - BOBOTRUM: 0x0E1CD6557D2BA59C61c75850E674C2AD73253952 (1M tokens funded)
-  - Fixed TypeScript errors and WalletConnect configuration issues
-  - Farcaster wallet integration with fallback user creation working
-  - Database configured with correct token addresses and reward amounts
-  - Blockchain service ready for real testnet token transfers
-  - Complete testnet token winning and claiming system operational
+- **August 14, 2025**: Implemented user-pays-gas system for proper decentralized casino experience
+  - Created useWheelGame hook for client-side contract interactions
+  - Users now pay their own gas fees for both spinning and claiming transactions
+  - Removed server-side gas payment system to make it a proper Web3 dApp
+  - Integrated wagmi hooks for wallet transactions with gas fee popups
+  - Updated UI with "Pay Gas" indicators to set proper expectations
+  - Fixed TypeScript BigInt literal errors for ES2020 compatibility
+  - Complete user-controlled transaction system ready for testing
 - **August 13, 2025**: Successfully completed project migration from Replit Agent to standard Replit environment
   - Fixed tsx dependency installation and PostgreSQL database setup
   - Database schema pushed successfully with all tables created

@@ -10,6 +10,7 @@ import { WalletConnectCompact } from "@/components/wallet-connect-compact"
 import { useAccount } from 'wagmi';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useWheelGame } from "@/hooks/use-wheel-game";
 import { formatUnits } from "ethers";
 import { type GameStats } from "@shared/schema";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
@@ -30,6 +31,17 @@ export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { address, isConnected } = useAccount();
+  const { 
+    executeSpin, 
+    claimAllRewards, 
+    isSpinPending, 
+    isClaimPending, 
+    isSpinConfirmed,
+    isClaimConfirmed,
+    pendingRewards,
+    spinTxHash,
+    claimTxHash 
+  } = useWheelGame();
   
   const { data: stats } = useQuery<GameStats>({
     queryKey: ["/api/stats"],
@@ -41,46 +53,73 @@ export default function Home() {
     enabled: !!user?.id,
   });
 
-  const claimMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch('/api/claim', {
-        method: 'POST',
-        body: JSON.stringify({ 
-          userId: user?.id,
-          userAddress: address // Pass wallet address for real blockchain integration
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to claim tokens');
-      }
-      
-      return response.json();
-    },
-    onSuccess: (data: any) => {
+  // Handle successful spin
+  const handleSpin = async () => {
+    if (!isConnected || !address) {
       toast({
-        title: "Tokens Claimed!",
-        description: data.transactionHash 
-          ? `Success! TX: ${data.transactionHash.slice(0, 10)}...`
-          : data.message || "Tokens claimed successfully!",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id, 'balances'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Claim Failed",
-        description: error.message || "Failed to claim tokens",
+        title: "Wallet Required",
+        description: "Please connect your wallet to spin",
         variant: "destructive",
       });
-    },
-  });
+      return;
+    }
 
-  const forceClaim = () => {
-    claimMutation.mutate();
+    try {
+      await executeSpin();
+      toast({
+        title: "Spin Transaction Sent!",
+        description: "Check your wallet to confirm the transaction",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Spin Failed",
+        description: error.message || "Failed to execute spin",
+        variant: "destructive",
+      });
+    }
   };
+
+  // Handle successful claim
+  const handleClaim = async () => {
+    if (!isConnected || !address) {
+      toast({
+        title: "Wallet Required",
+        description: "Please connect your wallet to claim",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await claimAllRewards();
+      toast({
+        title: "Claim Transaction Sent!",
+        description: "Check your wallet to confirm the transaction",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Claim Failed",
+        description: error.message || "Failed to execute claim",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Show transaction success notifications
+  if (isSpinConfirmed && spinTxHash) {
+    toast({
+      title: "Spin Confirmed!",
+      description: `Transaction confirmed: ${spinTxHash.slice(0, 10)}...`,
+    });
+  }
+
+  if (isClaimConfirmed && claimTxHash) {
+    toast({
+      title: "Tokens Claimed!",
+      description: `Transaction confirmed: ${claimTxHash.slice(0, 10)}...`,
+    });
+    queryClient.invalidateQueries({ queryKey: ['/api/user', user?.id, 'balances'] });
+  }
 
   const formatTokenAmount = (amount: string, decimals = 18) => {
     try {
@@ -304,8 +343,8 @@ export default function Home() {
                 <div className="flex flex-col items-center">
                   <button
                     className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white/20 cursor-pointer hover:scale-110 transition-transform"
-                    onClick={() => setShowSpinWheel(true)}
-                    disabled={(user?.spinsUsed || 0) >= 5}
+                    onClick={handleSpin}
+                    disabled={(user?.spinsUsed || 0) >= 5 || isSpinPending}
                   >
                     <svg 
                       className="w-5 h-5 text-white" 
@@ -540,21 +579,15 @@ export default function Home() {
                       transition={{ delay: 0.2 }}
                     >
                       <Button
-                        onClick={() => claimMutation.mutate()}
-                        disabled={!balances?.canClaim || claimMutation.isPending}
+                        onClick={handleClaim}
+                        disabled={isClaimPending}
                         size="sm"
-                        className={`w-full h-8 text-xs ${
-                          balances?.canClaim 
-                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white' 
-                            : 'bg-gray-700/50 text-gray-400 cursor-not-allowed'
-                        } border border-white/20 transition-all duration-200`}
+                        className={`w-full h-8 text-xs bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border border-white/20 transition-all duration-200`}
                       >
-                        {claimMutation.isPending ? (
+                        {isClaimPending ? (
                           "Processing..."
-                        ) : balances?.canClaim ? (
-                          "Claim"
                         ) : (
-                          "Min $1 required"
+                          "Claim (Pay Gas)"
                         )}
                       </Button>
                     </motion.div>
@@ -565,7 +598,7 @@ export default function Home() {
           </div>
 
           {/* Global Claim All Button */}
-          {balances && (BigInt(balances.token1) > 0 || BigInt(balances.token2) > 0 || BigInt(balances.token3) > 0) && (
+          {balances && (Number(balances.token1) > 0 || Number(balances.token2) > 0 || Number(balances.token3) > 0) && (
             <motion.div
               className="mt-3"
               initial={{ opacity: 0, y: 20 }}
@@ -573,20 +606,14 @@ export default function Home() {
               transition={{ delay: 0.6 }}
             >
               <Button
-                onClick={() => claimMutation.mutate()}
-                disabled={!balances?.canClaim || claimMutation.isPending}
-                className={`w-full h-10 text-sm ${
-                  balances?.canClaim 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
-                    : 'bg-gray-700 cursor-not-allowed'
-                } text-white transition-all duration-200 rounded-xl`}
+                onClick={handleClaim}
+                disabled={isClaimPending}
+                className="w-full h-10 text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white transition-all duration-200 rounded-xl"
               >
-                {claimMutation.isPending ? (
+                {isClaimPending ? (
                   "Processing..."
-                ) : balances?.canClaim ? (
-                  "Claim All Tokens"
                 ) : (
-                  "Minimum $1.00 required"
+                  "Claim All Tokens (Pay Gas)"
                 )}
               </Button>
             </motion.div>
@@ -607,18 +634,18 @@ export default function Home() {
             <h3 className="text-sm font-bold text-white mb-3 text-center">🧪 Testing Panel</h3>
             <div className="grid grid-cols-2 gap-3">
               <Button
-                onClick={forceClaim}
-                disabled={claimMutation.isPending}
+                onClick={handleClaim}
+                disabled={isClaimPending}
                 className="h-10 text-xs bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white border border-orange-400/30"
               >
-                {claimMutation.isPending ? "Processing..." : "🚀 Force Claim"}
+                {isClaimPending ? "Processing..." : "🚀 Force Claim (Gas)"}
               </Button>
               <Button
-                onClick={() => setShowSpinWheel(true)}
-                disabled={!user}
+                onClick={handleSpin}
+                disabled={!user || isSpinPending}
                 className="h-10 text-xs bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white border border-green-400/30"
               >
-                🎯 Force Spin (90% Win)
+                {isSpinPending ? "Processing..." : "🎯 Spin (Pay Gas)"}
               </Button>
             </div>
             <p className="text-xs text-white/60 mt-2 text-center">
