@@ -24,6 +24,7 @@ UI preferences: Token collection display with real balances instead of accumulat
   - Database configured with correct token addresses and reward amounts
   - Blockchain service ready for real testnet token transfers
   - Complete testnet token winning and claiming system operational
+  - Enabled unlimited spins for testing (removed daily 5-spin limit)
 - **August 13, 2025**: Successfully completed project migration from Replit Agent to standard Replit environment
   - Fixed tsx dependency installation and PostgreSQL database setup
   - Database schema pushed successfully with all tables created
