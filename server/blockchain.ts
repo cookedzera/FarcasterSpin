@@ -31,22 +31,37 @@ export class BlockchainService {
     this.provider = new ethers.JsonRpcProvider(ARBITRUM_RPC);
     
     if (process.env.WALLET_PRIVATE_KEY && WHEEL_GAME_ADDRESS) {
-      try {
-        // Clean up the private key format
-        let privateKey = process.env.WALLET_PRIVATE_KEY.trim();
-        if (!privateKey.startsWith('0x')) {
-          privateKey = '0x' + privateKey;
-        }
-        
-        this.wallet = new ethers.Wallet(privateKey, this.provider);
-        this.contract = new ethers.Contract(WHEEL_GAME_ADDRESS, WHEEL_GAME_ABI, this.wallet);
-        
-        console.log(`🔗 Blockchain service initialized for ${this.wallet.address}`);
-      } catch (error: any) {
-        console.error("❌ Blockchain service initialization failed:", error.message);
-      }
+      // Initialize blockchain service lazily to avoid startup ENS issues
+      console.log("🔗 Blockchain service will be initialized on first use");
     } else {
-      console.log("⚠️  Blockchain service not initialized - missing WALLET_PRIVATE_KEY or DEPLOYED_CONTRACT_ADDRESS");
+      console.log("⚠️  Blockchain service not configured - missing WALLET_PRIVATE_KEY or DEPLOYED_CONTRACT_ADDRESS");
+    }
+  }
+
+  private async initializeWallet() {
+    if (this.wallet) return; // Already initialized
+
+    if (!process.env.WALLET_PRIVATE_KEY || !WHEEL_GAME_ADDRESS) {
+      throw new Error("Missing WALLET_PRIVATE_KEY or DEPLOYED_CONTRACT_ADDRESS");
+    }
+
+    try {
+      // Clean up the private key format
+      let privateKey = process.env.WALLET_PRIVATE_KEY.trim();
+      if (!privateKey.startsWith('0x')) {
+        privateKey = '0x' + privateKey;
+      }
+      
+      // Create wallet WITHOUT connecting to provider initially
+      this.wallet = new ethers.Wallet(privateKey);
+      // Connect to provider after creation
+      this.wallet = this.wallet.connect(this.provider);
+      this.contract = new ethers.Contract(WHEEL_GAME_ADDRESS, WHEEL_GAME_ABI, this.wallet);
+      
+      console.log(`🔗 Blockchain service initialized for ${this.wallet.address}`);
+    } catch (error: any) {
+      console.error("❌ Blockchain service initialization failed:", error.message);
+      throw error;
     }
   }
 
@@ -78,7 +93,7 @@ export class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed && parsed.args) {
+        if (parsed?.args) {
           return {
             txHash: receipt.hash,
             isWin: parsed.args.isWin,
@@ -106,6 +121,8 @@ export class BlockchainService {
     tokenAddress?: string;
     transactionHash?: string;
   }> {
+    await this.initializeWallet();
+    
     if (!this.contract || !this.wallet) {
       throw new Error("Contract not initialized - check WALLET_PRIVATE_KEY and DEPLOYED_CONTRACT_ADDRESS");
     }
@@ -127,7 +144,7 @@ export class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed && parsed.args) {
+        if (parsed?.args) {
           const tokenAddress = parsed.args.tokenAddress;
           const segment = parsed.args.segment;
           const isWin = parsed.args.isWin;

@@ -6,10 +6,7 @@ import { insertSpinResultSchema, insertTokenSchema } from "@shared/schema";
 import { ethers } from "ethers";
 import { z } from "zod";
 import { createFarcasterAuthMiddleware, verifyFarcasterToken, getUserByAddress } from "./farcaster";
-import { BlockchainService } from "./blockchain";
-
-// Initialize blockchain service
-const blockchainService = new BlockchainService();
+import { blockchainService } from "./blockchain";
 
 // ERC20 ABI for token transfers
 const ERC20_ABI = [
@@ -23,13 +20,23 @@ async function sendTokenReward(recipientAddress: string | null, token: any, amou
     throw new Error("No recipient address provided");
   }
   
+  const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
+  const RPC_URL = "https://sepolia-rollup.arbitrum.io/rpc";
+  
   if (!PRIVATE_KEY) {
     throw new Error("Wallet private key not configured");
   }
   
   try {
+    // Clean up the private key format
+    let privateKey = PRIVATE_KEY.trim();
+    if (!privateKey.startsWith('0x')) {
+      privateKey = '0x' + privateKey;
+    }
+    
     const provider = new ethers.JsonRpcProvider(RPC_URL);
-    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+    // Create wallet without provider first, then connect to avoid ENS issues
+    const wallet = new ethers.Wallet(privateKey).connect(provider);
     
     const tokenContract = new ethers.Contract(token.address, ERC20_ABI, wallet);
     
