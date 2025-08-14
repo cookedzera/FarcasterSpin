@@ -15,11 +15,11 @@ const WHEEL_GAME_ABI = [
   "event RewardsClaimed(address indexed player, address indexed token, uint256 amount)"
 ];
 
-// Token addresses on Arbitrum Sepolia testnet
+// Your deployed test token addresses
 export const TOKEN_ADDRESSES = {
-  IARB: "0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7",  // IntArbTestToken
-  JUICE: "0x1842887De1C7fDD59e3948A93CD41aad48a19cB2", // TestJuicy
-  ABET: "0x0BA7A82d415500BebFA254502B655732Cd678D07"  // ArbBETestt
+  AIDOGE: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4",   // AIDOGE Test Token
+  BOOP: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952",     // BOOP Test Token  
+  BOBOTRUM: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19"   // BOBOTRUM Test Token
 } as const;
 
 export class BlockchainService {
@@ -31,8 +31,22 @@ export class BlockchainService {
     this.provider = new ethers.JsonRpcProvider(ARBITRUM_RPC);
     
     if (process.env.WALLET_PRIVATE_KEY && WHEEL_GAME_ADDRESS) {
-      this.wallet = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, this.provider);
-      this.contract = new ethers.Contract(WHEEL_GAME_ADDRESS, WHEEL_GAME_ABI, this.wallet);
+      try {
+        // Clean up the private key format
+        let privateKey = process.env.WALLET_PRIVATE_KEY.trim();
+        if (!privateKey.startsWith('0x')) {
+          privateKey = '0x' + privateKey;
+        }
+        
+        this.wallet = new ethers.Wallet(privateKey, this.provider);
+        this.contract = new ethers.Contract(WHEEL_GAME_ADDRESS, WHEEL_GAME_ABI, this.wallet);
+        
+        console.log(`🔗 Blockchain service initialized for ${this.wallet.address}`);
+      } catch (error: any) {
+        console.error("❌ Blockchain service initialization failed:", error.message);
+      }
+    } else {
+      console.log("⚠️  Blockchain service not initialized - missing WALLET_PRIVATE_KEY or DEPLOYED_CONTRACT_ADDRESS");
     }
   }
 
@@ -82,20 +96,7 @@ export class BlockchainService {
     }
   }
 
-  async claimRewards(playerAddress: string, tokenAddress: string): Promise<string> {
-    if (!this.contract) {
-      throw new Error("Contract not initialized");
-    }
 
-    try {
-      const tx = await this.contract.claimRewards(tokenAddress);
-      const receipt = await tx.wait();
-      return receipt.hash;
-    } catch (error: any) {
-      console.error("Blockchain claim error:", error);
-      throw new Error(`Claim failed: ${error.message}`);
-    }
-  }
 
   async performSpin(userAddress: string): Promise<{
     symbols: string[];
@@ -134,9 +135,9 @@ export class BlockchainService {
 
           // Map token address to type
           let tokenType = "";
-          if (tokenAddress === TOKEN_ADDRESSES.IARB) tokenType = "TOKEN1";
-          else if (tokenAddress === TOKEN_ADDRESSES.JUICE) tokenType = "TOKEN2";
-          else if (tokenAddress === TOKEN_ADDRESSES.ABET) tokenType = "TOKEN3";
+          if (tokenAddress === TOKEN_ADDRESSES.AIDOGE) tokenType = "TOKEN1";
+          else if (tokenAddress === TOKEN_ADDRESSES.BOOP) tokenType = "TOKEN2";
+          else if (tokenAddress === TOKEN_ADDRESSES.BOBOTRUM) tokenType = "TOKEN3";
 
           return {
             symbols: [tokenAddress, tokenAddress, tokenAddress], // Simulate 3 matching symbols for win
@@ -180,24 +181,24 @@ export class BlockchainService {
 
       // Claim each token if amount > 0
       if (BigInt(token1Amount) > 0) {
-        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.IARB);
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.AIDOGE);
         const receipt = await tx.wait();
         txHashes.push(receipt.hash);
-        console.log(`✅ IARB claimed: ${receipt.hash}`);
+        console.log(`✅ AIDOGE claimed: ${receipt.hash}`);
       }
 
       if (BigInt(token2Amount) > 0) {
-        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.JUICE);
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.BOOP);
         const receipt = await tx.wait();
         txHashes.push(receipt.hash);
-        console.log(`✅ JUICE claimed: ${receipt.hash}`);
+        console.log(`✅ BOOP claimed: ${receipt.hash}`);
       }
 
       if (BigInt(token3Amount) > 0) {
-        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.ABET);
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.BOBOTRUM);
         const receipt = await tx.wait();
         txHashes.push(receipt.hash);
-        console.log(`✅ ABET claimed: ${receipt.hash}`);
+        console.log(`✅ BOBOTRUM claimed: ${receipt.hash}`);
       }
 
       return {
@@ -241,22 +242,22 @@ export class BlockchainService {
   }
 
   async getPendingRewards(playerAddress: string): Promise<{
-    iarbRewards: string;
-    juiceRewards: string;
-    abetRewards: string;
+    aidogeRewards: string;
+    boopRewards: string;
+    bobotrumRewards: string;
   }> {
     if (!this.contract) {
       throw new Error("Contract not initialized");
     }
 
     try {
-      const [iarbRewards, juiceRewards, abetRewards] = 
+      const [aidogeRewards, boopRewards, bobotrumRewards] = 
         await this.contract.getPendingRewards(playerAddress);
 
       return {
-        iarbRewards: iarbRewards.toString(),
-        juiceRewards: juiceRewards.toString(),
-        abetRewards: abetRewards.toString()
+        aidogeRewards: aidogeRewards.toString(),
+        boopRewards: boopRewards.toString(),
+        bobotrumRewards: bobotrumRewards.toString()
       };
     } catch (error: any) {
       console.error("Get pending rewards error:", error);
