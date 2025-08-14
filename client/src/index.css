@@ -67,17 +67,21 @@
     @apply font-sans antialiased text-foreground;
     background: var(--casino-dark);
     overflow-x: hidden;
+    /* Allow vertical scrolling for mobile frames */
+    overflow-y: auto;
   }
   
-  /* Hide scrollbars globally */
-  * {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-  
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  *::-webkit-scrollbar {
-    display: none;
+  /* Hide scrollbars on desktop only */
+  @media (min-width: 768px) {
+    * {
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+    
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    *::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 
@@ -296,4 +300,32 @@
   max-width: 390px;
   margin: 0 auto;
   min-height: 100vh;
+  overflow-y: auto;
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Ensure proper scrolling in frames */
+  position: relative;
+}
+
+/* Farcaster Frame specific optimizations */
+@media (max-width: 390px) {
+  html, body {
+    /* Ensure scrolling works in mobile frames */
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  .app-container {
+    /* Remove any height restrictions that might prevent scrolling */
+    height: auto;
+    min-height: 100vh;
+    overflow-y: visible;
+  }
+}
+
+/* Touch scrolling optimizations for mobile */
+* {
+  /* Prevent rubber band scrolling on iOS */
+  overscroll-behavior-y: contain;
 }

@@ -138,7 +138,7 @@ export default function Home() {
   // Show minimal loading state while preserving background
   if (userLoading) {
     return (
-      <div className="min-h-screen relative overflow-hidden" style={{
+      <div className="min-h-screen relative" style={{
         background: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 50%, #2c2c2e 100%)'
       }}>
         {/* Loading spinner */}
@@ -150,7 +150,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{
+    <div className="min-h-screen relative" style={{
       background: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 50%, #2c2c2e 100%)'
     }}>
       {/* Subtle noise texture overlay */}
@@ -164,7 +164,7 @@ export default function Home() {
       }} />
       
       {/* Floating particles */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none">
         {[...Array(6)].map((_, i) => (
           <motion.div
             key={i}
