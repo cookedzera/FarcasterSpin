@@ -48,13 +48,13 @@ export function FarcasterConnect() {
           } else {
             // Fallback if no Farcaster profile found
             const fallbackUser = {
-              fid: parseInt(address.slice(-6), 16) % 100000 + 1000,
-              username: `user-${address.slice(-4)}`,
+              fid: parseInt(address!.slice(-6), 16) % 100000 + 1000,
+              username: `user-${address!.slice(-4)}`,
               displayName: `Wallet User`,
               bio: 'Wallet connected but no Farcaster profile found',
               pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`,
-              custody: address,
-              verifications: [address]
+              custody: address!,
+              verifications: [address!]
             }
             setUser(fallbackUser)
             localStorage.setItem('farcaster_user', JSON.stringify(fallbackUser))
@@ -63,13 +63,13 @@ export function FarcasterConnect() {
           console.log('Failed to fetch from Farcaster API:', apiError)
           // Create fallback user data
           const fallbackUser = {
-            fid: parseInt(address.slice(-6), 16) % 100000 + 1000,
-            username: `user-${address.slice(-4)}`,
+            fid: parseInt(address!.slice(-6), 16) % 100000 + 1000,
+            username: `user-${address!.slice(-4)}`,
             displayName: `Wallet User`,
             bio: 'Connected wallet - Farcaster profile unavailable',
             pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`,
-            custody: address,
-            verifications: [address]
+            custody: address!,
+            verifications: [address!]
           }
           setUser(fallbackUser)
           localStorage.setItem('farcaster_user', JSON.stringify(fallbackUser))
