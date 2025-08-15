@@ -451,6 +451,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Configuration endpoint for frontend
+  app.get("/api/config", async (req, res) => {
+    try {
+      res.json({
+        contractAddress: process.env.DEPLOYED_CONTRACT_ADDRESS || "",
+        tokenAddresses: {
+          TOKEN1: "0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7", // IARB
+          TOKEN2: "0x1842887De1C7fDD59e3948A93CD41aad48a19cB2", // JUICE  
+          TOKEN3: "0x0BA7A82d415500BebFA254502B655732Cd678D07"  // ABET
+        },
+        chainId: 421614 // Arbitrum Sepolia
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get configuration" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,6 +1,8 @@
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { updateConfig } from "@/lib/config";
+import { useEffect } from "react";
 import Home from "@/pages/home";
 import Profile from "@/pages/profile";
 import TokenCollection from "@/pages/token-collection";
@@ -22,6 +24,11 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => {
+    // Load contract configuration from API on app start
+    updateConfig();
+  }, []);
+
   return (
     <TooltipProvider>
       <div className="app-container">

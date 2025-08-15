@@ -15,11 +15,11 @@ const WHEEL_GAME_ABI = [
   "event RewardsClaimed(address indexed player, address indexed token, uint256 amount)"
 ];
 
-// Your deployed test token addresses (verified and funded)
+// Testnet token addresses matching the deployed contract
 export const TOKEN_ADDRESSES = {
-  AIDOGE: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4",   // AIDOGE Test Token
-  BOOP: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19",     // BOOP Test Token  
-  BOBOTRUM: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952"   // BOBOTRUM Test Token
+  TOKEN1: "0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7", // IARB
+  TOKEN2: "0x1842887De1C7fDD59e3948A93CD41aad48a19cB2", // JUICE  
+  TOKEN3: "0x0BA7A82d415500BebFA254502B655732Cd678D07"  // ABET
 } as const;
 
 export class BlockchainService {
@@ -93,7 +93,7 @@ export class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed?.args) {
+        if (parsed && parsed.args) {
           return {
             txHash: receipt.hash,
             isWin: parsed.args.isWin,
@@ -144,7 +144,7 @@ export class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed?.args) {
+        if (parsed && parsed.args) {
           const tokenAddress = parsed.args.tokenAddress;
           const segment = parsed.args.segment;
           const isWin = parsed.args.isWin;
@@ -152,9 +152,9 @@ export class BlockchainService {
 
           // Map token address to type
           let tokenType = "";
-          if (tokenAddress === TOKEN_ADDRESSES.AIDOGE) tokenType = "TOKEN1";
-          else if (tokenAddress === TOKEN_ADDRESSES.BOOP) tokenType = "TOKEN2";
-          else if (tokenAddress === TOKEN_ADDRESSES.BOBOTRUM) tokenType = "TOKEN3";
+          if (tokenAddress === TOKEN_ADDRESSES.TOKEN1) tokenType = "TOKEN1";
+          else if (tokenAddress === TOKEN_ADDRESSES.TOKEN2) tokenType = "TOKEN2";
+          else if (tokenAddress === TOKEN_ADDRESSES.TOKEN3) tokenType = "TOKEN3";
 
           return {
             symbols: [tokenAddress, tokenAddress, tokenAddress], // Simulate 3 matching symbols for win
@@ -198,24 +198,24 @@ export class BlockchainService {
 
       // Claim each token if amount > 0
       if (BigInt(token1Amount) > 0) {
-        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.AIDOGE);
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.TOKEN1);
         const receipt = await tx.wait();
         txHashes.push(receipt.hash);
-        console.log(`✅ AIDOGE claimed: ${receipt.hash}`);
+        console.log(`✅ IARB claimed: ${receipt.hash}`);
       }
 
       if (BigInt(token2Amount) > 0) {
-        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.BOOP);
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.TOKEN2);
         const receipt = await tx.wait();
         txHashes.push(receipt.hash);
-        console.log(`✅ BOOP claimed: ${receipt.hash}`);
+        console.log(`✅ JUICE claimed: ${receipt.hash}`);
       }
 
       if (BigInt(token3Amount) > 0) {
-        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.BOBOTRUM);
+        const tx = await this.contract.claimRewards(TOKEN_ADDRESSES.TOKEN3);
         const receipt = await tx.wait();
         txHashes.push(receipt.hash);
-        console.log(`✅ BOBOTRUM claimed: ${receipt.hash}`);
+        console.log(`✅ ABET claimed: ${receipt.hash}`);
       }
 
       return {
