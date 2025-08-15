@@ -15,16 +15,15 @@ export const config = createConfig({
       appName: 'ArbCasino',
       appLogoUrl: '/logo.png',
     }),
-    // Commented out walletConnect to avoid configuration issues during development
-    // walletConnect({
-    //   projectId,
-    //   metadata: {
-    //     name: 'ArbCasino',
-    //     description: 'Arbitrum Slot Machine Game',
-    //     url: window.location.origin,
-    //     icons: ['/logo.png']
-    //   }
-    // }),
+    walletConnect({
+      projectId,
+      metadata: {
+        name: 'ArbCasino',
+        description: 'Arbitrum Slot Machine Game',
+        url: 'https://arbcasino.replit.app',
+        icons: ['/logo.png']
+      }
+    }),
   ],
   transports: {
     [arbitrumSepolia.id]: http('https://sepolia-rollup.arbitrum.io/rpc'),

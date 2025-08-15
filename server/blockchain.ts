@@ -93,7 +93,7 @@ export class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed && parsed.args) {
+        if (parsed?.args) {
           return {
             txHash: receipt.hash,
             isWin: parsed.args.isWin,
@@ -144,7 +144,7 @@ export class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed && parsed.args) {
+        if (parsed?.args) {
           const tokenAddress = parsed.args.tokenAddress;
           const segment = parsed.args.segment;
           const isWin = parsed.args.isWin;

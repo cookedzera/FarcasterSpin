@@ -21,6 +21,7 @@ export function WalletConnectCompact() {
   const [user, setUser] = useState<FarcasterUser | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+  const [showWallets, setShowWallets] = useState(false)
 
   // Get Farcaster user data when connected
   useEffect(() => {
@@ -79,11 +80,9 @@ export function WalletConnectCompact() {
     fetchUserData()
   }, [isConnected, address])
 
-  const handleConnect = async () => {
+  const handleConnect = async (connector: any) => {
     try {
-      if (connectors[0]) {
-        await connect({ connector: connectors[0] })
-      }
+      await connect({ connector })
     } catch (error) {
       console.error('Failed to connect wallet:', error)
     }
@@ -194,25 +193,78 @@ export function WalletConnectCompact() {
     )
   }
 
-  // Compact connect button
+  // Compact connect button with wallet options
   return (
-    <motion.button
-      onClick={handleConnect}
-      disabled={isPending || isLoading}
-      className="flex items-center space-x-2 px-3 py-2 rounded-xl text-white/80 hover:text-white disabled:opacity-50 transition-all duration-200"
-      style={{
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      data-testid="wallet-connect-button"
-    >
-      <Wallet className="w-4 h-4" />
-      <span className="text-xs font-medium">
-        {isPending || isLoading ? 'Connecting...' : 'Connect'}
-      </span>
-    </motion.button>
+    <div className="relative">
+      <motion.button
+        onClick={() => setShowWallets(!showWallets)}
+        disabled={isPending || isLoading}
+        className="flex items-center space-x-2 px-3 py-2 rounded-xl text-white/80 hover:text-white disabled:opacity-50 transition-all duration-200"
+        style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        data-testid="wallet-connect-button"
+      >
+        <Wallet className="w-4 h-4" />
+        <span className="text-xs font-medium">
+          {isPending || isLoading ? 'Connecting...' : 'Connect'}
+        </span>
+      </motion.button>
+
+      {/* Wallet selection dropdown */}
+      <AnimatePresence>
+        {showWallets && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute right-0 top-12 z-50 p-3 rounded-2xl text-white min-w-48"
+            style={{
+              background: 'rgba(0, 0, 0, 0.9)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
+            }}
+            data-testid="wallet-selection-dropdown"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-sm">Choose Wallet</h3>
+              <button
+                onClick={() => setShowWallets(false)}
+                className="text-white/60 hover:text-white p-1"
+                data-testid="close-wallet-selection"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-2">
+              {connectors.map((connector) => (
+                <button
+                  key={connector.id}
+                  onClick={() => {
+                    handleConnect(connector);
+                    setShowWallets(false);
+                  }}
+                  disabled={isPending}
+                  className="w-full flex items-center space-x-3 p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 disabled:opacity-50"
+                  data-testid={`connector-${connector.id}`}
+                >
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                    <Wallet className="w-3 h-3 text-white" />
+                  </div>
+                  <span className="text-sm font-medium">{connector.name}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
