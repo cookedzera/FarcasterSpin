@@ -75,7 +75,18 @@ export default function SpinWheelClean() {
   }, [isSpinConfirmed, spinHash, wheelRotation, segmentAngle, toast, queryClient]);
 
   const handleSpin = async () => {
-    if (isSpinning || isBlockchainSpinning || !user || !isConnected) return;
+    console.log('handleSpin called', { 
+      isSpinning, 
+      isBlockchainSpinning, 
+      user: !!user, 
+      isConnected, 
+      address 
+    });
+    
+    if (isSpinning || isBlockchainSpinning || !user || !isConnected) {
+      console.log('Spin blocked - requirements not met');
+      return;
+    }
     
     if (!address) {
       toast({
@@ -98,9 +109,18 @@ export default function SpinWheelClean() {
     setIsSpinning(true);
     setLandedSegment(null);
     
+    toast({
+      title: "Initiating Spin",
+      description: "Check your wallet for the transaction popup!",
+      variant: "default",
+    });
+    
     try {
-      await spin(); // This will trigger MetaMask gas popup
+      console.log('Calling spin function...');
+      await spin(); // This should trigger MetaMask gas popup
+      console.log('Spin function completed');
     } catch (error: any) {
+      console.error('Spin error:', error);
       toast({
         title: "Transaction Failed",
         description: error.message || "Failed to initiate spin transaction",

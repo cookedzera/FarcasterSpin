@@ -3,8 +3,8 @@
 
 export const CONTRACT_CONFIG = {
   // Wheel Game Contract Address on Arbitrum Sepolia
-  // TODO: Replace with your deployed contract address to enable blockchain functionality
-  WHEEL_GAME_ADDRESS: (import.meta.env.VITE_CONTRACT_ADDRESS || '0x') as `0x${string}`,
+  // Using the deployed contract address from environment
+  WHEEL_GAME_ADDRESS: (import.meta.env.VITE_CONTRACT_ADDRESS || '0x4be6dd3897fd6fbc8a619c69fa6f4bd94531d90a') as `0x${string}`,
   
   // Token addresses on Arbitrum Sepolia testnet
   TOKEN_ADDRESSES: {

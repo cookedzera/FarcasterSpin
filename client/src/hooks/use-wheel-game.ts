@@ -110,37 +110,63 @@ export function useWheelGame() {
   })
 
   const spin = async () => {
-    if (!address || !CONTRACT_CONFIG.WHEEL_GAME_ADDRESS) return
+    if (!address) {
+      console.log('No wallet address available')
+      return
+    }
+    
+    if (!CONTRACT_CONFIG.WHEEL_GAME_ADDRESS || CONTRACT_CONFIG.WHEEL_GAME_ADDRESS === '0x') {
+      console.log('No contract address configured')
+      return
+    }
 
     try {
       setIsSpinning(true)
+      console.log('Attempting to spin with contract:', CONTRACT_CONFIG.WHEEL_GAME_ADDRESS)
       
-      executeSpin({
+      // This will trigger the wallet gas popup
+      await executeSpin({
         address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS,
         abi: WHEEL_GAME_ABI,
         functionName: 'spin',
       })
+      
+      console.log('Spin transaction initiated')
     } catch (error) {
       console.error('Spin failed:', error)
       setIsSpinning(false)
+      throw error // Re-throw to handle in component
     }
   }
 
   const claimRewards = async (tokenAddress: `0x${string}`) => {
-    if (!address || !CONTRACT_CONFIG.WHEEL_GAME_ADDRESS) return
+    if (!address) {
+      console.log('No wallet address available')
+      return
+    }
+    
+    if (!CONTRACT_CONFIG.WHEEL_GAME_ADDRESS || CONTRACT_CONFIG.WHEEL_GAME_ADDRESS === '0x') {
+      console.log('No contract address configured')
+      return
+    }
 
     try {
       setIsClaiming(true)
+      console.log('Attempting to claim rewards for token:', tokenAddress)
       
-      executeClaim({
+      // This will trigger the wallet gas popup
+      await executeClaim({
         address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS,
         abi: WHEEL_GAME_ABI,
         functionName: 'claimRewards',
         args: [tokenAddress],
       })
+      
+      console.log('Claim transaction initiated')
     } catch (error) {
       console.error('Claim failed:', error)
       setIsClaiming(false)
+      throw error // Re-throw to handle in component
     }
   }
 

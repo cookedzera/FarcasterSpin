@@ -6,6 +6,7 @@ import SpinWheel from "@/components/spin-wheel-clean";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
+import { TestButton } from "@/components/test-button";
 import { Button } from "@/components/ui/button";
 import { formatUnits } from "ethers";
 import { type GameStats } from "@shared/schema";
@@ -614,6 +615,10 @@ export default function Home() {
                 </button>
               </div>
               <SpinWheel />
+              {/* Debug Panel */}
+              <div className="mt-4">
+                <TestButton />
+              </div>
             </motion.div>
           </motion.div>
         )}
