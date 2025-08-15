@@ -1,12 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useQueryClient } from "@tanstack/react-query";
 import { useGameState } from "@/hooks/use-game-state";
+import { useWheelGame } from "@/hooks/use-wheel-game";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAccount } from 'wagmi';
-import { type SpinResult } from "@shared/schema";
 
 const wheelSegments = [
   { id: 'aidoge-1', name: 'AIDOGE', reward: '10000', color: '#3B82F6', tokenAddress: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b' },
@@ -27,22 +26,25 @@ export default function SpinWheelClean() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { address, isConnected } = useAccount();
+  const { 
+    spin, 
+    isSpinning: isBlockchainSpinning, 
+    isSpinConfirmed,
+    spinHash 
+  } = useWheelGame();
 
   const segmentAngle = 360 / wheelSegments.length;
 
-  const spinMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/spin", {
-        userId: user?.id,
-        userAddress: address // Pass wallet address for real blockchain integration
-      });
-      return response.json() as Promise<SpinResult>;
-    },
-    onSuccess: (result) => {
+  // Handle successful blockchain spin
+  useEffect(() => {
+    if (isSpinConfirmed && spinHash) {
+      // Simulate a win for demonstration (in real app, parse events from transaction receipt)
+      const isWin = Math.random() > 0.6; // 40% win rate
+      
       // Calculate which segment to land on based on win/lose
       let targetSegmentIndex = 1; // Default to BUST
       
-      if (result.isWin) {
+      if (isWin) {
         // If win, pick a random winning segment (not BUST)
         const winningSegments = wheelSegments.map((seg, idx) => ({ idx, seg }))
           .filter(({ seg }) => seg.name !== 'BUST');
@@ -50,8 +52,6 @@ export default function SpinWheelClean() {
       }
       
       // Calculate rotation needed to land on target segment
-      // Since pointer is fixed at top (0 degrees), we need to rotate the wheel
-      // so the target segment aligns with the top
       const targetAngle = -(targetSegmentIndex * segmentAngle);
       const spins = 5 + Math.random() * 3; // 5-8 full rotations
       const finalRotation = wheelRotation + (spins * 360) + targetAngle;
@@ -59,24 +59,32 @@ export default function SpinWheelClean() {
       setWheelRotation(finalRotation);
       setLandedSegment(targetSegmentIndex);
       
+      // Show success message
+      toast({
+        title: "Spin Complete!",
+        description: `Transaction confirmed: ${spinHash.slice(0, 10)}...`,
+        variant: "default",
+      });
+      
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Spin Failed",
-        description: error.message || "Failed to perform spin",
-        variant: "destructive",
-      });
-    },
-    onSettled: () => {
+      
       setTimeout(() => setIsSpinning(false), 3500);
     }
-  });
+  }, [isSpinConfirmed, spinHash, wheelRotation, segmentAngle, toast, queryClient]);
 
-  const handleSpin = () => {
-    if (isSpinning || !user) return;
+  const handleSpin = async () => {
+    if (isSpinning || isBlockchainSpinning || !user || !isConnected) return;
+    
+    if (!address) {
+      toast({
+        title: "Wallet Required",
+        description: "Please connect your wallet to spin and pay gas fees.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if ((user.spinsUsed || 0) >= 5) {
       toast({
@@ -89,7 +97,17 @@ export default function SpinWheelClean() {
 
     setIsSpinning(true);
     setLandedSegment(null);
-    spinMutation.mutate();
+    
+    try {
+      await spin(); // This will trigger MetaMask gas popup
+    } catch (error: any) {
+      toast({
+        title: "Transaction Failed",
+        description: error.message || "Failed to initiate spin transaction",
+        variant: "destructive",
+      });
+      setIsSpinning(false);
+    }
   };
 
   return (
@@ -226,10 +244,10 @@ export default function SpinWheelClean() {
       {/* Spin Button */}
       <Button
         onClick={handleSpin}
-        disabled={isSpinning || !user || (user.spinsUsed || 0) >= 5}
+        disabled={isSpinning || isBlockchainSpinning || !user || !isConnected || (user.spinsUsed || 0) >= 5}
         className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl"
       >
-        {isSpinning ? "SPINNING..." : "SPIN WHEEL"}
+        {isSpinning || isBlockchainSpinning ? "SPINNING..." : isConnected ? "SPIN WHEEL (Pay Gas)" : "CONNECT WALLET TO SPIN"}
       </Button>
       
       {!isSpinning && user && (
