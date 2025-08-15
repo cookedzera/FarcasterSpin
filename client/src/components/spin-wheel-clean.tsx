@@ -6,6 +6,7 @@ import { useWheelGame } from "@/hooks/use-wheel-game";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAccount } from 'wagmi';
+import { CONTRACT_CONFIG } from '@/lib/config';
 
 const wheelSegments = [
   { id: 'aidoge-1', name: 'AIDOGE', reward: '10000', color: '#3B82F6', tokenAddress: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b' },
@@ -75,16 +76,23 @@ export default function SpinWheelClean() {
   }, [isSpinConfirmed, spinHash, wheelRotation, segmentAngle, toast, queryClient]);
 
   const handleSpin = async () => {
-    console.log('handleSpin called', { 
+    console.log('🎰 handleSpin called', { 
       isSpinning, 
       isBlockchainSpinning, 
       user: !!user, 
       isConnected, 
-      address 
+      address,
+      contractAddress: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS
     });
     
     if (isSpinning || isBlockchainSpinning || !user || !isConnected) {
-      console.log('Spin blocked - requirements not met');
+      console.log('❌ Spin blocked - requirements not met:', {
+        isSpinning,
+        isBlockchainSpinning,
+        hasUser: !!user,
+        isConnected,
+        hasAddress: !!address
+      });
       return;
     }
     

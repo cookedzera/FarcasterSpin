@@ -143,8 +143,14 @@ export function useWheelGame() {
       console.log('Daily spins used:', dailySpinsUsed, '/', maxSpins)
       
       // This will trigger the wallet gas popup
+      console.log('Executing spin with config:', {
+        contractAddress: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS,
+        abi: WHEEL_GAME_ABI.length,
+        userAddress: address
+      });
+      
       executeSpin({
-        address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS,
+        address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS as `0x${string}`,
         abi: WHEEL_GAME_ABI,
         functionName: 'spin',
       })

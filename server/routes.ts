@@ -455,7 +455,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/config", async (req, res) => {
     try {
       res.json({
-        contractAddress: process.env.DEPLOYED_CONTRACT_ADDRESS || "",
+        contractAddress: (process.env.DEPLOYED_CONTRACT_ADDRESS || "").trim(),
         tokenAddresses: {
           TOKEN1: "0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7", // IARB
           TOKEN2: "0x1842887De1C7fDD59e3948A93CD41aad48a19cB2", // JUICE  

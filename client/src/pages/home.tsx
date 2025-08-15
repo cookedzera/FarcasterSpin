@@ -8,6 +8,7 @@ import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 import { TestButton } from "@/components/test-button";
 import { ContractDebug } from "@/components/contract-debug";
+import { WalletDebug } from "@/components/wallet-debug";
 import { Button } from "@/components/ui/button";
 import { formatUnits } from "ethers";
 import { type GameStats } from "@shared/schema";
@@ -113,6 +114,11 @@ export default function Home() {
       {/* Compact Wallet Connect - Top Right */}
       <div className="fixed top-6 right-6 z-30">
         <WalletConnectCompact />
+      </div>
+
+      {/* Debug Panel - Top Left */}
+      <div className="fixed top-6 left-6 z-30">
+        <WalletDebug />
       </div>
 
       {/* Main Content */}
