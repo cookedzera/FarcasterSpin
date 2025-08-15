@@ -117,9 +117,9 @@ export function useWheelGame() {
       return
     }
     
-    if (!CONTRACT_CONFIG.WHEEL_GAME_ADDRESS || CONTRACT_CONFIG.WHEEL_GAME_ADDRESS === '0x') {
-      console.log('No contract address configured')
-      return
+    if (!CONTRACT_CONFIG.WHEEL_GAME_ADDRESS || CONTRACT_CONFIG.WHEEL_GAME_ADDRESS === '' || CONTRACT_CONFIG.WHEEL_GAME_ADDRESS === '0x') {
+      console.log('No contract address configured:', CONTRACT_CONFIG.WHEEL_GAME_ADDRESS)
+      throw new Error('Contract not configured. Please wait for configuration to load.')
     }
 
     // Check daily spin limit before attempting transaction
@@ -163,9 +163,9 @@ export function useWheelGame() {
       return
     }
     
-    if (!CONTRACT_CONFIG.WHEEL_GAME_ADDRESS || CONTRACT_CONFIG.WHEEL_GAME_ADDRESS === '0x') {
-      console.log('No contract address configured')
-      return
+    if (!CONTRACT_CONFIG.WHEEL_GAME_ADDRESS || CONTRACT_CONFIG.WHEEL_GAME_ADDRESS === '' || CONTRACT_CONFIG.WHEEL_GAME_ADDRESS === '0x') {
+      console.log('No contract address configured:', CONTRACT_CONFIG.WHEEL_GAME_ADDRESS)
+      throw new Error('Contract not configured. Please wait for configuration to load.')
     }
 
     try {

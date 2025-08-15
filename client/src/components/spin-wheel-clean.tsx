@@ -111,14 +111,14 @@ export default function SpinWheelClean() {
     
     toast({
       title: "Initiating Spin",
-      description: "Check your wallet for the transaction popup!",
+      description: "Confirm transaction in your wallet to pay gas fees and spin!",
       variant: "default",
     });
     
     try {
-      console.log('Calling spin function...');
-      await spin(); // This should trigger MetaMask gas popup
-      console.log('Spin function completed');
+      console.log('Calling wagmi spin function to trigger MetaMask...');
+      await spin(); // This should trigger MetaMask gas popup immediately
+      console.log('Wagmi spin function initiated - waiting for user confirmation');
     } catch (error: any) {
       console.error('Spin error:', error);
       toast({
