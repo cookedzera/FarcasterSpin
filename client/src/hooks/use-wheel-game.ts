@@ -1,8 +1,9 @@
-import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi'
+import { useWriteContract, useWaitForTransactionReceipt, useAccount, useReadContract } from 'wagmi'
 import { parseEther } from 'viem'
 import { useState } from 'react'
 import { CONTRACT_CONFIG } from '@/lib/config'
 
+// WheelGameTestnet ABI with proper player stats access
 const WHEEL_GAME_ABI = [
   {
     "type": "function",
@@ -22,29 +23,20 @@ const WHEEL_GAME_ABI = [
   },
   {
     "type": "function",
-    "name": "getPlayerStats", 
-    "inputs": [
-      {"name": "playerAddress", "type": "address"}
-    ],
-    "outputs": [
-      {"type": "uint256"},
-      {"type": "uint256"}, 
-      {"type": "uint256"},
-      {"type": "uint256"},
-      {"type": "uint256"}
-    ],
+    "name": "MAX_DAILY_SPINS",
+    "inputs": [],
+    "outputs": [{"type": "uint256"}],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "getPendingRewards",
-    "inputs": [
-      {"name": "playerAddress", "type": "address"}
-    ],
+    "name": "players",
+    "inputs": [{"name": "", "type": "address"}],
     "outputs": [
-      {"type": "uint256"},
-      {"type": "uint256"},
-      {"type": "uint256"}
+      {"type": "uint256", "name": "totalSpins"},
+      {"type": "uint256", "name": "totalWins"},
+      {"type": "uint256", "name": "lastSpinDate"},
+      {"type": "uint256", "name": "dailySpins"}
     ],
     "stateMutability": "view"
   },
@@ -61,13 +53,9 @@ const WHEEL_GAME_ABI = [
     ]
   },
   {
-    "type": "event", 
-    "name": "RewardsClaimed",
-    "inputs": [
-      {"name": "player", "type": "address", "indexed": true},
-      {"name": "token", "type": "address", "indexed": true},
-      {"name": "amount", "type": "uint256"}
-    ]
+    "type": "error",
+    "name": "DailySpinLimitReached",
+    "inputs": []
   }
 ] as const
 
@@ -78,6 +66,20 @@ export function useWheelGame() {
   const { address } = useAccount()
   const [isSpinning, setIsSpinning] = useState(false)
   const [isClaiming, setIsClaiming] = useState(false)
+
+  // Read player data to check daily spin limit
+  const { data: playerData } = useReadContract({
+    address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS,
+    abi: WHEEL_GAME_ABI,
+    functionName: 'players',
+    args: address ? [address] : undefined,
+  })
+
+  const { data: maxDailySpins } = useReadContract({
+    address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS,
+    abi: WHEEL_GAME_ABI,
+    functionName: 'MAX_DAILY_SPINS',
+  })
 
   // Spin transaction
   const { 
@@ -120,12 +122,28 @@ export function useWheelGame() {
       return
     }
 
+    // Check daily spin limit before attempting transaction
+    const dailySpinsUsed = playerData ? Number(playerData[3]) : 0
+    const maxSpins = maxDailySpins ? Number(maxDailySpins) : 5
+
+    console.log('Daily spins check:', {
+      dailySpinsUsed,
+      maxSpins,
+      canSpin: dailySpinsUsed < maxSpins
+    })
+
+    if (dailySpinsUsed >= maxSpins) {
+      throw new Error(`Daily spin limit reached! You've used ${dailySpinsUsed}/${maxSpins} spins today. Come back tomorrow!`)
+    }
+
     try {
       setIsSpinning(true)
       console.log('Attempting to spin with contract:', CONTRACT_CONFIG.WHEEL_GAME_ADDRESS)
+      console.log('Player address:', address)
+      console.log('Daily spins used:', dailySpinsUsed, '/', maxSpins)
       
       // This will trigger the wallet gas popup
-      await executeSpin({
+      executeSpin({
         address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS,
         abi: WHEEL_GAME_ABI,
         functionName: 'spin',
@@ -197,5 +215,11 @@ export function useWheelGame() {
     // Contract address for reference
     contractAddress: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS,
     tokenAddresses: TOKEN_ADDRESSES,
+    
+    // Player stats for UI
+    playerData,
+    maxDailySpins,
+    dailySpinsUsed: playerData ? Number(playerData[3]) : 0,
+    canSpin: playerData && maxDailySpins ? Number(playerData[3]) < Number(maxDailySpins) : true,
   }
 }
