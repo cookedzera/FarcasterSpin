@@ -6,9 +6,6 @@ import SpinWheel from "@/components/spin-wheel-clean";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
-import { TestButton } from "@/components/test-button";
-import { ContractDebug } from "@/components/contract-debug";
-import { WalletDebug } from "@/components/wallet-debug";
 import { Button } from "@/components/ui/button";
 import { formatUnits } from "ethers";
 import { type GameStats } from "@shared/schema";
@@ -148,10 +145,6 @@ export default function Home() {
         <WalletConnectCompact />
       </div>
 
-      {/* Debug Panel - Top Left */}
-      <div className="fixed top-6 left-6 z-30">
-        <WalletDebug />
-      </div>
 
       {/* Main Content */}
       <div className="relative z-10 px-4 py-4 pb-24">
@@ -566,39 +559,6 @@ export default function Home() {
             </motion.div>
           )}
 
-          {/* Testing Panel - Force Win and Claim */}
-          <motion.div
-            className="mt-6 mb-4 p-4 rounded-xl"
-            style={{
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <h3 className="text-sm font-bold text-white mb-3 text-center">🧪 Testing Panel</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                onClick={() => {}}
-                disabled={false}
-                className="h-10 text-xs bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white border border-orange-400/30"
-              >
-                🚀 Force Claim (Gas)
-              </Button>
-              <Button
-                onClick={() => setShowSpinWheel(true)}
-                disabled={!user}
-                className="h-10 text-xs bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white border border-green-400/30"
-              >
-                🎯 Spin (Pay Gas)
-              </Button>
-            </div>
-            <p className="text-xs text-white/60 mt-2 text-center">
-              Testing mode: 90% win rate, bypass claim thresholds
-            </p>
-          </motion.div>
 
         </motion.div>
       </div>
@@ -650,11 +610,6 @@ export default function Home() {
                 </button>
               </div>
               <SpinWheel />
-              {/* Debug Panel */}
-              <div className="mt-4 space-y-4">
-                <TestButton />
-                <ContractDebug />
-              </div>
             </motion.div>
           </motion.div>
         )}
