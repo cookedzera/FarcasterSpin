@@ -2,30 +2,66 @@ require("@nomiclabs/hardhat-ethers");
 require("dotenv").config();
 
 module.exports = {
-  solidity: {
-    version: "0.8.19",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200
-      }
-    }
-  },
-  networks: {
-    arbitrum: {
-      url: "https://arb1.arbitrum.io/rpc",
-      accounts: process.env.WALLET_PRIVATE_KEY ? [process.env.WALLET_PRIVATE_KEY] : [],
-      chainId: 42161
+    solidity: {
+        version: "0.8.19",
+        settings: {
+            optimizer: {
+                enabled: true,
+                runs: 200
+            }
+        }
     },
-    arbitrumSepolia: {
-      url: "https://sepolia-rollup.arbitrum.io/rpc",
-      accounts: process.env.WALLET_PRIVATE_KEY ? [process.env.WALLET_PRIVATE_KEY] : [],
-      chainId: 421614
+    networks: {
+        hardhat: {
+            chainId: 1337
+        },
+        arbitrumSepolia: {
+            url: process.env.ARBITRUM_SEPOLIA_RPC || "https://sepolia-rollup.arbitrum.io/rpc",
+            chainId: 421614,
+            accounts: process.env.WALLET_PRIVATE_KEY ? [process.env.WALLET_PRIVATE_KEY] : [],
+            gasPrice: "auto",
+            gas: "auto"
+        },
+        arbitrum: {
+            url: "https://arb1.arbitrum.io/rpc",
+            accounts: process.env.WALLET_PRIVATE_KEY ? [process.env.WALLET_PRIVATE_KEY] : [],
+            chainId: 42161
+        },
+        // For local testing
+        localhost: {
+            url: "http://127.0.0.1:8545",
+            chainId: 31337
+        }
+    },
+    etherscan: {
+        apiKey: {
+            arbitrumSepolia: process.env.ARBISCAN_API_KEY || ""
+        },
+        customChains: [
+            {
+                network: "arbitrumSepolia",
+                chainId: 421614,
+                urls: {
+                    apiURL: "https://api-sepolia.arbiscan.io/api",
+                    browserURL: "https://sepolia.arbiscan.io"
+                }
+            }
+        ]
+    },
+    gasReporter: {
+        enabled: process.env.REPORT_GAS !== undefined,
+        currency: "USD",
+        outputFile: "gas-report.txt",
+        noColors: true,
+        coinmarketcap: process.env.COINMARKETCAP_API_KEY || ""
+    },
+    paths: {
+        sources: "./contracts",
+        tests: "./test",
+        cache: "./cache",
+        artifacts: "./artifacts"
+    },
+    mocha: {
+        timeout: 40000
     }
-  },
-  etherscan: {
-    apiKey: {
-      arbitrumOne: "YOUR_ARBISCAN_API_KEY" // Optional: for contract verification
-    }
-  }
 };

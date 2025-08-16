@@ -26,16 +26,16 @@ contract WheelGameArbitrumSepolia is Ownable, ReentrancyGuard {
     }
     
     // Arbitrum Sepolia testnet token addresses
-    address public immutable ARB_TOKEN = 0x0000000000000000000000000000000000000001; // Placeholder for ARB
-    address public immutable USDC_TOKEN = 0x0000000000000000000000000000000000000002; // Placeholder for USDC
-    address public immutable ETH_TOKEN = 0x0000000000000000000000000000000000000003; // Placeholder for WETH
+    address public immutable AIDOGE;
+    address public immutable BOOP;
+    address public immutable BOBOTRUM;
     
     // Game configuration
     uint256 public constant MAX_DAILY_SPINS = 5;
     uint256 public constant SECONDS_PER_DAY = 86400;
     
     // Wheel segments for randomness
-    string[] public wheelSegments = ["ARB", "BUST", "USDC", "BONUS", "ETH", "BUST", "ARB", "JACKPOT"];
+    string[] public wheelSegments = ["AIDOGE", "BUST", "BOOP", "BONUS", "BOBOTRUM", "BUST", "AIDOGE", "JACKPOT"];
     
     // State variables
     mapping(string => RewardToken) public rewards;
@@ -71,35 +71,43 @@ contract WheelGameArbitrumSepolia is Ownable, ReentrancyGuard {
         uint256 amount
     );
     
-    constructor() Ownable(msg.sender) {
+    constructor(
+        address _aidoge,
+        address _boop,
+        address _bobotrum
+    ) Ownable(msg.sender) {
+        AIDOGE = _aidoge;
+        BOOP = _boop;
+        BOBOTRUM = _bobotrum;
+        
         // Initialize reward tiers
         rewards["JACKPOT"] = RewardToken({
-            token: ARB_TOKEN,
-            rewardAmount: 5 * 10**18, // 5 ARB
+            token: AIDOGE,
+            rewardAmount: 5 * 10**18, // 5 AIDOGE
             isActive: true
         });
         
-        rewards["ARB"] = RewardToken({
-            token: ARB_TOKEN,
-            rewardAmount: 1 * 10**18, // 1 ARB
+        rewards["AIDOGE"] = RewardToken({
+            token: AIDOGE,
+            rewardAmount: 1 * 10**18, // 1 AIDOGE
             isActive: true
         });
         
-        rewards["USDC"] = RewardToken({
-            token: USDC_TOKEN,
-            rewardAmount: 2 * 10**6, // 2 USDC (6 decimals)
+        rewards["BOOP"] = RewardToken({
+            token: BOOP,
+            rewardAmount: 2 * 10**18, // 2 BOOP
             isActive: true
         });
         
-        rewards["ETH"] = RewardToken({
-            token: ETH_TOKEN,
-            rewardAmount: 1 * 10**15, // 0.001 ETH
+        rewards["BOBOTRUM"] = RewardToken({
+            token: BOBOTRUM,
+            rewardAmount: 1 * 10**18, // 1 BOBOTRUM
             isActive: true
         });
         
         rewards["BONUS"] = RewardToken({
-            token: USDC_TOKEN,
-            rewardAmount: 1 * 10**6, // 1 USDC
+            token: BOOP,
+            rewardAmount: 2 * 10**18, // 2 BOOP (2x multiplier)
             isActive: true
         });
         
@@ -203,16 +211,16 @@ contract WheelGameArbitrumSepolia is Ownable, ReentrancyGuard {
     }
     
     function getPendingRewards(address playerAddress) external view returns (
-        uint256 arbRewards,
-        uint256 usdcRewards,
-        uint256 ethRewards
+        uint256 aidogeRewards,
+        uint256 boopRewards,
+        uint256 bobotrumRewards
     ) {
         PlayerStats storage player = players[playerAddress];
         
         return (
-            player.pendingRewards[ARB_TOKEN],
-            player.pendingRewards[USDC_TOKEN],
-            player.pendingRewards[ETH_TOKEN]
+            player.pendingRewards[AIDOGE],
+            player.pendingRewards[BOOP],
+            player.pendingRewards[BOBOTRUM]
         );
     }
     
