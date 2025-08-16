@@ -1,9 +1,7 @@
 // Hardhat deployment script for Arbitrum Sepolia
 // Run with: npx hardhat run scripts/deploy.js --network arbitrumSepolia
 
-import hre from "hardhat";
-import fs from "fs";
-import path from "path";
+const hre = require("hardhat");
 
 async function main() {
     console.log("🚀 Starting deployment to Arbitrum Sepolia...\n");
@@ -135,7 +133,8 @@ async function main() {
     console.log(JSON.stringify(deploymentInfo, null, 2));
     
     // Save to file
-    const __dirname = path.dirname(new URL(import.meta.url).pathname);
+    const fs = require("fs");
+    const path = require("path");
     const deploymentsDir = path.join(__dirname, "../deployments");
     
     if (!fs.existsSync(deploymentsDir)) {

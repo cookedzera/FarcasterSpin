@@ -1,6 +1,7 @@
-require("@nomiclabs/hardhat-ethers");
+require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
+/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
     solidity: {
         version: "0.8.19",
@@ -18,14 +19,9 @@ module.exports = {
         arbitrumSepolia: {
             url: process.env.ARBITRUM_SEPOLIA_RPC || "https://sepolia-rollup.arbitrum.io/rpc",
             chainId: 421614,
-            accounts: process.env.WALLET_PRIVATE_KEY ? [process.env.WALLET_PRIVATE_KEY] : [],
+            accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
             gasPrice: "auto",
             gas: "auto"
-        },
-        arbitrum: {
-            url: "https://arb1.arbitrum.io/rpc",
-            accounts: process.env.WALLET_PRIVATE_KEY ? [process.env.WALLET_PRIVATE_KEY] : [],
-            chainId: 42161
         },
         // For local testing
         localhost: {
