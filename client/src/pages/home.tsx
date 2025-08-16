@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
@@ -24,6 +24,57 @@ interface TokenBalances {
   totalValueUSD: string;
 }
 
+// Memoized floating particles component
+const FloatingParticles = memo(() => {
+  const particles = useMemo(() => 
+    Array.from({ length: 6 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: 3 + Math.random() * 2,
+      delay: Math.random() * 2
+    })), []
+  );
+  
+  return (
+    <div className="fixed inset-0 pointer-events-none">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-20"
+          style={{
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+          }}
+          animate={{
+            y: [-20, -100],
+            opacity: [0, 0.6, 0],
+          }}
+          transition={{
+            duration: particle.duration,
+            repeat: Infinity,
+            delay: particle.delay,
+            ease: "easeOut"
+          }}
+        />
+      ))}
+    </div>
+  );
+});
+
+// Memoized styles to prevent recreation
+const BACKGROUND_STYLE = {
+  background: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 50%, #2c2c2e 100%)'
+};
+
+const NOISE_STYLE = {
+  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+};
+
+const RADIAL_STYLE = {
+  background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
+};
+
 export default function Home() {
   const { user, isLoading: userLoading } = useGameState();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
@@ -43,7 +94,8 @@ export default function Home() {
 
 
 
-  const formatTokenAmount = (amount: string, decimals = 18) => {
+  // Memoize expensive token formatting function
+  const formatTokenAmount = useCallback((amount: string, decimals = 18) => {
     try {
       const parsed = parseFloat(formatUnits(amount, decimals));
       if (parsed >= 1000) {
@@ -55,7 +107,14 @@ export default function Home() {
     } catch {
       return "0";
     }
-  };
+  }, []);
+
+  // Memoize token data to prevent recreation - MUST be before early return
+  const tokenData = useMemo(() => [
+    { name: 'AIDOGE', icon: aidogeLogo, amount: balances?.token1 || '0', time: '2h 14 min', emoji: '🐕' },
+    { name: 'BOOP', icon: boopLogo, amount: balances?.token2 || '0', time: '5h 22 min', emoji: '🎭' },
+    { name: 'CATCH', icon: catchLogo, amount: balances?.token3 || '0', time: '1h 8 min', emoji: '🎯' }
+  ], [balances?.token1, balances?.token2, balances?.token3]);
 
   // Show minimal loading state while preserving background
   if (userLoading) {
@@ -72,42 +131,15 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen relative" style={{
-      background: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 50%, #2c2c2e 100%)'
-    }}>
+    <div className="min-h-screen relative" style={BACKGROUND_STYLE}>
       {/* Subtle noise texture overlay */}
-      <div className="fixed inset-0 opacity-10" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
-      }} />
+      <div className="fixed inset-0 opacity-10" style={NOISE_STYLE} />
       
       {/* Radial gradient overlay */}
-      <div className="fixed inset-0" style={{
-        background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
-      }} />
+      <div className="fixed inset-0" style={RADIAL_STYLE} />
       
-      {/* Floating particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-20"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [-20, -100],
-              opacity: [0, 0.6, 0],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-              ease: "easeOut"
-            }}
-          />
-        ))}
-      </div>
+      {/* Floating particles - memoized */}
+      <FloatingParticles />
       
 
 
@@ -443,11 +475,7 @@ export default function Home() {
         >
           <h3 className="text-base font-bold text-white mb-3">🪙 Token Collection</h3>
           <div className="space-y-2">
-            {[
-              { name: 'AIDOGE', icon: aidogeLogo, amount: balances?.token1 || '0', time: '2h 14 min', emoji: '🐕' },
-              { name: 'BOOP', icon: boopLogo, amount: balances?.token2 || '0', time: '5h 22 min', emoji: '🎭' },
-              { name: 'CATCH', icon: catchLogo, amount: balances?.token3 || '0', time: '1h 8 min', emoji: '🎯' }
-            ].map((token, index) => {
+            {tokenData.map((token, index) => {
               const hasBalance = BigInt(token.amount) > 0;
               const formattedAmount = formatTokenAmount(token.amount);
               

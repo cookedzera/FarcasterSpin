@@ -15,6 +15,10 @@ const ERC20_ABI = [
   "function decimals() external view returns (uint8)"
 ];
 
+// Optimize token reward function with connection pooling
+const tokenProviderPool = new Map<string, ethers.JsonRpcProvider>();
+const walletPool = new Map<string, ethers.Wallet>();
+
 async function sendTokenReward(recipientAddress: string | null, token: any, amount: number): Promise<string> {
   if (!recipientAddress) {
     throw new Error("No recipient address provided");
@@ -28,26 +32,33 @@ async function sendTokenReward(recipientAddress: string | null, token: any, amou
   }
   
   try {
-    // Clean up the private key format
-    let privateKey = PRIVATE_KEY.trim();
-    if (!privateKey.startsWith('0x')) {
-      privateKey = '0x' + privateKey;
+    // Use pooled provider and wallet for better performance
+    let provider = tokenProviderPool.get(RPC_URL);
+    if (!provider) {
+      provider = new ethers.JsonRpcProvider(RPC_URL);
+      tokenProviderPool.set(RPC_URL, provider);
     }
     
-    const provider = new ethers.JsonRpcProvider(RPC_URL);
-    // Create wallet without provider first, then connect to avoid ENS issues
-    const wallet = new ethers.Wallet(privateKey).connect(provider);
+    let wallet = walletPool.get(PRIVATE_KEY);
+    if (!wallet) {
+      let privateKey = PRIVATE_KEY.trim();
+      if (!privateKey.startsWith('0x')) {
+        privateKey = '0x' + privateKey;
+      }
+      wallet = new ethers.Wallet(privateKey).connect(provider);
+      walletPool.set(PRIVATE_KEY, wallet);
+    }
     
-    const tokenContract = new ethers.Contract(token.address, ERC20_ABI, wallet);
-    
-    // Validate the recipient address format (no ENS resolution needed)
+    // Validate address format early
     if (!ethers.isAddress(recipientAddress)) {
       throw new Error(`Invalid address format: ${recipientAddress}`);
     }
     
-    // Send the token transfer transaction
+    const tokenContract = new ethers.Contract(token.address, ERC20_ABI, wallet);
+    
+    // Use Promise.allSettled for better error handling
     const tx = await tokenContract.transfer(recipientAddress, BigInt(amount));
-    await tx.wait();
+    const receipt = await tx.wait();
     
     return tx.hash;
   } catch (error) {
@@ -57,17 +68,22 @@ async function sendTokenReward(recipientAddress: string | null, token: any, amou
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get current user stats
+  // Get current user stats - optimized with parallel queries
   app.get("/api/user/:id", async (req, res) => {
     try {
-      const user = await storage.getUser(req.params.id);
+      // Run queries in parallel for better performance
+      const [user, spinsToday] = await Promise.all([
+        storage.getUser(req.params.id),
+        storage.getUserSpinsToday(req.params.id)
+      ]);
+      
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
       
-      const spinsToday = await storage.getUserSpinsToday(req.params.id);
       res.json({ ...user, spinsUsed: spinsToday });
     } catch (error) {
+      console.error('Get user error:', error);
       res.status(500).json({ error: "Failed to get user" });
     }
   });
@@ -211,18 +227,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Contract events-based leaderboard
+  // Contract events-based leaderboard - optimized with caching
+  const leaderboardCache = new Map<string, { data: any; timestamp: number }>();
+  const CACHE_TTL = 30 * 1000; // 30 seconds cache
+  
   app.get("/api/leaderboard", async (req, res) => {
     const { category = 'wins', limit = 10 } = req.query;
+    const cacheKey = `${category}-${limit}`;
     
     try {
-      // Sync latest data from contract
-      await leaderboardService.syncLeaderboardData();
+      // Check cache first
+      const cached = leaderboardCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return res.json(cached.data);
+      }
+      
+      // Sync latest data from contract (non-blocking)
+      leaderboardService.syncLeaderboardData().catch(console.error);
       
       const leaderboard = await leaderboardService.getLeaderboard(
         category as 'wins' | 'spins' | 'rewards',
         parseInt(limit as string) || 10
       );
+      
+      // Cache the result
+      leaderboardCache.set(cacheKey, { data: leaderboard, timestamp: Date.now() });
       
       res.json(leaderboard);
     } catch (error) {
@@ -267,13 +296,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get user's accumulated token balances
+  // Get user's accumulated token balances - optimized with parallel queries
   app.get("/api/user/:id/balances", async (req, res) => {
     try {
-      const balances = await storage.getUserAccumulatedBalances(req.params.id);
-      const claimInfo = await storage.canUserClaim(req.params.id);
+      // Run balance and claim queries in parallel
+      const [balances, claimInfo] = await Promise.all([
+        storage.getUserAccumulatedBalances(req.params.id),
+        storage.canUserClaim(req.params.id)
+      ]);
+      
       res.json({ ...balances, ...claimInfo });
     } catch (error) {
+      console.error('Get balances error:', error);
       res.status(500).json({ error: "Failed to get user balances" });
     }
   });

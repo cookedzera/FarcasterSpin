@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import { motion } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGameState } from "@/hooks/use-game-state";
@@ -34,7 +34,7 @@ export default function SpinWheelClean() {
     spinHash 
   } = useWheelGame();
 
-  const segmentAngle = 360 / wheelSegments.length;
+  const segmentAngle = useMemo(() => 360 / wheelSegments.length, []);
 
   // Handle successful blockchain spin
   useEffect(() => {
@@ -75,7 +75,8 @@ export default function SpinWheelClean() {
     }
   }, [isSpinConfirmed, spinHash, wheelRotation, segmentAngle, toast, queryClient]);
 
-  const handleSpin = async () => {
+  // Memoize handleSpin to prevent recreation
+  const handleSpin = useCallback(async () => {
     console.log('🎰 handleSpin called', { 
       isSpinning, 
       isBlockchainSpinning, 
@@ -136,7 +137,7 @@ export default function SpinWheelClean() {
       });
       setIsSpinning(false);
     }
-  };
+  }, [isSpinning, isBlockchainSpinning, user, isConnected, address, toast, spin]);
 
   return (
     <div className="w-full mx-auto">
