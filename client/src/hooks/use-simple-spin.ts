@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useAccount, useChainId } from 'wagmi'
 import { useToast } from '@/hooks/use-toast'
 import { CONTRACT_CONFIG } from '@/lib/config'
@@ -60,6 +60,11 @@ const WHEEL_GAME_ABI = [
 export function useSimpleSpin() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [lastSpinResult, setLastSpinResult] = useState<any>(null)
+  
+  // Function to reset spin result
+  const resetSpinResult = useCallback(() => {
+    setLastSpinResult(null);
+  }, []);
   const { address, isConnected } = useAccount()
   const chainId = useChainId()
   const { toast } = useToast()
@@ -300,6 +305,7 @@ export function useSimpleSpin() {
     isSpinning,
     triggerGasPopup,
     lastSpinResult,
+    resetSpinResult,
     isConnected,
     userAddress: address
   }

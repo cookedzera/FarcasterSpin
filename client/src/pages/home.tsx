@@ -640,7 +640,7 @@ export default function Home() {
                       rewardAmount: result.segment.reward || "0",
                       tokenType: result.segment.name === 'AIDOGE' ? 'TOKEN1' : result.segment.name === 'BOOP' ? 'TOKEN2' : result.segment.name === 'BOBOTRUM' ? 'TOKEN3' : null,
                       tokenId: null,
-                      tokenAddress: (result.segment.tokenAddress as string) || null,
+                      tokenAddress: (result.segment.tokenAddress ?? null) as string | null,
                       isAccumulated: true,
                       transactionHash: result.transactionHash,
                       timestamp: new Date()

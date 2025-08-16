@@ -33,6 +33,7 @@ export default function SpinWheelClean(props: SpinWheelProps = {}) {
     isSpinning: isBlockchainSpinning, 
     triggerGasPopup,
     lastSpinResult,
+    resetSpinResult,
     isConnected,
     userAddress
   } = useSimpleSpin();
@@ -42,6 +43,8 @@ export default function SpinWheelClean(props: SpinWheelProps = {}) {
   // Handle successful blockchain spin
   useEffect(() => {
     if (lastSpinResult && lastSpinResult.segment) {
+      console.log('🎯 Processing spin result:', lastSpinResult);
+      
       // Find the segment index
       const segmentIndex = wheelSegments.findIndex(seg => seg.name === lastSpinResult.segment.name);
       const targetSegmentIndex = segmentIndex >= 0 ? segmentIndex : 1; // Default to BUST if not found
@@ -51,27 +54,34 @@ export default function SpinWheelClean(props: SpinWheelProps = {}) {
       const spins = 5 + Math.random() * 3; // 5-8 full rotations
       const finalRotation = wheelRotation + (spins * 360) + targetAngle;
       
+      console.log('🔄 Setting wheel rotation to:', finalRotation);
       setWheelRotation(finalRotation);
       setLandedSegment(targetSegmentIndex);
       
-      // Call the completion callback BEFORE invalidating queries
-      if (onSpinComplete) {
-        onSpinComplete({
-          segment: lastSpinResult.segment,
-          transactionHash: lastSpinResult.transactionHash,
-          isWin: lastSpinResult.isWin
-        });
-      }
-      
-      // Delay query invalidation to prevent UI refresh from cancelling popup
+      // Stop the spinning state immediately and call completion callback
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-      }, 4000); // Wait for wheel to complete spinning
-      
-      setTimeout(() => setIsSpinning(false), 3500);
+        console.log('🎊 Calling onSpinComplete callback');
+        setIsSpinning(false);
+        
+        if (onSpinComplete) {
+          onSpinComplete({
+            segment: lastSpinResult.segment,
+            transactionHash: lastSpinResult.transactionHash,
+            isWin: lastSpinResult.isWin
+          });
+        }
+        
+        // Reset the spin result to prevent re-triggering
+        resetSpinResult();
+        
+        // Delay query invalidation to prevent UI refresh from cancelling popup
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+        }, 2000);
+      }, 3500); // Wait for wheel animation to complete
     }
-  }, [lastSpinResult, wheelRotation, segmentAngle, queryClient, onSpinComplete]);
+  }, [lastSpinResult, wheelRotation, segmentAngle, queryClient, onSpinComplete, resetSpinResult]);
 
   // Simple handleSpin using new gas popup system
   const handleSpin = useCallback(async () => {
@@ -109,6 +119,9 @@ export default function SpinWheelClean(props: SpinWheelProps = {}) {
 
     setIsSpinning(true);
     setLandedSegment(null);
+    
+    // Reset any previous spin result
+    resetSpinResult();
     
     try {
       console.log('Triggering gas popup...');
