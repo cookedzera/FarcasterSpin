@@ -1,12 +1,10 @@
-import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGameState } from "@/hooks/use-game-state";
-import { useWheelGame } from "@/hooks/use-wheel-game";
+import { useSimpleSpin } from "@/hooks/use-simple-spin";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useAccount } from 'wagmi';
-import { CONTRACT_CONFIG } from '@/lib/config';
 
 const wheelSegments = [
   { id: 'aidoge-1', name: 'AIDOGE', reward: '10000', color: '#3B82F6', tokenAddress: '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4' },
@@ -26,31 +24,22 @@ export default function SpinWheelClean() {
   const { user } = useGameState();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { address, isConnected } = useAccount();
   const { 
-    spin, 
     isSpinning: isBlockchainSpinning, 
-    isSpinConfirmed,
-    spinHash 
-  } = useWheelGame();
+    triggerGasPopup,
+    lastSpinResult,
+    isConnected,
+    userAddress
+  } = useSimpleSpin();
 
   const segmentAngle = useMemo(() => 360 / wheelSegments.length, []);
 
   // Handle successful blockchain spin
   useEffect(() => {
-    if (isSpinConfirmed && spinHash) {
-      // Simulate a win for demonstration (in real app, parse events from transaction receipt)
-      const isWin = Math.random() > 0.6; // 40% win rate
-      
-      // Calculate which segment to land on based on win/lose
-      let targetSegmentIndex = 1; // Default to BUST
-      
-      if (isWin) {
-        // If win, pick a random winning segment (not BUST)
-        const winningSegments = wheelSegments.map((seg, idx) => ({ idx, seg }))
-          .filter(({ seg }) => seg.name !== 'BUST');
-        targetSegmentIndex = winningSegments[Math.floor(Math.random() * winningSegments.length)].idx;
-      }
+    if (lastSpinResult && lastSpinResult.segment) {
+      // Find the segment index
+      const segmentIndex = wheelSegments.findIndex(seg => seg.name === lastSpinResult.segment.name);
+      const targetSegmentIndex = segmentIndex >= 0 ? segmentIndex : 1; // Default to BUST if not found
       
       // Calculate rotation needed to land on target segment
       const targetAngle = -(targetSegmentIndex * segmentAngle);
@@ -60,44 +49,30 @@ export default function SpinWheelClean() {
       setWheelRotation(finalRotation);
       setLandedSegment(targetSegmentIndex);
       
-      // Show success message
-      toast({
-        title: "Spin Complete!",
-        description: `Transaction confirmed: ${spinHash.slice(0, 10)}...`,
-        variant: "default",
-      });
-      
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       
       setTimeout(() => setIsSpinning(false), 3500);
     }
-  }, [isSpinConfirmed, spinHash, wheelRotation, segmentAngle, toast, queryClient]);
+  }, [lastSpinResult, wheelRotation, segmentAngle, queryClient]);
 
-  // Memoize handleSpin to prevent recreation
+  // Simple handleSpin using new gas popup system
   const handleSpin = useCallback(async () => {
     console.log('🎰 handleSpin called', { 
       isSpinning, 
       isBlockchainSpinning, 
       user: !!user, 
       isConnected, 
-      address,
-      contractAddress: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS
+      userAddress
     });
     
     if (isSpinning || isBlockchainSpinning || !user || !isConnected) {
-      console.log('❌ Spin blocked - requirements not met:', {
-        isSpinning,
-        isBlockchainSpinning,
-        hasUser: !!user,
-        isConnected,
-        hasAddress: !!address
-      });
+      console.log('❌ Spin blocked - requirements not met');
       return;
     }
     
-    if (!address) {
+    if (!userAddress) {
       toast({
         title: "Wallet Required",
         description: "Please connect your wallet to spin and pay gas fees.",
@@ -106,39 +81,30 @@ export default function SpinWheelClean() {
       return;
     }
     
-    // Temporarily disabled for testing gas popup functionality
-    // if ((user.spinsUsed || 0) >= 5) {
-    //   toast({
-    //     title: "Daily Limit Reached", 
-    //     description: "You've used all your spins for today. Come back tomorrow!",
-    //     variant: "destructive",
-    //   });
-    //   return;
-    // }
+    // Check daily limit
+    if ((user.spinsUsed || 0) >= 5) {
+      toast({
+        title: "Daily Limit Reached", 
+        description: "You've used all your spins for today. Come back tomorrow!",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsSpinning(true);
     setLandedSegment(null);
     
-    toast({
-      title: "Initiating Spin",
-      description: "Confirm transaction in your wallet to pay gas fees and spin!",
-      variant: "default",
-    });
-    
     try {
-      console.log('Calling wagmi spin function to trigger MetaMask...');
-      await spin(); // This should trigger MetaMask gas popup immediately
-      console.log('Wagmi spin function initiated - waiting for user confirmation');
+      console.log('Triggering gas popup...');
+      const success = await triggerGasPopup();
+      if (!success) {
+        setIsSpinning(false);
+      }
     } catch (error: any) {
       console.error('Spin error:', error);
-      toast({
-        title: "Transaction Failed",
-        description: error.message || "Failed to initiate spin transaction",
-        variant: "destructive",
-      });
       setIsSpinning(false);
     }
-  }, [isSpinning, isBlockchainSpinning, user, isConnected, address, toast, spin]);
+  }, [isSpinning, isBlockchainSpinning, user, isConnected, userAddress, toast, triggerGasPopup]);
 
   return (
     <div className="w-full mx-auto">

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useWheelGame } from "@/hooks/use-wheel-game";
+import { useSimpleSpin } from "@/hooks/use-simple-spin";
 import { useAccount, useConnect } from "wagmi";
 import { CONTRACT_CONFIG } from "@/lib/config";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 export function TestButton() {
   const { address, isConnected, chain } = useAccount();
   const { connectors, connect } = useConnect();
-  const { spin, isSpinning, contractAddress } = useWheelGame();
+  const { triggerGasPopup, isSpinning } = useSimpleSpin();
   const { toast } = useToast();
 
   const handleTestSpin = async () => {
@@ -42,7 +42,7 @@ export function TestButton() {
         description: "Check your wallet for the transaction popup!",
         variant: "default",
       });
-      await spin();
+      await triggerGasPopup();
       toast({
         title: "Transaction Sent!",
         description: "Transaction has been sent to the network",
@@ -65,7 +65,7 @@ export function TestButton() {
         <p>Connected: {isConnected ? "Yes" : "No"}</p>
         <p>Address: {address || "None"}</p>
         <p>Chain: {chain?.name || "None"} (ID: {chain?.id || "None"})</p>
-        <p>Contract: {contractAddress}</p>
+        <p>Contract: {CONTRACT_CONFIG.WHEEL_GAME_ADDRESS}</p>
         <p>Expected Chain ID: {CONTRACT_CONFIG.CHAIN_ID}</p>
       </div>
       

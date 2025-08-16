@@ -15,11 +15,11 @@ const WHEEL_GAME_ABI = [
   "event RewardsClaimed(address indexed player, address indexed token, uint256 amount)"
 ];
 
-// Testnet token addresses matching the deployed contract
+// Token addresses provided by user
 export const TOKEN_ADDRESSES = {
-  TOKEN1: "0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7", // IARB
-  TOKEN2: "0x1842887De1C7fDD59e3948A93CD41aad48a19cB2", // JUICE  
-  TOKEN3: "0x0BA7A82d415500BebFA254502B655732Cd678D07"  // ABET
+  TOKEN1: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4", // AIDOGE
+  TOKEN2: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952", // BOOP  
+  TOKEN3: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19"  // BOBOTRUM
 } as const;
 
 export class BlockchainService {
