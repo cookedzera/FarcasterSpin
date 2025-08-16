@@ -29,9 +29,7 @@ export default function SpinWheelClean() {
     triggerGasPopup,
     lastSpinResult,
     isConnected,
-    userAddress,
-    testMode,
-    toggleTestMode
+    userAddress
   } = useSimpleSpin();
 
   const segmentAngle = useMemo(() => 360 / wheelSegments.length, []);
@@ -239,22 +237,6 @@ export default function SpinWheelClean() {
         </div>
       </div>
 
-      {/* Test Mode Toggle */}
-      <div className="mb-3 text-center">
-        <button
-          onClick={toggleTestMode}
-          className={`px-3 py-1 text-xs rounded-full transition-colors ${
-            testMode 
-              ? 'bg-orange-600 hover:bg-orange-700 text-white' 
-              : 'bg-green-600 hover:bg-green-700 text-white'
-          }`}
-        >
-          {testMode ? '🧪 Test Mode' : '🔗 Real Mode'}
-        </button>
-        <p className="text-xs text-gray-400 mt-1">
-          {testMode ? 'Simulated transactions' : 'Real blockchain calls'}
-        </p>
-      </div>
 
       {/* Spin Button */}
       <Button
@@ -262,7 +244,7 @@ export default function SpinWheelClean() {
         disabled={isSpinning || isBlockchainSpinning || !user || !isConnected}
         className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl"
       >
-        {isSpinning || isBlockchainSpinning ? "SPINNING..." : isConnected ? `SPIN WHEEL (${testMode ? 'Test' : 'Pay Gas'})` : "CONNECT WALLET TO SPIN"}
+        {isSpinning || isBlockchainSpinning ? "SPINNING..." : isConnected ? "SPIN WHEEL (Pay Gas)" : "CONNECT WALLET TO SPIN"}
       </Button>
       
       {!isSpinning && user && (

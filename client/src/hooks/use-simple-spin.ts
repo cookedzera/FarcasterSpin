@@ -3,7 +3,7 @@ import { useAccount, useChainId } from 'wagmi'
 import { useToast } from '@/hooks/use-toast'
 import { CONTRACT_CONFIG } from '@/lib/config'
 
-// Complete ABI with error types for better error handling
+// Correct ABI matching the deployed contract
 const WHEEL_GAME_ABI = [
   {
     "type": "function",
@@ -14,32 +14,46 @@ const WHEEL_GAME_ABI = [
   },
   {
     "type": "function",
-    "name": "players",
-    "inputs": [{"name": "", "type": "address"}],
+    "name": "getPlayerStats",
+    "inputs": [{"name": "playerAddress", "type": "address"}],
     "outputs": [
       {"type": "uint256", "name": "totalSpins"},
       {"type": "uint256", "name": "totalWins"},
       {"type": "uint256", "name": "lastSpinDate"},
-      {"type": "uint256", "name": "dailySpins"}
+      {"type": "uint256", "name": "dailySpins"},
+      {"type": "uint256", "name": "spinsRemaining"}
     ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "MAX_DAILY_SPINS",
-    "inputs": [],
-    "outputs": [{"type": "uint256"}],
+    "name": "getPendingRewards",
+    "inputs": [{"name": "playerAddress", "type": "address"}],
+    "outputs": [
+      {"type": "uint256", "name": "token1Rewards"},
+      {"type": "uint256", "name": "token2Rewards"},
+      {"type": "uint256", "name": "token3Rewards"}
+    ],
     "stateMutability": "view"
   },
   {
-    "type": "error",
-    "name": "DailySpinLimitReached",
-    "inputs": []
+    "type": "function",
+    "name": "getWheelSegments",
+    "inputs": [],
+    "outputs": [{"type": "string[]", "name": ""}],
+    "stateMutability": "view"
   },
   {
-    "type": "error",
-    "name": "InsufficientBalance",
-    "inputs": []
+    "type": "event",
+    "name": "SpinResult",
+    "inputs": [
+      {"name": "player", "type": "address", "indexed": true},
+      {"name": "segment", "type": "string"},
+      {"name": "isWin", "type": "bool"},
+      {"name": "tokenAddress", "type": "address"},
+      {"name": "rewardAmount", "type": "uint256"},
+      {"name": "randomSeed", "type": "uint256"}
+    ]
   }
 ] as const
 
@@ -49,7 +63,7 @@ export function useSimpleSpin() {
   const { address, isConnected } = useAccount()
   const chainId = useChainId()
   const { toast } = useToast()
-  const [testMode, setTestMode] = useState(true) // Enable test mode to bypass contract
+  const [testMode, setTestMode] = useState(false) // Use real contract mode
 
   const triggerGasPopup = async () => {
     if (!isConnected || !address) {
@@ -79,6 +93,9 @@ export function useSimpleSpin() {
       })
       return false
     }
+
+    console.log('🔗 Using contract address:', CONTRACT_CONFIG.WHEEL_GAME_ADDRESS)
+    console.log('🦊 Wallet connected:', { address, chainId })
 
     setIsSpinning(true)
 
@@ -133,29 +150,30 @@ export function useSimpleSpin() {
           signer
         )
 
-        // TEMPORARILY DISABLED FOR TESTING - Check daily spin limit before attempting transaction
+        // Check daily spin limit using correct contract functions
         try {
-          const playerData = await contract.players(address)
-          const maxSpins = await contract.MAX_DAILY_SPINS()
-          const dailySpinsUsed = Number(playerData[3])
-          const maxDailySpins = Number(maxSpins)
+          const playerStats = await contract.getPlayerStats(address)
+          const dailySpinsUsed = Number(playerStats[3])
+          const spinsRemaining = Number(playerStats[4])
 
-          console.log('Pre-transaction check (testing mode):', {
+          console.log('Pre-transaction check:', {
             address,
+            totalSpins: Number(playerStats[0]),
+            totalWins: Number(playerStats[1]),
+            lastSpinDate: Number(playerStats[2]),
             dailySpinsUsed,
-            maxDailySpins,
-            canSpin: dailySpinsUsed < maxDailySpins
+            spinsRemaining,
+            canSpin: spinsRemaining > 0
           })
 
-          // TEMPORARILY COMMENTED OUT FOR TESTING
-          // if (dailySpinsUsed >= maxDailySpins) {
-          //   toast({
-          //     title: "Daily Limit Reached",
-          //     description: `You've used all ${maxDailySpins} spins today. Come back tomorrow!`,
-          //     variant: "destructive",
-          //   })
-          //   return false
-          // }
+          if (spinsRemaining <= 0) {
+            toast({
+              title: "Daily Limit Reached",
+              description: `No spins remaining today. Come back tomorrow!`,
+              variant: "destructive",
+            })
+            return false
+          }
         } catch (checkError: any) {
           console.warn('Could not check daily limits:', checkError)
           // Continue anyway - let the contract handle the check
@@ -171,10 +189,12 @@ export function useSimpleSpin() {
           let errorMessage = "Transaction would fail"
           if (gasError.reason) {
             errorMessage = gasError.reason
-          } else if (gasError.message.includes('DailySpinLimitReached')) {
+          } else if (gasError.message.includes('daily') || gasError.message.includes('limit')) {
             errorMessage = "Daily spin limit reached. Come back tomorrow!"
           } else if (gasError.message.includes('revert')) {
-            errorMessage = "Contract rejected the transaction. Check daily limits or network."
+            errorMessage = "Contract rejected the transaction. Check daily limits or gas."
+          } else {
+            errorMessage = "Gas estimation failed: " + (gasError.message || 'Unknown error')
           }
           
           toast({
@@ -192,7 +212,9 @@ export function useSimpleSpin() {
         })
 
         // This will trigger MetaMask gas popup
+        console.log('🎰 Calling contract.spin()...')
         const tx = await contract.spin()
+        console.log('✅ Transaction sent:', tx.hash)
         
         toast({
           title: "Transaction Sent",
@@ -273,22 +295,12 @@ export function useSimpleSpin() {
     }
   }
 
-  const toggleTestMode = () => {
-    setTestMode(!testMode)
-    toast({
-      title: testMode ? "Real Mode Enabled" : "Test Mode Enabled",
-      description: testMode ? "Will call actual contract" : "Will simulate transactions",
-      variant: "default",
-    })
-  }
 
   return {
     isSpinning,
     triggerGasPopup,
     lastSpinResult,
     isConnected,
-    userAddress: address,
-    testMode,
-    toggleTestMode
+    userAddress: address
   }
 }
