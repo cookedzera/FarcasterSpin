@@ -11,6 +11,30 @@ Navigation preferences: Fast, smooth transitions without loading animations betw
 UI preferences: Token collection display with real balances instead of accumulated rewards on profile.
 Gas fee preference: Users should pay their own gas fees for both spinning and claiming transactions, not the project wallet.
 
+# Migration Guide: Replit Agent to Standard Replit
+
+When importing projects from Replit Agent to standard Replit environment, follow this **exact checklist** to prevent common issues:
+
+## Critical Migration Steps (Always Required)
+1. **Install all packages immediately** - Even though package.json exists, node_modules don't transfer
+   - Run the package installer for your language (nodejs, python, etc.)
+   - This resolves "command not found" errors for tsx, tsx, and other dev dependencies
+2. **Create database if needed** - PostgreSQL databases don't transfer from Agent environment
+   - Use the database creation tool to provision a fresh database
+   - Run `npm run db:push` to setup schema and tables
+3. **Verify environment variables** - Some secrets may need reconfiguration
+   - Check that DATABASE_URL is available after database creation
+   - Blockchain secrets (WALLET_PRIVATE_KEY, DEPLOYED_CONTRACT_ADDRESS) need manual setup
+
+## Common Import Issues & Solutions
+- **"tsx: not found" error** → Install nodejs packages immediately after import
+- **"DATABASE_URL must be set" error** → Create PostgreSQL database and push schema
+- **Dependencies missing** → Package manager installation is always required for imports
+- **Server won't start** → Check both package installation and database setup
+
+## Why This Happens
+Replit Agent environment packages and databases are isolated and don't transfer during import. The migration creates a clean slate that requires explicit setup of all dependencies and services.
+
 # Recent Changes
 - **August 15, 2025**: Successfully completed project migration from Replit Agent to standard Replit environment
   - Fixed tsx dependency installation issues completely
