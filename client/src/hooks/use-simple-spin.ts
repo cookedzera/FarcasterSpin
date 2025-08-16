@@ -1,16 +1,45 @@
 import { useState } from 'react'
-import { useAccount } from 'wagmi'
+import { useAccount, useChainId } from 'wagmi'
 import { useToast } from '@/hooks/use-toast'
 import { CONTRACT_CONFIG } from '@/lib/config'
 
-// Simple ABI for spin function only
-const SIMPLE_SPIN_ABI = [
+// Complete ABI with error types for better error handling
+const WHEEL_GAME_ABI = [
   {
     "type": "function",
     "name": "spin",
     "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "players",
+    "inputs": [{"name": "", "type": "address"}],
+    "outputs": [
+      {"type": "uint256", "name": "totalSpins"},
+      {"type": "uint256", "name": "totalWins"},
+      {"type": "uint256", "name": "lastSpinDate"},
+      {"type": "uint256", "name": "dailySpins"}
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_DAILY_SPINS",
+    "inputs": [],
+    "outputs": [{"type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "error",
+    "name": "DailySpinLimitReached",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InsufficientBalance",
+    "inputs": []
   }
 ] as const
 
@@ -18,6 +47,7 @@ export function useSimpleSpin() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [lastSpinResult, setLastSpinResult] = useState<any>(null)
   const { address, isConnected } = useAccount()
+  const chainId = useChainId()
   const { toast } = useToast()
 
   const triggerGasPopup = async () => {
@@ -39,18 +69,80 @@ export function useSimpleSpin() {
       return false
     }
 
+    // Check if on correct network (Arbitrum Sepolia = 421614)
+    if (chainId !== 421614) {
+      toast({
+        title: "Wrong Network",
+        description: `Please switch to Arbitrum Sepolia (Chain ID: 421614). Current: ${chainId}`,
+        variant: "destructive",
+      })
+      return false
+    }
+
     setIsSpinning(true)
 
     try {
       // Use ethers directly for simple gas popup
       if (window.ethereum) {
-        const provider = new (await import('ethers')).BrowserProvider(window.ethereum)
+        const { BrowserProvider, Contract, parseUnits } = await import('ethers')
+        const provider = new BrowserProvider(window.ethereum)
         const signer = await provider.getSigner()
-        const contract = new (await import('ethers')).Contract(
+        const contract = new Contract(
           CONTRACT_CONFIG.WHEEL_GAME_ADDRESS as string,
-          SIMPLE_SPIN_ABI,
+          WHEEL_GAME_ABI,
           signer
         )
+
+        // Check daily spin limit before attempting transaction
+        try {
+          const playerData = await contract.players(address)
+          const maxSpins = await contract.MAX_DAILY_SPINS()
+          const dailySpinsUsed = Number(playerData[3])
+          const maxDailySpins = Number(maxSpins)
+
+          console.log('Pre-transaction check:', {
+            address,
+            dailySpinsUsed,
+            maxDailySpins,
+            canSpin: dailySpinsUsed < maxDailySpins
+          })
+
+          if (dailySpinsUsed >= maxDailySpins) {
+            toast({
+              title: "Daily Limit Reached",
+              description: `You've used all ${maxDailySpins} spins today. Come back tomorrow!`,
+              variant: "destructive",
+            })
+            return false
+          }
+        } catch (checkError: any) {
+          console.warn('Could not check daily limits:', checkError)
+          // Continue anyway - let the contract handle the check
+        }
+
+        // Estimate gas first to catch revert errors early
+        try {
+          const gasEstimate = await contract.spin.estimateGas()
+          console.log('Gas estimate successful:', gasEstimate.toString())
+        } catch (gasError: any) {
+          console.error('Gas estimation failed:', gasError)
+          
+          let errorMessage = "Transaction would fail"
+          if (gasError.reason) {
+            errorMessage = gasError.reason
+          } else if (gasError.message.includes('DailySpinLimitReached')) {
+            errorMessage = "Daily spin limit reached. Come back tomorrow!"
+          } else if (gasError.message.includes('revert')) {
+            errorMessage = "Contract rejected the transaction. Check daily limits or network."
+          }
+          
+          toast({
+            title: "Transaction Failed",
+            description: errorMessage,
+            variant: "destructive",
+          })
+          return false
+        }
 
         toast({
           title: "Confirm Transaction",
@@ -102,16 +194,34 @@ export function useSimpleSpin() {
       console.error('Spin failed:', error)
       
       let errorMessage = "Failed to execute spin"
+      let errorTitle = "Spin Failed"
+      
       if (error.code === 4001) {
         errorMessage = "Transaction cancelled by user"
-      } else if (error.code === -32603) {
-        errorMessage = "Transaction failed - check gas fees or daily limit"
+        errorTitle = "Transaction Cancelled"
+      } else if (error.code === -32603 || error.code === 'CALL_EXCEPTION') {
+        if (error.reason) {
+          errorMessage = error.reason
+        } else if (error.data && error.data.includes('0x')) {
+          // Custom contract error
+          errorMessage = "Daily spin limit reached or contract requirement not met"
+        } else {
+          errorMessage = "Transaction reverted - check daily limits or network"
+        }
       } else if (error.message) {
-        errorMessage = error.message
+        if (error.message.includes('DailySpinLimitReached')) {
+          errorMessage = "Daily spin limit reached. Come back tomorrow!"
+        } else if (error.message.includes('insufficient funds')) {
+          errorMessage = "Insufficient funds for gas fees"
+        } else if (error.message.includes('network')) {
+          errorMessage = "Network error. Please check your connection."
+        } else {
+          errorMessage = error.message
+        }
       }
 
       toast({
-        title: "Spin Failed",
+        title: errorTitle,
         description: errorMessage,
         variant: "destructive",
       })
