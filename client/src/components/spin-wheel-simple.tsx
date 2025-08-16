@@ -24,6 +24,9 @@ const WHEEL_ABI = [
   }
 ] as const;
 
+// TEMPORARY: Safe mode to bypass contract bug
+const SAFE_MODE = true; // Set to false once contract is fixed
+
 interface SpinResult {
   segment: string;
   isWin: boolean;
@@ -124,12 +127,41 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
     });
 
     try {
-      // Call contract
-      writeContract({
-        address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS as `0x${string}`,
-        abi: WHEEL_ABI,
-        functionName: 'spin',
-      });
+      if (SAFE_MODE) {
+        // TEMPORARY: Mock successful transaction to bypass contract bug
+        console.log('🔧 SAFE MODE: Bypassing problematic contract call');
+        
+        // Simulate blockchain delay
+        setTimeout(() => {
+          const mockHash = '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+          
+          toast({
+            title: "🎉 Spin Complete (Safe Mode)!",
+            description: `You landed on ${result?.segment}! ${result?.isWin ? 'You won!' : 'Try again!'}`,
+            variant: result?.isWin ? "default" : "destructive",
+          });
+          
+          if (onSpinComplete && result) {
+            onSpinComplete({
+              ...result,
+              transactionHash: mockHash
+            });
+          }
+          
+          // Reset after showing result
+          setTimeout(() => {
+            setResult(null);
+            setIsSpinning(false);
+          }, 3000);
+        }, 2000);
+      } else {
+        // Call actual contract (only when safe)
+        writeContract({
+          address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS as `0x${string}`,
+          abi: WHEEL_ABI,
+          functionName: 'spin',
+        });
+      }
     } catch (error: any) {
       console.error('Contract call failed:', error);
       toast({
@@ -198,6 +230,14 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
       </div>
 
       {/* Spin Button */}
+      {SAFE_MODE && (
+        <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500 rounded-lg text-center">
+          <p className="text-yellow-400 text-sm font-medium">
+            🔧 Safe Mode Active - Contract bug detected. Playing in simulation mode.
+          </p>
+        </div>
+      )}
+      
       <Button
         onClick={handleSpin}
         disabled={!isConnected || userSpinsUsed >= 3 || isSpinning || isProcessing}
@@ -207,7 +247,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
          userSpinsUsed >= 3 ? 'Daily Limit Reached' :
          isProcessing ? 'Processing...' :
          isSpinning ? 'Spinning...' : 
-         'SPIN (Pay Gas)'}
+         SAFE_MODE ? 'SPIN (Safe Mode)' : 'SPIN (Pay Gas)'}
       </Button>
       
       {/* Spins Counter */}
