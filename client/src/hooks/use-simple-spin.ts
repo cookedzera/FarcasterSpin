@@ -93,28 +93,29 @@ export function useSimpleSpin() {
           signer
         )
 
-        // Check daily spin limit before attempting transaction
+        // TEMPORARILY DISABLED FOR TESTING - Check daily spin limit before attempting transaction
         try {
           const playerData = await contract.players(address)
           const maxSpins = await contract.MAX_DAILY_SPINS()
           const dailySpinsUsed = Number(playerData[3])
           const maxDailySpins = Number(maxSpins)
 
-          console.log('Pre-transaction check:', {
+          console.log('Pre-transaction check (testing mode):', {
             address,
             dailySpinsUsed,
             maxDailySpins,
             canSpin: dailySpinsUsed < maxDailySpins
           })
 
-          if (dailySpinsUsed >= maxDailySpins) {
-            toast({
-              title: "Daily Limit Reached",
-              description: `You've used all ${maxDailySpins} spins today. Come back tomorrow!`,
-              variant: "destructive",
-            })
-            return false
-          }
+          // TEMPORARILY COMMENTED OUT FOR TESTING
+          // if (dailySpinsUsed >= maxDailySpins) {
+          //   toast({
+          //     title: "Daily Limit Reached",
+          //     description: `You've used all ${maxDailySpins} spins today. Come back tomorrow!`,
+          //     variant: "destructive",
+          //   })
+          //   return false
+          // }
         } catch (checkError: any) {
           console.warn('Could not check daily limits:', checkError)
           // Continue anyway - let the contract handle the check
