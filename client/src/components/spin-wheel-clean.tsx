@@ -6,6 +6,10 @@ import { useSimpleSpin } from "@/hooks/use-simple-spin";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
+interface SpinWheelProps {
+  onSpinComplete?: (result: { segment: any, transactionHash?: string, isWin: boolean }) => void;
+}
+
 const wheelSegments = [
   { id: 'aidoge-1', name: 'AIDOGE', reward: '10000', color: '#3B82F6', tokenAddress: '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4' },
   { id: 'bankrupt-1', name: 'BUST', reward: '0', color: '#EF4444', tokenAddress: null },
@@ -17,7 +21,8 @@ const wheelSegments = [
   { id: 'mega-1', name: 'JACKPOT', reward: '50000', color: '#F97316', tokenAddress: '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4' }
 ];
 
-export default function SpinWheelClean() {
+export default function SpinWheelClean(props: SpinWheelProps = {}) {
+  const { onSpinComplete } = props;
   const [isSpinning, setIsSpinning] = useState(false);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [landedSegment, setLandedSegment] = useState<number | null>(null);
@@ -49,13 +54,24 @@ export default function SpinWheelClean() {
       setWheelRotation(finalRotation);
       setLandedSegment(targetSegmentIndex);
       
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      // Call the completion callback BEFORE invalidating queries
+      if (onSpinComplete) {
+        onSpinComplete({
+          segment: lastSpinResult.segment,
+          transactionHash: lastSpinResult.transactionHash,
+          isWin: lastSpinResult.isWin
+        });
+      }
+      
+      // Delay query invalidation to prevent UI refresh from cancelling popup
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      }, 4000); // Wait for wheel to complete spinning
       
       setTimeout(() => setIsSpinning(false), 3500);
     }
-  }, [lastSpinResult, wheelRotation, segmentAngle, queryClient]);
+  }, [lastSpinResult, wheelRotation, segmentAngle, queryClient, onSpinComplete]);
 
   // Simple handleSpin using new gas popup system
   const handleSpin = useCallback(async () => {

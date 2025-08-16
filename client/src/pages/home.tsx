@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, memo } from "react";
+import { useState, useCallback, useMemo, memo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
@@ -6,9 +6,10 @@ import SpinWheel from "@/components/spin-wheel-clean";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
+import WinPopup from "@/components/win-popup";
 import { Button } from "@/components/ui/button";
 import { formatUnits } from "ethers";
-import { type GameStats } from "@shared/schema";
+import { type GameStats, type SpinResult } from "@shared/schema";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
 import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
@@ -75,6 +76,8 @@ const RADIAL_STYLE = {
 export default function Home() {
   const { user, isLoading: userLoading } = useGameState();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [showWinPopup, setShowWinPopup] = useState(false);
+  const [spinResult, setSpinResult] = useState<SpinResult | null>(null);
 
   
   const { data: stats } = useQuery<GameStats>({
@@ -566,6 +569,22 @@ export default function Home() {
       {/* Navigation */}
       <Navigation />
 
+      {/* Win Popup */}
+      <WinPopup
+        isOpen={showWinPopup}
+        onClose={() => {
+          setShowWinPopup(false);
+          setSpinResult(null);
+        }}
+        winResult={spinResult}
+        tokenInfo={spinResult && spinResult.tokenType ? {
+          name: spinResult.tokenType === 'TOKEN1' ? 'AIDOGE' : spinResult.tokenType === 'TOKEN2' ? 'BOOP' : 'BOBOTRUM',
+          symbol: spinResult.tokenType === 'TOKEN1' ? 'AIDOGE' : spinResult.tokenType === 'TOKEN2' ? 'BOOP' : 'BOBOTRUM',
+          logo: spinResult.tokenType === 'TOKEN1' ? aidogeLogo : spinResult.tokenType === 'TOKEN2' ? boopLogo : catchLogo,
+          address: spinResult.tokenAddress || ''
+        } : undefined}
+      />
+
 
       
       {/* Spin Wheel Modal */}
@@ -609,7 +628,29 @@ export default function Home() {
                   ✕
                 </button>
               </div>
-              <SpinWheel />
+              <SpinWheel 
+                onSpinComplete={(result) => {
+                  // Create a SpinResult-compatible object for the popup
+                  if (result && result.segment && result.isWin) {
+                    setSpinResult({
+                      id: 'temp-' + Date.now(),
+                      userId: user?.id || null,
+                      symbols: [result.segment.name],
+                      isWin: result.isWin,
+                      rewardAmount: result.segment.reward || "0",
+                      tokenType: result.segment.name === 'AIDOGE' ? 'TOKEN1' : result.segment.name === 'BOOP' ? 'TOKEN2' : result.segment.name === 'BOBOTRUM' ? 'TOKEN3' : null,
+                      tokenId: null,
+                      tokenAddress: (result.segment.tokenAddress as string) || null,
+                      isAccumulated: true,
+                      transactionHash: result.transactionHash,
+                      timestamp: new Date()
+                    });
+                    setShowWinPopup(true);
+                    // Auto close spin wheel after showing result
+                    setTimeout(() => setShowSpinWheel(false), 1000);
+                  }
+                }}
+              />
             </motion.div>
           </motion.div>
         )}
