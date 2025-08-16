@@ -106,14 +106,15 @@ export default function SpinWheelClean() {
       return;
     }
     
-    if ((user.spinsUsed || 0) >= 5) {
-      toast({
-        title: "Daily Limit Reached",
-        description: "You've used all your spins for today. Come back tomorrow!",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Temporarily disabled for testing gas popup functionality
+    // if ((user.spinsUsed || 0) >= 5) {
+    //   toast({
+    //     title: "Daily Limit Reached", 
+    //     description: "You've used all your spins for today. Come back tomorrow!",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
     setIsSpinning(true);
     setLandedSegment(null);
@@ -273,7 +274,7 @@ export default function SpinWheelClean() {
       {/* Spin Button */}
       <Button
         onClick={handleSpin}
-        disabled={isSpinning || isBlockchainSpinning || !user || !isConnected || (user.spinsUsed || 0) >= 5}
+        disabled={isSpinning || isBlockchainSpinning || !user || !isConnected}
         className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl"
       >
         {isSpinning || isBlockchainSpinning ? "SPINNING..." : isConnected ? "SPIN WHEEL (Pay Gas)" : "CONNECT WALLET TO SPIN"}
