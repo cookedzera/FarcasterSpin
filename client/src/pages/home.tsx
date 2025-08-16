@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, memo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
-import SpinWheel from "@/components/spin-wheel-clean";
+import SpinWheelSimple from "@/components/spin-wheel-simple";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
@@ -299,7 +299,7 @@ export default function Home() {
                   <button
                     className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white/20 cursor-pointer hover:scale-110 transition-transform"
                     onClick={() => setShowSpinWheel(true)}
-                    disabled={(user?.spinsUsed || 0) >= 5}
+                    disabled={(user?.spinsUsed || 0) >= 3}
                   >
                     <svg 
                       className="w-5 h-5 text-white" 
@@ -394,17 +394,17 @@ export default function Home() {
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-base font-bold text-white">🎯 Goal Progress</h3>
-            <span className="text-xs text-white/70">{user?.spinsUsed || 0}/5 days</span>
+            <span className="text-xs text-white/70">{user?.spinsUsed || 0}/3 days</span>
           </div>
           
           {/* Progress Bar Instead of Days */}
           <div className="mb-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-white/60">Daily Progress</span>
-              <span className="text-xs text-white/60">{user?.spinsUsed || 0}/5</span>
+              <span className="text-xs text-white/60">{user?.spinsUsed || 0}/3</span>
             </div>
             <div className="flex space-x-1">
-              {Array.from({ length: 5 }, (_, index) => (
+              {Array.from({ length: 3 }, (_, index) => (
                 <div 
                   key={index}
                   className={`flex-1 h-2 rounded-full transition-all duration-300 ${
@@ -451,13 +451,13 @@ export default function Home() {
               <div className="flex-1 bg-white/30 rounded-full h-1.5">
                 <div 
                   className="bg-white rounded-full h-1.5 transition-all duration-500"
-                  style={{ width: `${((user?.spinsUsed || 0) / 5) * 100}%` }}
+                  style={{ width: `${((user?.spinsUsed || 0) / 3) * 100}%` }}
                 ></div>
               </div>
-              <span className="text-xs font-medium">{((user?.spinsUsed || 0) / 5 * 100).toFixed(0)}%</span>
+              <span className="text-xs font-medium">{((user?.spinsUsed || 0) / 3 * 100).toFixed(0)}%</span>
             </div>
             <p className="text-xs text-white/80">
-              {5 - (user?.spinsUsed || 0)} spins remaining for today!
+              {3 - (user?.spinsUsed || 0)} spins remaining for today!
             </p>
             </div>
           </motion.div>
@@ -628,19 +628,20 @@ export default function Home() {
                   ✕
                 </button>
               </div>
-              <SpinWheel 
+              <SpinWheelSimple 
+                userSpinsUsed={user?.spinsUsed || 0}
                 onSpinComplete={(result) => {
                   // Create a SpinResult-compatible object for the popup
                   if (result && result.segment && result.isWin) {
                     setSpinResult({
                       id: 'temp-' + Date.now(),
                       userId: user?.id || null,
-                      symbols: [result.segment.name],
+                      symbols: [result.segment],
                       isWin: result.isWin,
-                      rewardAmount: result.segment.reward || "0",
-                      tokenType: result.segment.name === 'AIDOGE' ? 'TOKEN1' : result.segment.name === 'BOOP' ? 'TOKEN2' : result.segment.name === 'BOBOTRUM' ? 'TOKEN3' : null,
+                      rewardAmount: result.reward || "0",
+                      tokenType: result.segment === 'AIDOGE' ? 'TOKEN1' : result.segment === 'BOOP' ? 'TOKEN2' : result.segment === 'BOBOTRUM' ? 'TOKEN3' : null,
                       tokenId: null,
-                      tokenAddress: (result.segment.tokenAddress ?? null) as string | null,
+                      tokenAddress: null,
                       isAccumulated: true,
                       transactionHash: result.transactionHash,
                       timestamp: new Date()
