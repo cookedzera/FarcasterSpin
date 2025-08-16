@@ -36,6 +36,14 @@ When importing projects from Replit Agent to standard Replit environment, follow
 Replit Agent environment packages and databases are isolated and don't transfer during import. The migration creates a clean slate that requires explicit setup of all dependencies and services.
 
 # Recent Changes
+- **August 16, 2025**: Successfully integrated PostgreSQL database with complete data persistence
+  - Created PostgreSQL database and pushed all schema tables successfully
+  - Updated storage layer to use DatabaseStorage instead of in-memory storage
+  - All database tables created and operational: users, tokens, game_stats, spin_results, token_claims
+  - Initialized token data with TOKEN1, TOKEN2, and TOKEN3 configurations
+  - Verified all API endpoints working correctly with database backend
+  - Database connection established with proper environment variable configuration
+  - Full data persistence now available for user profiles, game statistics, and transaction history
 - **August 15, 2025**: Successfully completed project migration from Replit Agent to standard Replit environment
   - Fixed tsx dependency installation issues completely
   - Created PostgreSQL database and pushed schema successfully  
@@ -123,12 +131,16 @@ Replit Agent environment packages and databases are isolated and don't transfer 
 - **Error Handling**: Centralized error handling with proper HTTP status codes
 
 ## Database Schema
-- **ORM**: Drizzle ORM with PostgreSQL dialect
+- **ORM**: Drizzle ORM with PostgreSQL dialect via Neon serverless
+- **Connection**: DatabaseStorage implementation with automatic fallback to MemStorage for development
 - **Tables**:
-  - `users`: Player profiles with spin counts, wins, and wallet addresses
+  - `users`: Player profiles with Farcaster data, spin counts, wins, wallet addresses, and token balances
+  - `tokens`: Token configurations (TOKEN1, TOKEN2, TOKEN3) with addresses, symbols, and reward amounts
   - `game_stats`: Daily aggregated statistics for total claims and contract transactions
-  - `spin_results`: Individual spin outcomes with symbols, wins, and rewards
-- **Data Validation**: Zod schemas for type-safe database operations
+  - `spin_results`: Individual spin outcomes with symbols, wins, rewards, and transaction hashes
+  - `token_claims`: Token claim requests with amounts, USD values, and transaction status
+- **Data Validation**: Zod schemas for type-safe database operations with insert/select type inference
+- **Storage Layer**: IStorage interface supporting both database and memory implementations
 
 ## Game Logic
 - **Spin Mechanics**: Random symbol generation with configurable win conditions
