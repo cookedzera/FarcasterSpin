@@ -1,105 +1,111 @@
-# Complete Remix IDE Deployment Guide for Test Tokens
+# Contract Deployment Guide - Remix IDE
 
-## Step 1: Prepare Remix IDE
+Due to Hardhat/Node.js compatibility issues in this environment, we'll use Remix IDE for contract deployment.
 
-1. **Open Remix IDE**: Go to https://remix.ethereum.org/
-2. **Create New File**: Click "+" in file explorer, name it `TestTokens.sol`
-3. **Copy Contract Code**: Copy the entire contents from `contracts/TestTokens.sol`
+## Contract Information
 
-## Step 2: Compile the Contracts
+**Contract:** `WheelGameArbitrumSepoliaComplete.sol` (located in `/contracts/`)
+**Network:** Arbitrum Sepolia Testnet
+**Chain ID:** 421614
 
-1. **Go to Solidity Compiler Tab** (left sidebar)
-2. **Select Compiler Version**: 0.8.20 or higher
-3. **Enable Optimization**: Check "Enable optimization"
-4. **Click Compile TestTokens.sol**
-5. **Verify Success**: Green checkmark should appear
+## Token Addresses (Arbitrum Sepolia)
 
-## Step 3: Connect to Arbitrum Sepolia
+```
+AIDOGE: 0x7FD0EEa14bE3FC8f15eE08D44C26c4E3e68EE6f0  
+BOOP: 0x9B79F02e60A8d2c7b7f7F96598c7DFd04DDc5f5E
+BOBOTRUM: 0x1c6A16aCd4e93ca81b21dC3A09dEe24618d8bD37
+```
 
-1. **Go to Deploy & Run Tab** (left sidebar)
-2. **Environment**: Select "Injected Provider - MetaMask"
-3. **Network**: Make sure MetaMask shows "Arbitrum Sepolia"
-4. **Account**: Your wallet address should appear
-5. **Check Balance**: Ensure you have testnet ETH
+## Deployment Steps using Remix IDE
 
-## Step 4: Deploy Each Token
+### Step 1: Access Remix IDE
+1. Go to https://remix.ethereum.org/
+2. Accept the terms and close any welcome dialogs
 
-### Deploy AIDOGE Test Token
-1. **Select Contract**: Choose "AIDOGETest" from dropdown
-2. **Click Deploy**: Orange deploy button
-3. **Confirm in MetaMask**: Pay gas fee
-4. **Copy Address**: From deployed contracts section
-5. **Save Address**: Write down the contract address
+### Step 2: Create New File
+1. In the file explorer (left panel), click the + icon to create a new file
+2. Name it: `WheelGameArbitrumSepolia.sol`
+3. Copy the entire contents of `/contracts/WheelGameArbitrumSepoliaComplete.sol` into this file
 
-### Deploy BOOP Test Token
-1. **Select Contract**: Choose "BOOPTest" from dropdown
-2. **Click Deploy**: Orange deploy button
-3. **Confirm in MetaMask**: Pay gas fee
-4. **Copy Address**: From deployed contracts section
-5. **Save Address**: Write down the contract address
+### Step 3: Install OpenZeppelin Contracts
+1. In the file explorer, right-click in the contracts folder
+2. Select "Install" → "npm" → enter: `@openzeppelin/contracts`
+3. Wait for installation to complete (you'll see the node_modules folder appear)
 
-### Deploy BOBOTRUM Test Token
-1. **Select Contract**: Choose "BOBOTRUMTest" from dropdown
-2. **Click Deploy**: Orange deploy button
-3. **Confirm in MetaMask**: Pay gas fee
-4. **Copy Address**: From deployed contracts section
-5. **Save Address**: Write down the contract address
+### Step 4: Compile Contract
+1. Click the Solidity Compiler tab (📝 icon)
+2. Set compiler version to `0.8.19+commit.7dd6d404`
+3. Enable optimization (runs: 200)
+4. Click "Compile WheelGameArbitrumSepolia.sol"
+5. Verify successful compilation (green checkmark)
 
-## Step 5: Test Your Tokens
+### Step 5: Connect Wallet
+1. Click "Deploy & Run Transactions" tab (🚀 icon)
+2. Set Environment to "Injected Provider - MetaMask"
+3. Your MetaMask should prompt to connect - approve
+4. Ensure you're connected to Arbitrum Sepolia network
 
-After deployment, test each token:
+### Step 6: Deploy Contract
+1. In the Deploy section, select `WheelGameArbitrumSepolia` from dropdown
+2. Enter constructor parameters:
+   ```
+   _AIDOGETOKEN: 0x7FD0EEa14bE3FC8f15eE08D44C26c4E3e68EE6f0
+   _BOOPTOKEN: 0x9B79F02e60A8d2c7b7f7F96598c7DFd04DDc5f5E  
+   _BOBOTRUMTOKEN: 0x1c6A16aCd4e93ca81b21dC3A09dEe24618d8bD37
+   ```
+3. Click "Deploy" and confirm MetaMask transaction
+4. Wait for deployment confirmation
 
-1. **Expand Deployed Contract** in Remix
-2. **Call `name()`**: Should return token name
-3. **Call `symbol()`**: Should return token symbol
-4. **Call `totalSupply()`**: Should return 1000000000000000000000000
-5. **Call `faucet(1000000000000000000000)`**: Get 1000 test tokens
+### Step 7: Verify Deployment
+1. Copy the deployed contract address from the deployment success message
+2. Test basic functions like:
+   - `getWheelSegments()` - should return 8 segments
+   - `DAILY_SPIN_LIMIT()` - should return 5
+   - Contract address should appear on Arbiscan Sepolia
 
-## Step 6: Verify on Block Explorer
+### Step 8: Update Environment Variables
+Add the deployed contract address to your project secrets:
+```
+DEPLOYED_CONTRACT_ADDRESS=0x[your_deployed_address]
+```
 
-1. Go to https://sepolia.arbiscan.io/
-2. Search for each contract address
-3. Verify the contracts are deployed correctly
-4. Check transaction history
+## Important Notes
 
-## Expected Results
+- The contract uses existing token addresses from Arbitrum Sepolia
+- Daily spin limit is set to 5 spins per player
+- Reward amounts: AIDOGE (1 token), BOOP (2 tokens), BOBOTRUM (0.5 tokens)
+- BONUS multiplier: 2x, JACKPOT multiplier: 10x
+- Contract includes emergency pause functionality and owner controls
 
-You should get 3 contract addresses that look like:
-- **AIDOGE**: `0x1234...abcd`
-- **BOOP**: `0x5678...efgh`
-- **BOBOTRUM**: `0x9012...ijkl`
+## Testing After Deployment
+
+Once deployed, you can test the contract functions directly in Remix:
+
+1. **Read Functions:**
+   - `getWheelSegments()` - view all segments
+   - `getPlayerStats(address)` - check player statistics  
+   - `getPendingRewards(address)` - check pending rewards
+
+2. **Write Functions (for owner):**
+   - `depositTokens(address, amount)` - add tokens to contract
+   - `setPaused(bool)` - emergency pause
+
+3. **Player Functions:**
+   - `spin()` - spin the wheel (up to 5 times per day)
+   - `claimRewards(address)` - claim specific token rewards
+   - `claimAllRewards()` - claim all pending rewards
 
 ## Next Steps
 
 After successful deployment:
-1. **Save all 3 contract addresses**
-2. **Update the ArbCasino configuration** with new addresses
-3. **Get test tokens** using the faucet function
-4. **Test the game** with real token rewards
+1. Update the frontend to use the new contract address
+2. Test the spin functionality through the web interface  
+3. Verify gas costs are reasonable for users
+4. Consider deploying to mainnet when ready
 
 ## Troubleshooting
 
-### Common Issues:
-- **Out of gas**: Increase gas limit to 1,500,000
-- **Transaction failed**: Check you have enough testnet ETH
-- **Network wrong**: Verify you're on Arbitrum Sepolia (Chain ID: 421614)
-- **Compilation error**: Make sure you're using Solidity 0.8.20+
-
-### Gas Estimates:
-- Each token deployment: ~0.002 ETH
-- Total for 3 tokens: ~0.006 ETH
-- Get 0.01 ETH from faucet to be safe
-
-## Contract Functions Available
-
-### Read Functions:
-- `name()`: Token name
-- `symbol()`: Token symbol  
-- `decimals()`: Always 18
-- `totalSupply()`: Total tokens minted
-- `balanceOf(address)`: Balance of address
-
-### Write Functions:
-- `faucet(uint256 amount)`: Get free tokens (max 1000 per call)
-- `mint(address to, uint256 amount)`: Owner only
-- `transfer(address to, uint256 amount)`: Send tokens
+- **Import errors:** Make sure OpenZeppelin contracts are installed in Remix
+- **Compilation errors:** Check Solidity version matches (0.8.19)
+- **Deployment fails:** Ensure wallet has enough ETH for gas
+- **Wrong network:** Verify MetaMask is on Arbitrum Sepolia (Chain ID: 421614)
