@@ -247,6 +247,18 @@ export class MemStorage implements IStorage {
       const fullUser: User = {
         id,
         ...user,
+        farcasterFid: null,
+        farcasterUsername: null,
+        farcasterDisplayName: null,
+        farcasterPfpUrl: null,
+        farcasterBio: null,
+        accumulatedToken1: "0",
+        accumulatedToken2: "0",
+        accumulatedToken3: "0",
+        claimedToken1: "0",
+        claimedToken2: "0",
+        claimedToken3: "0",
+        lastClaimDate: null,
         lastSpinDate: new Date(),
         createdAt: new Date(),
       };
@@ -308,10 +320,22 @@ export class MemStorage implements IStorage {
       ...insertUser,
       walletAddress: insertUser.walletAddress || null,
       id,
+      farcasterFid: insertUser.farcasterFid || null,
+      farcasterUsername: insertUser.farcasterUsername || null,
+      farcasterDisplayName: insertUser.farcasterDisplayName || null,
+      farcasterPfpUrl: insertUser.farcasterPfpUrl || null,
+      farcasterBio: insertUser.farcasterBio || null,
       spinsUsed: 0,
       totalWins: 0,
       totalSpins: 0,
+      accumulatedToken1: "0",
+      accumulatedToken2: "0",
+      accumulatedToken3: "0",
+      claimedToken1: "0",
+      claimedToken2: "0",
+      claimedToken3: "0",
       lastSpinDate: null,
+      lastClaimDate: null,
       createdAt: new Date(),
     };
     this.users.set(id, user);
@@ -340,12 +364,14 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const spinResult: SpinResult = {
       ...result,
-      rewardAmount: result.rewardAmount || 0,
+      rewardAmount: result.rewardAmount || "0",
       userId: result.userId || null,
       symbols: result.symbols || null,
       isWin: result.isWin || false,
+      tokenType: result.tokenType || null,
       tokenId: result.tokenId || null,
       tokenAddress: result.tokenAddress || null,
+      isAccumulated: result.isAccumulated !== undefined ? result.isAccumulated : true,
       transactionHash: result.transactionHash || null,
       id,
       timestamp: new Date(),
@@ -423,6 +449,13 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const tokenClaim: TokenClaim = {
       ...claim,
+      userId: claim.userId || null,
+      token1Amount: claim.token1Amount || "0",
+      token2Amount: claim.token2Amount || "0",
+      token3Amount: claim.token3Amount || "0",
+      totalValueUSD: claim.totalValueUSD || "0",
+      transactionHash: claim.transactionHash || null,
+      status: claim.status || "pending",
       id,
       timestamp: new Date(),
     };
@@ -438,4 +471,22 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Use memory storage if DATABASE_URL is not available
+function createStorage(): IStorage {
+  const databaseUrl = process.env.DATABASE_URL;
+  
+  if (!databaseUrl || databaseUrl.trim() === '') {
+    console.log('🧪 DATABASE_URL not set, using in-memory storage for development');
+    return new MemStorage();
+  }
+  
+  try {
+    // Try to create database storage
+    return new DatabaseStorage();
+  } catch (error) {
+    console.warn('⚠️ Database connection failed, falling back to memory storage:', (error as Error).message);
+    return new MemStorage();
+  }
+}
+
+export const storage = createStorage();
