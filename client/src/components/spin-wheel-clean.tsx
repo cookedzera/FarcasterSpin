@@ -9,14 +9,14 @@ import { useAccount } from 'wagmi';
 import { CONTRACT_CONFIG } from '@/lib/config';
 
 const wheelSegments = [
-  { id: 'aidoge-1', name: 'AIDOGE', reward: '10000', color: '#3B82F6', tokenAddress: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b' },
+  { id: 'aidoge-1', name: 'AIDOGE', reward: '10000', color: '#3B82F6', tokenAddress: '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4' },
   { id: 'bankrupt-1', name: 'BUST', reward: '0', color: '#EF4444', tokenAddress: null },
-  { id: 'boop-1', name: 'BOOP', reward: '20000', color: '#10B981', tokenAddress: '0x13A7DeDb7169a17bE92B0E3C7C2315B46f4772B3' },
-  { id: 'bonus-1', name: 'BONUS', reward: '5000', color: '#F59E0B', tokenAddress: '0x13A7DeDb7169a17bE92B0E3C7C2315B46f4772B3' },
-  { id: 'bobotrum-1', name: 'BOBOTRUM', reward: '15000', color: '#8B5CF6', tokenAddress: '0x60460971a3D79ef265dfafA393ffBCe97d91E8B8' },
+  { id: 'boop-1', name: 'BOOP', reward: '20000', color: '#10B981', tokenAddress: '0x0E1CD6557D2BA59C61c75850E674C2AD73253952' },
+  { id: 'bonus-1', name: 'BONUS', reward: '5000', color: '#F59E0B', tokenAddress: '0x0E1CD6557D2BA59C61c75850E674C2AD73253952' },
+  { id: 'bobotrum-1', name: 'BOBOTRUM', reward: '15000', color: '#8B5CF6', tokenAddress: '0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19' },
   { id: 'bankrupt-2', name: 'BUST', reward: '0', color: '#EF4444', tokenAddress: null },
-  { id: 'aidoge-2', name: 'AIDOGE', reward: '10000', color: '#3B82F6', tokenAddress: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b' },
-  { id: 'mega-1', name: 'JACKPOT', reward: '50000', color: '#F97316', tokenAddress: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b' }
+  { id: 'aidoge-2', name: 'AIDOGE', reward: '10000', color: '#3B82F6', tokenAddress: '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4' },
+  { id: 'mega-1', name: 'JACKPOT', reward: '50000', color: '#F97316', tokenAddress: '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4' }
 ];
 
 export default function SpinWheelClean() {

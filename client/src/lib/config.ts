@@ -14,11 +14,11 @@ export const CONTRACT_CONFIG = {
   // Will be updated dynamically from API config endpoint
   WHEEL_GAME_ADDRESS: '' as `0x${string}`,
   
-  // Testnet token addresses - will be updated from API
+  // Testnet token addresses - updated with real deployed tokens
   TOKEN_ADDRESSES: {
-    TOKEN1: "0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7" as `0x${string}`, // IARB
-    TOKEN2: "0x1842887De1C7fDD59e3948A93CD41aad48a19cB2" as `0x${string}`, // JUICE
-    TOKEN3: "0x0BA7A82d415500BebFA254502B655732Cd678D07" as `0x${string}`, // ABET
+    TOKEN1: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4" as `0x${string}`, // AIDOGE
+    TOKEN2: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952" as `0x${string}`, // BOOP
+    TOKEN3: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19" as `0x${string}`, // BOBOTRUM
   },
   
   // Network configuration

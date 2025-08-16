@@ -156,9 +156,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Fallback to simulation if contract fails
         const tokenSymbols = [
-          '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b', // IARB
-          '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', // JUICE  
-          '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'  // ABET
+          '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4', // AIDOGE
+          '0x0E1CD6557D2BA59C61c75850E674C2AD73253952', // BOOP  
+          '0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19'  // BOBOTRUM
         ];
         
         // 90% win rate for testing
@@ -185,9 +185,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (isWin) {
           const winningSymbol = result[0];
           const tokenRewards: Record<string, { type: string; amount: string }> = {
-            '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b': { type: 'TOKEN1', amount: '10000000000000000' },
-            '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3': { type: 'TOKEN2', amount: '5000000000000000' },
-            '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f': { type: 'TOKEN3', amount: '2000000000000000' }
+            '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4': { type: 'TOKEN1', amount: '10000000000000000' }, // AIDOGE
+            '0x0E1CD6557D2BA59C61c75850E674C2AD73253952': { type: 'TOKEN2', amount: '5000000000000000' },  // BOOP
+            '0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19': { type: 'TOKEN3', amount: '2000000000000000' }   // BOBOTRUM
           };
           
           const reward = tokenRewards[winningSymbol];
@@ -335,9 +335,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Prepare token transfers
       const tokenAddresses = {
-        TOKEN1: '0x09e18590e8f76b6cf471b3cd75fe1a1a9d2b2c2b',
-        TOKEN2: '0x13a7dedb7169a17be92b0e3c7c2315b46f4772b3', 
-        TOKEN3: '0xbc4c97fb9befaa8b41448e1dfcc5236da543217f'
+        TOKEN1: '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4', // AIDOGE
+        TOKEN2: '0x0E1CD6557D2BA59C61c75850E674C2AD73253952', // BOOP
+        TOKEN3: '0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19'  // BOBOTRUM
       };
 
       let transactionHash = null;
@@ -491,9 +491,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         contractAddress: (process.env.DEPLOYED_CONTRACT_ADDRESS || "").trim(),
         tokenAddresses: {
-          TOKEN1: "0x06d8c3f0e1cfb7e9d3f5B51D17DcD623AcC1B3b7", // IARB
-          TOKEN2: "0x1842887De1C7fDD59e3948A93CD41aad48a19cB2", // JUICE  
-          TOKEN3: "0x0BA7A82d415500BebFA254502B655732Cd678D07"  // ABET
+          TOKEN1: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4", // AIDOGE
+          TOKEN2: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952", // BOOP  
+          TOKEN3: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19"  // BOBOTRUM
         },
         chainId: 421614 // Arbitrum Sepolia
       });
