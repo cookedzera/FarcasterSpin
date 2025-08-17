@@ -136,11 +136,13 @@ export class BlockchainService {
     }
 
     try {
-      console.log(`🎰 Executing contract spin for ${userAddress}`);
+      console.log(`🎰 Executing contract spin for ${userAddress}...`);
       const tx = await this.contract.spin();
       const receipt = await tx.wait();
 
-      // Parse the SpinResult event
+      console.log(`✅ Spin transaction successful: ${receipt.hash}`);
+
+      // Parse the SpinResult event from the new ARBCasinoWheel contract
       const spinEvent = receipt.logs.find((log: any) => {
         try {
           const parsed = this.contract!.interface.parseLog(log);
@@ -158,13 +160,21 @@ export class BlockchainService {
           const isWin = parsed.args.isWin;
           const rewardAmount = parsed.args.rewardAmount.toString();
 
-          // Map token address to type
+          console.log(`🎲 Spin result: ${segment}, Win: ${isWin}, Reward: ${rewardAmount}`);
+
+          // Map token address to type using the correct mapping
           let tokenType = "";
-          if (tokenAddress === TOKEN_ADDRESSES.TOKEN1) tokenType = "TOKEN1";
-          else if (tokenAddress === TOKEN_ADDRESSES.TOKEN2) tokenType = "TOKEN2";
-          else if (tokenAddress === TOKEN_ADDRESSES.TOKEN3) tokenType = "TOKEN3";
-          else if (tokenAddress === "0x0000000000000000000000000000000000000000") {
+          if (tokenAddress === TOKEN_ADDRESSES.TOKEN1) {
+            tokenType = "TOKEN1"; // AIDOGE
+          } else if (tokenAddress === TOKEN_ADDRESSES.TOKEN2) {
+            tokenType = "TOKEN2"; // BOOP
+          } else if (tokenAddress === TOKEN_ADDRESSES.TOKEN3) {
+            tokenType = "TOKEN3"; // BOBOTRUM
+          } else if (tokenAddress === "0x0000000000000000000000000000000000000000") {
             tokenType = "BUST";
+          } else {
+            // Fallback for any unknown token addresses
+            tokenType = "TOKEN1";
           }
 
           return {
@@ -178,7 +188,8 @@ export class BlockchainService {
         }
       }
 
-      // If no event found but transaction successful, return neutral result
+      // Fallback - should not happen with the new contract
+      console.log("⚠️ No SpinResult event found, returning default");
       return {
         symbols: ["BUST", "BUST", "BUST"],
         isWin: false,
