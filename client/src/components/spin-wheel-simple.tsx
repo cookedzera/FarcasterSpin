@@ -230,12 +230,21 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       const segmentAngle = 360 / WHEEL_SEGMENTS.length;
       
       // Calculate exact rotation to land arrow on center of winning segment
-      // Arrow points up (12 o'clock position), so we need to rotate wheel so winning segment center aligns with arrow
-      const segmentCenterAngle = (segmentIndex * segmentAngle) + (segmentAngle / 2);
-      const targetRotation = -segmentCenterAngle; // Negative because wheel rotates clockwise
+      console.log(`🎯 Targeting segment: ${displaySegmentName} (server: ${lastSpinResult.segment}) at index ${segmentIndex}`);
       
-      const spins = 5; // 5 full rotations for dramatic effect
+      // Each segment is 45 degrees (360/8)
+      const segmentCenterAngle = (segmentIndex * segmentAngle) + (segmentAngle / 2);
+      console.log(`📐 Segment center angle: ${segmentCenterAngle}°`);
+      
+      // To align the segment center with the top arrow (0°), we need to rotate the wheel
+      // so that the segment center ends up at 0° (top position)
+      // Since we want the segment center to be at top (0°), we rotate by negative of its angle
+      const targetRotation = -segmentCenterAngle;
+      
+      const spins = 4; // 4 full rotations for dramatic effect
       const finalRotation = rotation + (spins * 360) + targetRotation;
+      
+      console.log(`🔄 Current rotation: ${rotation}°, Target: ${targetRotation}°, Final: ${finalRotation}°`);
       
       // Start the wheel animation and sound
       setRotation(finalRotation);
@@ -357,7 +366,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       <div className="relative">
         {/* Pointer */}
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-20">
-          <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-400"></div>
+          <div className="w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow-lg"></div>
         </div>
         
         {/* Result Overlay - Mobile-friendly winning display */}
