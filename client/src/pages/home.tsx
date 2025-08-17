@@ -98,15 +98,18 @@ const BackgroundMusic = memo(() => {
     const playAudio = async () => {
       try {
         await audio.play();
+        console.log('Background music started playing');
       } catch (error) {
+        console.log('Auto-play blocked, waiting for user interaction');
         // Auto-play failed, wait for user interaction
         const handleUserInteraction = async () => {
           try {
             await audio.play();
+            console.log('Background music started after user interaction');
             document.removeEventListener('click', handleUserInteraction);
             document.removeEventListener('touchstart', handleUserInteraction);
           } catch (e) {
-            console.log('Audio playback failed');
+            console.error('Audio playback failed:', e);
           }
         };
 
@@ -131,16 +134,25 @@ const BackgroundMusic = memo(() => {
 
   const toggleMute = useCallback(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio) {
+      console.warn('Audio element not found');
+      return;
+    }
 
-    if (isMuted) {
-      // Unmute by restoring volume
-      audio.volume = 0.12;
-      setIsMuted(false);
-    } else {
-      // Mute by setting volume to 0
-      audio.volume = 0;
-      setIsMuted(true);
+    try {
+      if (isMuted) {
+        // Unmute by restoring volume
+        audio.volume = 0.12;
+        setIsMuted(false);
+        console.log('Audio unmuted, volume:', audio.volume);
+      } else {
+        // Mute by setting volume to 0
+        audio.volume = 0;
+        setIsMuted(true);
+        console.log('Audio muted, volume:', audio.volume);
+      }
+    } catch (error) {
+      console.error('Error toggling mute:', error);
     }
   }, [isMuted]);
 
