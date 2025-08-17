@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, memo, useEffect } from "react";
+import { useState, useCallback, useMemo, memo, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
@@ -13,6 +13,7 @@ import { type GameStats, type SpinResult } from "@shared/schema";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
 import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
+import backgroundMusic from "@assets/chiptune-anime-rock-fusion-323319_1755431330456.mp3";
 
 interface TokenBalances {
   token1: string;
@@ -65,6 +66,63 @@ const NOISE_STYLE = {
 const RADIAL_STYLE = {
   background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
 };
+
+// Background music component with reduced volume
+const BackgroundMusic = memo(() => {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    // Set reduced volume (20% of original)
+    audio.volume = 0.2;
+    audio.loop = true;
+
+    // Auto-play attempt with user interaction fallback
+    const playAudio = async () => {
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (error) {
+        // Auto-play failed, wait for user interaction
+        const handleUserInteraction = async () => {
+          try {
+            await audio.play();
+            setIsPlaying(true);
+            document.removeEventListener('click', handleUserInteraction);
+            document.removeEventListener('touchstart', handleUserInteraction);
+          } catch (e) {
+            console.log('Audio playback failed');
+          }
+        };
+
+        document.addEventListener('click', handleUserInteraction);
+        document.addEventListener('touchstart', handleUserInteraction);
+      }
+    };
+
+    playAudio();
+
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, []);
+
+  return (
+    <audio
+      ref={audioRef}
+      preload="auto"
+      className="hidden"
+    >
+      <source src={backgroundMusic} type="audio/mpeg" />
+    </audio>
+  );
+});
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -150,6 +208,9 @@ export default function Home() {
         backfaceVisibility: 'hidden'
       }}
     >
+      {/* Background Music */}
+      <BackgroundMusic />
+      
       {/* Subtle noise texture overlay */}
       <div className="fixed inset-0 opacity-10 will-change-transform" style={{...NOISE_STYLE, transform: 'translateZ(0)'}} />
       
