@@ -272,8 +272,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         
         setResult(finalResult);
         
-        // Modern popup notification replaces toast system
-        // The visual reward popup provides all the feedback we need
+        // Center display shows winning result for 3-4 seconds
         
         // Update session spin count for server spins
         setSessionSpinsUsed(prev => prev + 1);
@@ -282,11 +281,11 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           onSpinComplete(finalResult);
         }
         
-        // Reset after showing result
+        // Reset center display after 3.5 seconds
         const clearResultTimeout = setTimeout(() => {
           setResult(null);
           resetSpinResult(); // Clear the spin result from the hook
-        }, 4000);
+        }, 3500);
         
         return () => clearTimeout(clearResultTimeout);
       }, 4500); // Wait for wheel animation (4s) + small delay (0.5s)
@@ -366,116 +365,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
   return (
     <div className="flex flex-col items-center space-y-6">
-      {/* Modern Reward Notification - Appears above wheel */}
-      <AnimatePresence>
-        {result && (
-          <motion.div
-            initial={{ y: -100, opacity: 0, scale: 0.9 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -100, opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-80 max-w-[90vw]"
-          >
-            <div className={`${
-              result.isWin 
-                ? 'bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500' 
-                : 'bg-gradient-to-r from-red-500 via-pink-500 to-red-600'
-            } rounded-2xl p-6 shadow-2xl border-2 ${
-              result.isWin ? 'border-emerald-300' : 'border-red-300'
-            } backdrop-blur-sm relative overflow-hidden`}>
-              
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-                <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 transform translate-x-16 -translate-y-16"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/10 transform -translate-x-12 translate-y-12"></div>
-              </div>
-              
-              {/* Content */}
-              <div className="relative z-10 text-center">
-                <div className="text-5xl mb-3 animate-bounce">
-                  {result.isWin ? '🎉' : '💀'}
-                </div>
-                
-                <div className="text-white font-bold text-2xl mb-2">
-                  {result.isWin ? 'WINNER!' : 'BUST!'}
-                </div>
-                
-                <div className="text-white/90 text-lg font-medium mb-3 flex items-center justify-center space-x-2">
-                  <span>You landed on</span>
-                  <div className="flex items-center space-x-1 font-bold text-yellow-200">
-                    {result.segment === 'AIDOGE' && (
-                      <img src={aidogeLogo} alt="AIDOGE" className="w-6 h-6 rounded-full" />
-                    )}
-                    {result.segment === 'BOOP' && (
-                      <img src={boopLogo} alt="BOOP" className="w-6 h-6 rounded-full" />
-                    )}
-                    {result.segment === 'ARB' && (
-                      <img src={arbLogo} alt="ARB" className="w-6 h-6 rounded-full" />
-                    )}
-                    <span>{result.segment}</span>
-                  </div>
-                </div>
-                
-                {result.isWin && result.rewardAmount && result.rewardAmount !== '0' && (
-                  <div className="bg-white/20 rounded-xl p-3 mb-3">
-                    <div className="text-yellow-300 font-bold text-xl">
-                      +{(parseFloat(result.rewardAmount) / 1e18).toFixed(1)} tokens
-                    </div>
-                    <div className="text-white/80 text-sm">
-                      Added to your balance
-                    </div>
-                  </div>
-                )}
-                
-                {!result.isWin && (
-                  <div className="bg-white/20 rounded-xl p-3 mb-3">
-                    <div className="text-white/90 text-base">
-                      Better luck next time!
-                    </div>
-                    <div className="text-white/70 text-sm">
-                      You still have spins remaining
-                    </div>
-                  </div>
-                )}
-                
-                {/* Progress indicator */}
-                <div className="flex justify-center space-x-1 mt-4">
-                  {[...Array(3)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        i < userSpinsUsed 
-                          ? (result.isWin ? 'bg-yellow-300' : 'bg-red-300')
-                          : 'bg-white/40'
-                      }`}
-                    />
-                  ))}
-                </div>
-                
-                <div className="text-white/70 text-sm mt-2">
-                  Spin {userSpinsUsed}/3 completed
-                </div>
-              </div>
-              
-              {/* Animated border effect for wins */}
-              {result.isWin && (
-                <motion.div
-                  className="absolute inset-0 rounded-2xl border-2 border-yellow-400"
-                  animate={{ 
-                    boxShadow: [
-                      '0 0 0 0 rgba(251, 191, 36, 0.4)',
-                      '0 0 0 10px rgba(251, 191, 36, 0)',
-                      '0 0 0 0 rgba(251, 191, 36, 0)'
-                    ]
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* Wheel Container */}
       <div className="relative">
@@ -534,15 +424,70 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
             );
           })}
           
-          {/* Center Circle with ARB Logo - Always visible and rotates with wheel */}
+          {/* Center Circle - Dynamic display based on spin result */}
           <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gray-800 rounded-full border-3 ${
-            isSpinning ? 'border-blue-400' : 'border-yellow-400'
-          } flex items-center justify-center overflow-hidden`}>
-            <img 
-              src={arbLogo} 
-              alt="ARB" 
-              className="w-12 h-12 object-contain"
-            />
+            isSpinning ? 'border-blue-400' : 
+            result?.isWin ? 'border-green-400' : 
+            result && !result.isWin ? 'border-red-400' : 'border-yellow-400'
+          } flex flex-col items-center justify-center overflow-hidden transition-all duration-300`}>
+            
+            <AnimatePresence mode="wait">
+              {result ? (
+                <motion.div
+                  key="result"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, type: "spring" }}
+                  className="flex flex-col items-center justify-center text-center"
+                >
+                  {result.isWin ? (
+                    <>
+                      {/* Winner - show token logo and amount */}
+                      <div className="w-8 h-8 mb-1">
+                        {result.segment === 'AIDOGE' && (
+                          <img src={aidogeLogo} alt="AIDOGE" className="w-8 h-8 rounded-full object-contain" />
+                        )}
+                        {result.segment === 'BOOP' && (
+                          <img src={boopLogo} alt="BOOP" className="w-8 h-8 rounded-full object-contain" />
+                        )}
+                        {result.segment === 'ARB' && (
+                          <img src={arbLogo} alt="ARB" className="w-8 h-8 object-contain" />
+                        )}
+                        {(result.segment === 'BONUS' || result.segment === 'JACKPOT') && (
+                          <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-xs font-bold text-black">
+                            {result.segment === 'BONUS' ? '2X' : '10X'}
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-green-400 text-xs font-bold leading-none">
+                        +{(parseFloat(result.rewardAmount || '0') / 1e18).toFixed(1)}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Bust - show skull emoji */}
+                      <div className="text-xl mb-1">💀</div>
+                      <div className="text-red-400 text-xs font-bold leading-none">BUST</div>
+                    </>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="default"
+                  initial={{ scale: 1, opacity: 1 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  className="w-12 h-12"
+                >
+                  <img 
+                    src={arbLogo} 
+                    alt="ARB" 
+                    className="w-12 h-12 object-contain"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
       </div>

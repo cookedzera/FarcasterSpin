@@ -13,15 +13,16 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
-✅ **Modern Reward System (Latest)**: Completely redesigned winning popup with proper server-side randomness
-  - Created sleek, modern reward notification that appears above the wheel instead of overlaying it
-  - Added animated popup with gradient backgrounds, token icons, and spring animations
-  - Reward generation uses proper server-side randomness completely separate from wheel visual position
-  - Enhanced notification shows token icons (AIDOGE, BOOP, ARB) with professional casino-style design
-  - Added animated progress indicators showing current spin progress (1/3, 2/3, 3/3)
-  - Removed duplicate toast notifications in favor of comprehensive visual popup system
-  - Fixed user concern about randomness - system properly uses weighted probabilities from server, not wheel position
-  - Notification appears at top of screen with smooth spring animations and auto-dismisses after 4 seconds
+✅ **Smart Center Display System (Latest)**: Replaced popup with elegant center wheel display for winning results
+  - Converted center ARB logo into dynamic winning display that shows token logo and amount for 3.5 seconds
+  - Winner shows: token logo (AIDOGE/BOOP/ARB) + amount won in green text
+  - BUST shows: skull emoji + "BUST" text in red
+  - BONUS/JACKPOT shows: multiplier badge (2X/10X) + amount
+  - Border changes color: blue (spinning) → green (win) → red (bust) → yellow (default)
+  - Much cleaner than popup system - uses existing wheel center space elegantly
+  - Smooth spring animations for logo transitions with scale and opacity effects
+  - Server-side randomness completely separate from wheel visual position (proper weighted probabilities)
+  - Auto-returns to ARB logo after 3.5 seconds for clean interface
 
 ✅ **Farcaster Hub API Integration**: Implemented automatic Farcaster user detection using working free Hub API
   - Integrated hub.pinata.cloud Hub API for free profile data access without API keys
