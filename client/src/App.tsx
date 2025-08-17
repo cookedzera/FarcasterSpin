@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { updateConfig } from "@/lib/config";
 import { useEffect, lazy, Suspense } from "react";
+import { GlobalAudio } from "@/components/global-audio";
 
 // Code splitting - lazy load pages for better performance
 const Home = lazy(() => import("@/pages/home"));
@@ -58,6 +59,7 @@ function App() {
   return (
     <TooltipProvider>
       <div className="app-container gpu-accelerated will-change-transform">
+        <GlobalAudio />
         <Router />
       </div>
       <Toaster />

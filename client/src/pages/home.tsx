@@ -13,95 +13,7 @@ import { type GameStats, type SpinResult } from "@shared/schema";
 import aidogeLogo from "@assets/aidoge_1755435810322.png";
 import boopLogo from "@assets/boop_1755435810327.png";
 import arbLogo from "@assets/image_1755435826976.png";
-const backgroundMusic = "/assets/background-music.mp3";
-
-// Completely rebuilt audio system - single global instance with proper state management
-class AudioManager {
-  private static instance: AudioManager;
-  private audio: HTMLAudioElement | null = null;
-  private isMuted: boolean = false;
-  private isInitialized: boolean = false;
-  private volume: number = 0.12;
-  
-  static getInstance(): AudioManager {
-    if (!AudioManager.instance) {
-      AudioManager.instance = new AudioManager();
-    }
-    return AudioManager.instance;
-  }
-  
-  private constructor() {}
-  
-  init(audioElement: HTMLAudioElement): void {
-    // Always stop and cleanup any existing audio first
-    this.cleanup();
-    
-    this.audio = audioElement;
-    this.audio.volume = this.isMuted ? 0 : this.volume;
-    this.audio.loop = true;
-    this.isInitialized = true;
-    
-    console.log('AudioManager: New audio instance initialized');
-    this.startPlayback();
-  }
-  
-  private async startPlayback(): Promise<void> {
-    if (!this.audio) return;
-    
-    try {
-      await this.audio.play();
-      console.log('AudioManager: Playback started');
-    } catch (error) {
-      console.log('AudioManager: Auto-play blocked, waiting for user interaction');
-      this.setupUserInteractionHandler();
-    }
-  }
-  
-  private setupUserInteractionHandler(): void {
-    const handleInteraction = async () => {
-      if (this.audio) {
-        try {
-          await this.audio.play();
-          console.log('AudioManager: Playback started after user interaction');
-        } catch (e) {
-          console.error('AudioManager: Playback failed:', e);
-        }
-      }
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
-
-    document.addEventListener('click', handleInteraction);
-    document.addEventListener('touchstart', handleInteraction);
-  }
-  
-  toggleMute(): boolean {
-    if (!this.audio) {
-      console.warn('AudioManager: No audio instance available');
-      return this.isMuted;
-    }
-    
-    this.isMuted = !this.isMuted;
-    this.audio.volume = this.isMuted ? 0 : this.volume;
-    
-    console.log(`AudioManager: ${this.isMuted ? 'Muted' : 'Unmuted'}, volume: ${this.audio.volume}`);
-    return this.isMuted;
-  }
-  
-  getMuted(): boolean {
-    return this.isMuted;
-  }
-  
-  cleanup(): void {
-    if (this.audio && !this.audio.paused) {
-      this.audio.pause();
-      this.audio.currentTime = 0;
-      this.audio.volume = 0;
-      console.log('AudioManager: Previous audio cleaned up');
-    }
-    this.isInitialized = false;
-  }
-}
+// Audio is now managed globally in App.tsx via GlobalAudio component
 
 interface TokenBalances {
   token1: string;
@@ -155,65 +67,7 @@ const RADIAL_STYLE = {
   background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
 };
 
-// Rebuilt background music component using AudioManager
-const BackgroundMusic = memo(() => {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isMuted, setIsMuted] = useState(false);
-  const audioManager = AudioManager.getInstance();
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    // Initialize with the new audio manager
-    audioManager.init(audio);
-    
-    // Sync local state with manager state
-    setIsMuted(audioManager.getMuted());
-
-    return () => {
-      audioManager.cleanup();
-    };
-  }, [audioManager]);
-
-  const toggleMute = useCallback(() => {
-    const newMutedState = audioManager.toggleMute();
-    setIsMuted(newMutedState);
-  }, [audioManager]);
-
-  return (
-    <>
-      {/* Casino-styled mute button in top left */}
-      <button
-        onClick={toggleMute}
-        className={`fixed top-4 left-4 z-50 w-10 h-10 rounded-md transition-all duration-300 font-mono text-xs font-bold backdrop-blur-sm ${
-          isMuted 
-            ? 'bg-red-900/80 border-2 border-red-400 text-red-400 shadow-lg hover:bg-red-800/90 hover:shadow-red-400/20' 
-            : 'bg-emerald-900/80 border-2 border-emerald-400 text-emerald-400 neon-border hover:bg-emerald-800/90'
-        }`}
-        style={{
-          textShadow: isMuted 
-            ? '0 0 8px rgba(248, 113, 113, 0.8)' 
-            : '0 0 8px rgba(52, 211, 153, 0.8)',
-          boxShadow: isMuted
-            ? '0 0 15px rgba(248, 113, 113, 0.3), inset 0 0 8px rgba(248, 113, 113, 0.1)'
-            : '0 0 15px rgba(52, 211, 153, 0.3), inset 0 0 8px rgba(52, 211, 153, 0.1)'
-        }}
-        data-testid="button-mute-music"
-      >
-        {isMuted ? '🔇' : '♪'}
-      </button>
-      
-      <audio
-        ref={audioRef}
-        preload="auto"
-        className="hidden"
-      >
-        <source src={backgroundMusic} type="audio/mpeg" />
-      </audio>
-    </>
-  );
-});
+// Audio is now handled globally via GlobalAudio component in App.tsx
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -299,8 +153,7 @@ export default function Home() {
         backfaceVisibility: 'hidden'
       }}
     >
-      {/* Background Music */}
-      <BackgroundMusic />
+      {/* Background Music handled globally via GlobalAudio in App.tsx */}
       
       {/* Subtle noise texture overlay */}
       <div className="fixed inset-0 opacity-10 will-change-transform" style={{...NOISE_STYLE, transform: 'translateZ(0)'}} />
