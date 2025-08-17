@@ -13,7 +13,7 @@ import { type GameStats, type SpinResult } from "@shared/schema";
 import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
 import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
-import backgroundMusic from "@assets/chiptune-anime-rock-fusion-323319_1755431330456.mp3";
+import backgroundMusic from "@assets/upbeat-anime-background-music-285658_1755431775139.mp3";
 
 interface TokenBalances {
   token1: string;
