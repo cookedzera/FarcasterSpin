@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
 import SpinWheelSimple from "@/components/spin-wheel-simple";
-import SpinWheelFree from "@/components/spin-wheel-free";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
@@ -79,7 +78,7 @@ export default function Home() {
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [showWinPopup, setShowWinPopup] = useState(false);
   const [spinResult, setSpinResult] = useState<SpinResult | null>(null);
-  const [useFreeSpins, setUseFreeSpins] = useState(true); // Toggle between systems
+
 
   
   const { data: stats } = useQuery<GameStats>({
@@ -631,97 +630,37 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Toggle Switch */}
-              <div className="flex items-center justify-center gap-3 mb-6 p-3 bg-white/5 rounded-xl border border-white/10">
-                <span className={`text-sm font-medium ${!useFreeSpins ? 'text-white' : 'text-white/50'}`}>
-                  Contract Mode
-                </span>
-                <button
-                  onClick={() => setUseFreeSpins(!useFreeSpins)}
-                  className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${
-                    useFreeSpins ? 'bg-green-500' : 'bg-gray-600'
-                  }`}
-                  data-testid="button-toggle-spin-mode"
-                >
-                  <div
-                    className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 ${
-                      useFreeSpins ? 'translate-x-6' : 'translate-x-0.5'
-                    }`}
-                  />
-                </button>
-                <span className={`text-sm font-medium ${useFreeSpins ? 'text-white' : 'text-white/50'}`}>
-                  Free Mode
-                </span>
-              </div>
-
-              {/* Mode Description */}
-              <div className="mb-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                <p className="text-xs text-blue-200 text-center">
-                  {useFreeSpins 
-                    ? "🆓 Free spins with flexible claiming - pay gas only when claiming rewards"
-                    : "⛽ Contract spins - pay gas for each spin, results from blockchain"
+              <SpinWheelSimple 
+                userSpinsUsed={user?.spinsUsed || 0}
+                userId={user?.id || ''}
+                userAccumulated={balances ? {
+                  AIDOGE: balances.token1,
+                  BOOP: balances.token2,
+                  BOBOTRUM: balances.token3
+                } : undefined}
+                onSpinComplete={(result) => {
+                  if (result && result.segment && result.isWin) {
+                    setSpinResult({
+                      id: 'temp-' + Date.now(),
+                      userId: user?.id || null,
+                      symbols: [result.segment],
+                      isWin: result.isWin,
+                      rewardAmount: result.reward || result.rewardAmount || "0",
+                      tokenType: result.segment === 'AIDOGE' ? 'TOKEN1' : result.segment === 'BOOP' ? 'TOKEN2' : result.segment === 'BOBOTRUM' ? 'TOKEN3' : null,
+                      tokenId: null,
+                      tokenAddress: result.tokenAddress || null,
+                      isAccumulated: true,
+                      transactionHash: result.transactionHash || null,
+                      timestamp: new Date()
+                    });
+                    setShowWinPopup(true);
+                    // Auto close spin wheel after showing result
+                    setTimeout(() => setShowSpinWheel(false), 1000);
                   }
-                </p>
-              </div>
-
-              {/* Conditional Spin Component Rendering */}
-              {useFreeSpins ? (
-                <SpinWheelFree 
-                  userSpinsUsed={user?.spinsUsed || 0}
-                  userId={user?.id || ''}
-                  userAccumulated={balances ? {
-                    AIDOGE: balances.token1,
-                    BOOP: balances.token2,
-                    BOBOTRUM: balances.token3
-                  } : undefined}
-                  onSpinComplete={(result) => {
-                    // Handle free spin completion
-                    if (result && result.segment && result.isWin) {
-                      setSpinResult({
-                        id: 'temp-' + Date.now(),
-                        userId: user?.id || null,
-                        symbols: [result.segment],
-                        isWin: result.isWin,
-                        rewardAmount: result.rewardAmount || "0",
-                        tokenType: result.tokenType === 'AIDOGE' ? 'TOKEN1' : result.tokenType === 'BOOP' ? 'TOKEN2' : result.tokenType === 'BOBOTRUM' ? 'TOKEN3' : null,
-                        tokenId: null,
-                        tokenAddress: result.tokenAddress,
-                        isAccumulated: true,
-                        transactionHash: null,
-                        timestamp: new Date()
-                      });
-                      setShowWinPopup(true);
-                    }
-                    // Refresh user data to update balances
-                    window.location.reload();
-                  }}
-                />
-              ) : (
-                <SpinWheelSimple 
-                  userSpinsUsed={user?.spinsUsed || 0}
-                  onSpinComplete={(result) => {
-                    // Handle contract spin completion
-                    if (result && result.segment && result.isWin) {
-                      setSpinResult({
-                        id: 'temp-' + Date.now(),
-                        userId: user?.id || null,
-                        symbols: [result.segment],
-                        isWin: result.isWin,
-                        rewardAmount: result.reward || "0",
-                        tokenType: result.segment === 'AIDOGE' ? 'TOKEN1' : result.segment === 'BOOP' ? 'TOKEN2' : result.segment === 'BOBOTRUM' ? 'TOKEN3' : null,
-                        tokenId: null,
-                        tokenAddress: null,
-                        isAccumulated: true,
-                        transactionHash: result.transactionHash,
-                        timestamp: new Date()
-                      });
-                      setShowWinPopup(true);
-                      // Auto close spin wheel after showing result
-                      setTimeout(() => setShowSpinWheel(false), 1000);
-                    }
-                  }}
-                />
-              )}
+                  // Refresh user data to update balances
+                  window.location.reload();
+                }}
+              />
             </motion.div>
           </motion.div>
         )}
