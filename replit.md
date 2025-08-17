@@ -14,14 +14,15 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 ## Recent Changes (August 17, 2025)
 
 ✅ **Farcaster Hub API Integration (Latest)**: Implemented automatic Farcaster user detection using working free Hub API
-  - Integrated snapchain.farcaster.xyz Hub API for free profile data access without API keys
+  - Integrated hub.pinata.cloud Hub API for free profile data access without API keys
   - Enhanced user lookup with proper message parsing for display names, usernames, bios, and profile pictures  
   - Added real-time profile detection with visual loading states and status indicators
   - Improved user experience with automatic profile detection on wallet connection
   - Distinguished between real Farcaster users and wallet-only users in the UI
   - Fixed scroll bar issue by hiding all scrollbars for clean mobile experience
   - Added detailed logging for debugging profile lookup process
-  - No external API keys required - uses completely free Farcaster infrastructure
+  - No external API keys required - uses completely free Pinata Farcaster infrastructure
+  - Successfully tested with FID 190522 showing proper username and display name retrieval
 
 ✅ **Typewriter Brand Animation**: Enhanced header with dynamic typewriter effect
   - Replaced "ARBCASINO" with "ARB" + typewriter animation alternating between "SPIN" and "GAMES"

@@ -86,13 +86,13 @@ export function createFarcasterAuthMiddleware(domain: string) {
   };
 }
 
-// Fetch user data from Farcaster Hub API (free, no API key needed)
+// Fetch user data from Pinata Farcaster Hub API (free, no API key needed)
 export async function fetchUserDataFromHub(fid: number): Promise<Partial<FarcasterUser>> {
   try {
     console.log(`🔍 Fetching Farcaster profile for FID: ${fid}`);
     
-    // Use working Farcaster Hub API endpoint
-    const response = await fetch(`https://snapchain.farcaster.xyz/v1/userDataByFid?fid=${fid}`);
+    // Use working Pinata Hub API endpoint
+    const response = await fetch(`https://hub.pinata.cloud/v1/userDataByFid?fid=${fid}`);
     
     if (!response.ok) {
       console.log(`Hub API response not ok: ${response.status}`);
@@ -147,7 +147,7 @@ export async function fetchUserDataFromHub(fid: number): Promise<Partial<Farcast
     console.log(`✅ Parsed user data:`, userData);
     return userData;
   } catch (error) {
-    console.error('Error fetching from Farcaster Hub API:', error);
+    console.error('Error fetching from Pinata Hub API:', error);
     return {};
   }
 }
@@ -194,13 +194,13 @@ export async function resolveUserData(fid: number): Promise<Partial<FarcasterUse
   }
 }
 
-// Fetch FID by ethereum address using Hub API
+// Fetch FID by ethereum address using Pinata Hub API
 export async function getFidByAddress(address: string): Promise<number | null> {
   try {
     console.log(`🔍 Looking up FID for address: ${address}`);
     
-    // Use Hub API to get verifications for the address
-    const response = await fetch(`https://nemes.farcaster.xyz:2281/v1/verificationsByFid?fid=1&address=${address}`);
+    // Use Pinata Hub API to get verifications for the address
+    const response = await fetch(`https://hub.pinata.cloud/v1/verificationsByFid?fid=1&address=${address}`);
     
     if (!response.ok) {
       console.log(`Hub verification lookup failed: ${response.status}`);
