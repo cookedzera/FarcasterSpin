@@ -15,6 +15,9 @@ import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
 import backgroundMusic from "@assets/upbeat-anime-background-music-285658_1755431775139.mp3";
 
+// Global audio instance to prevent multiple instances
+let globalAudioInstance: HTMLAudioElement | null = null;
+
 interface TokenBalances {
   token1: string;
   token2: string;
@@ -70,23 +73,26 @@ const RADIAL_STYLE = {
 // Background music component with volume control and mute button
 const BackgroundMusic = memo(() => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const isInitialized = useRef(false);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || isInitialized.current) return;
+
+    // If there's already a global audio instance, stop it
+    if (globalAudioInstance && globalAudioInstance !== audio) {
+      globalAudioInstance.pause();
+      globalAudioInstance.currentTime = 0;
+    }
+
+    // Set this as the global audio instance
+    globalAudioInstance = audio;
+    isInitialized.current = true;
 
     // Set reduced volume (12% of original)
     audio.volume = 0.12;
     audio.loop = true;
-
-    // Add event listeners to track audio state
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-    
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
 
     // Auto-play attempt with user interaction fallback
     const playAudio = async () => {
@@ -112,9 +118,11 @@ const BackgroundMusic = memo(() => {
     playAudio();
 
     return () => {
-      if (audio) {
-        audio.removeEventListener('play', handlePlay);
-        audio.removeEventListener('pause', handlePause);
+      isInitialized.current = false;
+      if (globalAudioInstance === audio) {
+        globalAudioInstance = null;
+      }
+      if (audio && !audio.paused) {
         audio.pause();
         audio.currentTime = 0;
       }
