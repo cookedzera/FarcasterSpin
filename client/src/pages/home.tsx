@@ -604,14 +604,13 @@ export default function Home() {
           >
             <div className="min-h-full flex items-start justify-center p-4 py-8">
               <motion.div
-                className="rounded-3xl p-6 max-w-md w-full relative my-auto"
+                className="rounded-3xl max-w-md w-full relative my-auto flex flex-col"
                 style={{
                   background: 'rgba(255, 255, 255, 0.08)',
                   backdropFilter: 'blur(20px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
-                  maxHeight: '90vh',
-                  overflowY: 'auto'
+                  maxHeight: '90vh'
                 }}
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -626,8 +625,8 @@ export default function Home() {
                   }}
                 />
                 
-                {/* Modern Fixed Header */}
-                <div className="flex items-center justify-between mb-6 sticky top-0 z-10 pb-4 backdrop-blur-md"
+                {/* Fixed Header - Outside of scrollable area */}
+                <div className="flex items-center justify-between p-6 pb-4 rounded-t-3xl"
                      style={{
                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
@@ -650,8 +649,8 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Scrollable content */}
-                <div className="space-y-4">
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-y-auto p-6 pt-2">
                   <SpinWheelSimple 
                     userSpinsUsed={typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0}
                     userId={user?.id || ''}
