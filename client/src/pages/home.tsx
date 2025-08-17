@@ -47,17 +47,18 @@ const TypewriterText = memo(() => {
   }, [displayText, isDeleting, currentWordIndex, typingSpeed, words]);
   
   return (
-    <span className="relative text-blue-400">
+    <span className="relative text-blue-400 select-none">
       {displayText}
       <motion.span
         animate={{ opacity: [1, 0] }}
         transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse" }}
-        className="inline-block ml-1"
+        className="inline-block ml-1 select-none"
+        style={{ userSelect: 'none', pointerEvents: 'none' }}
       >
         |
       </motion.span>
       {/* Bold underline specifically for the typewriter text */}
-      <div className="absolute -bottom-1 left-0 right-0 h-1 bg-blue-400 rounded-full"></div>
+      <div className="absolute -bottom-1 left-0 right-0 h-1 bg-blue-400 rounded-full select-none" style={{ pointerEvents: 'none' }}></div>
     </span>
   );
 });

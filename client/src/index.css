@@ -75,6 +75,7 @@
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
+    caret-color: transparent;
   }
   
   html::-webkit-scrollbar,
@@ -87,6 +88,11 @@
   *::before,
   *::after {
     box-sizing: border-box;
+    caret-color: transparent;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
   
   /* Enable GPU acceleration for transforms */
