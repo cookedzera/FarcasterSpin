@@ -45,14 +45,15 @@ export function WalletConnectCompact() {
             setUser(userData)
             localStorage.setItem('farcaster_user', JSON.stringify(userData))
           } else {
+            const safeAddress = address || '0x0000000000000000000000000000000000000000';
             const fallbackUser = {
-              fid: parseInt((address || '').slice(-6), 16) % 100000 + 1000,
-              username: `user-${(address || '').slice(-4)}`,
+              fid: parseInt(safeAddress.slice(-6), 16) % 100000 + 1000,
+              username: `user-${safeAddress.slice(-4)}`,
               displayName: `Wallet User`,
               bio: 'Wallet connected',
-              pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${address || ''}`,
-              custody: address || '',
-              verifications: [address || '']
+              pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${safeAddress}`,
+              custody: safeAddress,
+              verifications: [safeAddress]
             }
             setUser(fallbackUser)
             localStorage.setItem('farcaster_user', JSON.stringify(fallbackUser))

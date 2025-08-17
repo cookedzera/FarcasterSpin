@@ -387,12 +387,21 @@ export class MemStorage implements IStorage {
       tokenId: result.tokenId || null,
       tokenAddress: result.tokenAddress || null,
       isAccumulated: result.isAccumulated !== undefined ? result.isAccumulated : true,
+      claimType: result.claimType || null,
       transactionHash: result.transactionHash || null,
       id,
       timestamp: new Date(),
     };
     this.spinResults.set(id, spinResult);
     return spinResult;
+  }
+
+  async getUserById(id: string): Promise<User | undefined> {
+    return this.getUser(id);
+  }
+
+  async addSpinResult(result: InsertSpinResult): Promise<SpinResult> {
+    return this.createSpinResult(result);
   }
 
   async getLeaderboard(): Promise<User[]> {
@@ -475,6 +484,10 @@ export class MemStorage implements IStorage {
       timestamp: new Date(),
     };
     return tokenClaim;
+  }
+
+  async addTokenClaim(claim: InsertTokenClaim): Promise<TokenClaim> {
+    return this.createTokenClaim(claim);
   }
 
   async getUserClaims(userId: string): Promise<TokenClaim[]> {

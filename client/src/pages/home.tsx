@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, memo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
 import SpinWheelSimple from "@/components/spin-wheel-simple";
@@ -74,6 +74,7 @@ const RADIAL_STYLE = {
 };
 
 export default function Home() {
+  const queryClient = useQueryClient();
   const { user, isLoading: userLoading } = useGameState();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [showWinPopup, setShowWinPopup] = useState(false);
@@ -650,6 +651,7 @@ export default function Home() {
                       tokenId: null,
                       tokenAddress: result.tokenAddress || null,
                       isAccumulated: true,
+                      claimType: null,
                       transactionHash: result.transactionHash || null,
                       timestamp: new Date()
                     });
