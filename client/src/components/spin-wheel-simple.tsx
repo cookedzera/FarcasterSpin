@@ -476,10 +476,14 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         
         {/* Spinning Wheel */}
         <motion.div
-          className={`w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 ${
+          className={`w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 will-change-transform wheel-container ${
             isProcessing ? 'border-blue-400 shadow-blue-400/50' : 
             isSpinning ? 'border-yellow-400' : 'border-yellow-400'
           }`}
+          style={{
+            transform: `rotate(${rotation}deg) translateZ(0)`,
+            backfaceVisibility: 'hidden'
+          }}
           animate={{ rotate: rotation }}
           transition={{
             duration: isSpinning ? 4 : 0,
@@ -493,10 +497,11 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
             return (
               <div
                 key={index}
-                className="absolute w-full h-full"
+                className="absolute w-full h-full will-change-transform"
                 style={{
                   background: `conic-gradient(from ${startAngle}deg, ${segment.color} 0deg, ${segment.color} ${segmentAngle}deg, transparent ${segmentAngle}deg)`,
-                  clipPath: `polygon(50% 50%, ${50 + 50 * Math.cos((startAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((startAngle - 90) * Math.PI / 180)}%, ${50 + 50 * Math.cos((endAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((endAngle - 90) * Math.PI / 180)}%)`
+                  clipPath: `polygon(50% 50%, ${50 + 50 * Math.cos((startAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((startAngle - 90) * Math.PI / 180)}%, ${50 + 50 * Math.cos((endAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((endAngle - 90) * Math.PI / 180)}%)`,
+                  transform: 'translateZ(0)'
                 }}
               >
                 <div 
@@ -609,16 +614,14 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           {/* Modern token cards with gradients */}
           <div className="space-y-3">
             {userAccumulated?.IARB && BigInt(userAccumulated.IARB) > 0 && (
-              <motion.div 
-                className="relative p-4 rounded-xl overflow-hidden"
+              <div 
+                className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
                   background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%)',
                   border: '1px solid rgba(59, 130, 246, 0.3)',
-                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.1)'
+                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.1)',
+                  transform: 'translateZ(0)' // Hardware acceleration
                 }}
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent" />
                 <div className="relative flex items-center justify-center">
@@ -631,20 +634,18 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                     </span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {userAccumulated?.JUICE && BigInt(userAccumulated.JUICE) > 0 && (
-              <motion.div 
-                className="relative p-4 rounded-xl overflow-hidden"
+              <div 
+                className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
                   background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.1) 100%)',
                   border: '1px solid rgba(34, 197, 94, 0.3)',
-                  boxShadow: '0 4px 16px rgba(34, 197, 94, 0.1)'
+                  boxShadow: '0 4px 16px rgba(34, 197, 94, 0.1)',
+                  transform: 'translateZ(0)' // Hardware acceleration
                 }}
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent" />
                 <div className="relative flex items-center justify-center">
@@ -657,20 +658,18 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                     </span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {userAccumulated?.ABET && BigInt(userAccumulated.ABET) > 0 && (
-              <motion.div 
-                className="relative p-4 rounded-xl overflow-hidden"
+              <div 
+                className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
                   background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(126, 34, 206, 0.1) 100%)',
                   border: '1px solid rgba(147, 51, 234, 0.3)',
-                  boxShadow: '0 4px 16px rgba(147, 51, 234, 0.1)'
+                  boxShadow: '0 4px 16px rgba(147, 51, 234, 0.1)',
+                  transform: 'translateZ(0)' // Hardware acceleration
                 }}
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-transparent" />
                 <div className="relative flex items-center justify-center">
@@ -683,50 +682,44 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                     </span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
 
           {/* Claim All Button - Only show when all spins are used */}
           {userSpinsUsed >= 3 && (
-            <motion.div 
-              className="pt-2"
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-            >
+            <div className="pt-2">
               <Button 
-                className="w-full h-14 text-lg font-bold relative overflow-hidden group" 
+                className="w-full h-14 text-lg font-bold relative overflow-hidden group will-change-transform hover:scale-105 transition-transform duration-200" 
                 style={{
                   background: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%)',
                   border: '1px solid rgba(16, 185, 129, 0.4)',
-                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                  transform: 'translateZ(0)' // Hardware acceleration
                 }}
                 onClick={handleBatchClaim}
                 data-testid="button-claim-all"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 <Coins className="w-6 h-6 mr-3" />
                 <span>Claim All Rewards</span>
               </Button>
               <p className="text-xs text-gray-400 text-center mt-2">
                 One transaction to claim all your winnings
               </p>
-            </motion.div>
+            </div>
           )}
           
           {/* Pending spins message - Modern design */}
           {userSpinsUsed < 3 && (
-            <motion.div 
-              className="text-center p-4 rounded-xl relative overflow-hidden"
+            <div 
+              className="text-center p-4 rounded-xl relative overflow-hidden will-change-transform"
               style={{
                 background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%)',
                 border: '1px solid rgba(251, 191, 36, 0.3)',
-                boxShadow: '0 4px 16px rgba(251, 191, 36, 0.1)'
+                boxShadow: '0 4px 16px rgba(251, 191, 36, 0.1)',
+                transform: 'translateZ(0)' // Hardware acceleration
               }}
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.4 }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-transparent" />
               <div className="relative">
@@ -737,7 +730,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                   Save gas fees by claiming all rewards together
                 </p>
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       )}

@@ -61,6 +61,54 @@
 @layer base {
   * {
     @apply border-border;
+    /* Hardware acceleration for smooth scrolling */
+    box-sizing: border-box;
+  }
+  
+  /* Global performance optimizations */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  
+  /* Enable GPU acceleration for transforms */
+  .will-change-transform {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  
+  .will-change-scroll {
+    will-change: scroll-position, transform;
+  }
+  
+  /* Improve scroll performance */
+  .overscroll-contain {
+    overscroll-behavior: contain;
+  }
+  
+  /* Optimized floating particles animation */
+  @keyframes float {
+    0%, 100% { 
+      transform: translateY(0) translateZ(0); 
+      opacity: 0; 
+    }
+    50% { 
+      transform: translateY(-60px) translateZ(0); 
+      opacity: 0.4; 
+    }
+  }
+  
+  /* Smooth transitions for all elements */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Performance-optimized wheel rotation */
+  .wheel-container {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   body {
@@ -69,6 +117,11 @@
     overflow-x: hidden;
     /* Allow vertical scrolling for mobile frames */
     overflow-y: auto;
+    /* Performance optimizations */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   /* Hide scrollbars on desktop only */

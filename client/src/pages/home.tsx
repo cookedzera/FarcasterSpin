@@ -22,40 +22,33 @@ interface TokenBalances {
   totalValueUSD: string;
 }
 
-// Memoized floating particles component
+// Optimized floating particles using CSS animations instead of JS
 const FloatingParticles = memo(() => {
   const particles = useMemo(() => 
-    Array.from({ length: 6 }, (_, i) => ({
+    Array.from({ length: 4 }, (_, i) => ({ // Reduced from 6 to 4
       id: i,
       left: Math.random() * 100,
       top: Math.random() * 100,
-      duration: 3 + Math.random() * 2,
-      delay: Math.random() * 2
+      duration: 4 + Math.random() * 2, // Increased duration for smoother animation
+      delay: Math.random() * 3
     })), []
   );
   
   return (
-    <div className="fixed inset-0 pointer-events-none">
+    <div className="fixed inset-0 pointer-events-none will-change-transform">
       {particles.map((particle) => (
-        <motion.div
+        <div
           key={particle.id}
-          className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-20"
+          className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-20 animate-pulse"
           style={{
             left: `${particle.left}%`,
             top: `${particle.top}%`,
-          }}
-          animate={{
-            y: [-20, -100],
-            opacity: [0, 0.6, 0],
-          }}
-          transition={{
-            duration: particle.duration,
-            repeat: Infinity,
-            delay: particle.delay,
-            ease: "easeOut"
+            animation: `float ${particle.duration}s infinite ${particle.delay}s ease-out`,
+            transform: 'translateZ(0)' // Force hardware acceleration
           }}
         />
       ))}
+
     </div>
   );
 });
@@ -149,12 +142,19 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen relative" style={BACKGROUND_STYLE}>
+    <div 
+      className="min-h-screen relative will-change-scroll"
+      style={{
+        ...BACKGROUND_STYLE,
+        transform: 'translateZ(0)', // Hardware acceleration
+        backfaceVisibility: 'hidden'
+      }}
+    >
       {/* Subtle noise texture overlay */}
-      <div className="fixed inset-0 opacity-10" style={NOISE_STYLE} />
+      <div className="fixed inset-0 opacity-10 will-change-transform" style={{...NOISE_STYLE, transform: 'translateZ(0)'}} />
       
       {/* Radial gradient overlay */}
-      <div className="fixed inset-0" style={RADIAL_STYLE} />
+      <div className="fixed inset-0 will-change-transform" style={{...RADIAL_STYLE, transform: 'translateZ(0)'}} />
       
       {/* Floating particles - memoized */}
       <FloatingParticles />
@@ -595,22 +595,28 @@ export default function Home() {
       <AnimatePresence>
         {showSpinWheel && (
           <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto overscroll-contain"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowSpinWheel(false)}
-            style={{ touchAction: 'pan-y' }}
+            style={{ 
+              touchAction: 'pan-y',
+              transform: 'translateZ(0)', // Hardware acceleration
+              willChange: 'scroll-position'
+            }}
           >
             <div className="min-h-full flex items-start justify-center p-4 py-8">
               <motion.div
-                className="rounded-3xl max-w-md w-full relative my-auto flex flex-col"
+                className="rounded-3xl max-w-md w-full relative my-auto flex flex-col will-change-transform"
                 style={{
                   background: 'rgba(255, 255, 255, 0.08)',
                   backdropFilter: 'blur(20px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
-                  maxHeight: '90vh'
+                  maxHeight: '90vh',
+                  transform: 'translateZ(0)', // Hardware acceleration
+                  backfaceVisibility: 'hidden'
                 }}
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -650,7 +656,13 @@ export default function Home() {
                 </div>
 
                 {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-y-auto p-6 pt-2">
+                <div 
+                  className="flex-1 overflow-y-auto p-6 pt-2 overscroll-contain will-change-scroll"
+                  style={{
+                    transform: 'translateZ(0)', // Hardware acceleration for smooth scroll
+                    WebkitOverflowScrolling: 'touch' // iOS smooth scrolling
+                  }}
+                >
                   <SpinWheelSimple 
                     userSpinsUsed={typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0}
                     userId={user?.id || ''}

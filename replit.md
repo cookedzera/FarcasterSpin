@@ -31,6 +31,14 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
   - Users must complete all 3 daily spins before claiming any rewards
   - Single "Claim All" button appears only after finishing all spins
   - Encourages users to accumulate rewards and claim in one transaction
+✅ **Scroll Performance Optimization**: Eliminated lag on both homepage and popup scroll
+  - Added hardware acceleration with CSS transforms (translateZ(0)) to all major elements
+  - Implemented overscroll-contain for better mobile scroll behavior
+  - Optimized floating particles to use CSS animations instead of heavy JavaScript
+  - Applied will-change properties for GPU acceleration on scrolling elements
+  - Fixed header to stay stationary while content scrolls independently in modal
+  - Reduced particle count from 6 to 4 for better performance
+  - Enhanced wheel animation with backface-visibility hidden and transform optimizations
 
 ## Previous Changes (January 17, 2025)
 
