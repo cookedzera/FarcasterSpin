@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { CONTRACT_CONFIG } from "@/lib/config";
-import { ethers } from "ethers";
 import { Coins, Gift } from "lucide-react";
+import { useSimpleSpin } from "@/hooks/use-simple-spin";
 import aidogeLogo from "@assets/aidoge_1755435810322.png";
 import boopLogo from "@assets/boop_1755435810327.png";
 import arbLogo from "@assets/arb-logo.png";
@@ -22,34 +21,7 @@ const WHEEL_SEGMENTS = [
   { name: 'JACKPOT', color: '#F97316', reward: '10x' },
 ];
 
-const WHEEL_ABI = [
-  {
-    type: "function",
-    name: "spin",
-    inputs: [],
-    outputs: [
-      { name: "segment", type: "string" },
-      { name: "isWin", type: "bool" },
-      { name: "tokenAddress", type: "address" },
-      { name: "rewardAmount", type: "uint256" }
-    ],
-    stateMutability: "nonpayable"
-  },
-  {
-    type: "event",
-    name: "SpinResult",
-    inputs: [
-      { indexed: true, name: "player", type: "address" },
-      { indexed: false, name: "segment", type: "string" },
-      { indexed: false, name: "isWin", type: "bool" },
-      { indexed: false, name: "tokenAddress", type: "address" },
-      { indexed: false, name: "rewardAmount", type: "uint256" },
-      { indexed: false, name: "randomSeed", type: "uint256" }
-    ]
-  }
-] as const;
-
-// Real contract mode only
+// Server-side spinning only (no contract dependencies)
 
 interface SpinResult {
   segment: string;
@@ -73,14 +45,13 @@ interface SpinWheelSimpleProps {
 }
 
 export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId, userAccumulated }: SpinWheelSimpleProps) {
-  const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [result, setResult] = useState<SpinResult | null>(null);
-  const [freeSpinsUsed, setFreeSpinsUsed] = useState(0);
   const [sessionSpinsUsed, setSessionSpinsUsed] = useState(userSpinsUsed);
   
   const { address, isConnected } = useAccount();
   const { toast } = useToast();
+  const { isSpinning, triggerSpin, lastSpinResult, resetSpinResult } = useSimpleSpin();
   
   // Audio context for wheel spinning sound
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -221,170 +192,61 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
     }
   };
   
-  // Check if user has free spins available (3 per day)
-  const hasFreeSpin = userSpinsUsed < 3;
+  // Check if user has spins available (3 per day)
+  const hasSpinsRemaining = userSpinsUsed < 3;
   
   // Update session spins when props change
   useEffect(() => {
     setSessionSpinsUsed(userSpinsUsed);
   }, [userSpinsUsed]);
-  
-  const { data: hash, writeContract, isPending } = useWriteContract();
-  
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
 
-  // Handle successful transaction - THIS IS WHERE ANIMATION AND RESULT HAPPEN
+  // Handle spin result from server-side spinning
   useEffect(() => {
-    if (isSuccess && hash) {
-      // NOW we start the wheel animation and get results from blockchain
-      const handleConfirmedTransaction = async () => {
-        try {
-          // Get the actual spin result from the blockchain transaction
-          const response = await fetch('/api/spin-result', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userId: localStorage.getItem('arbcasino_user_id') || '56cbf268-416e-4a46-b71f-e0e5082a7498',
-              userAddress: address,
-              transactionHash: hash
-            })
-          });
-          
-          if (response.ok) {
-            const spinResult = await response.json();
-            
-            // NOW animate the wheel to the correct result - fix arrow pointing to center of segment
-            const resultSegment = WHEEL_SEGMENTS.find(s => s.name === spinResult.segment) || WHEEL_SEGMENTS[0];
-            const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
-            const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-            // Point arrow to center of segment (add half segment angle)
-            const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2;
-            const spins = 5; // 5 full rotations for dramatic effect
-            const finalRotation = rotation + (spins * 360) - targetAngle;
-            
-            // Start the wheel animation and sound
-            setRotation(finalRotation);
-            playWheelSpinSound();
-            
-            // Set the confirmed result after animation completes
-            setTimeout(() => {
-              const finalResult = {
-                segment: spinResult.segment,
-                isWin: spinResult.isWin,
-                reward: spinResult.rewardAmount || '0',
-                transactionHash: hash
-              };
-              
-              setResult(finalResult);
-              
-              // No popup toast - result will be shown directly on wheel interface
-              
-              // Update session spin count for contract spins
-              setSessionSpinsUsed(prev => prev + 1);
-              
-              if (onSpinComplete) {
-                onSpinComplete(finalResult);
-              }
-              
-              // Reset after showing result
-              setTimeout(() => {
-                setResult(null);
-                setIsSpinning(false);
-              }, 4000);
-            }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
-            
-          } else {
-            throw new Error('Failed to get spin result from API');
-          }
-        } catch (error) {
-          console.error('Failed to handle transaction result:', error);
-          
-          // Fallback - generate random result for animation
-          const randomIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
-          const landedSegment = WHEEL_SEGMENTS[randomIndex];
-          
-          const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-          // Point arrow to center of segment (add half segment angle)
-          const targetAngle = randomIndex * segmentAngle + segmentAngle / 2;
-          const spins = 5;
-          const finalRotation = rotation + (spins * 360) - targetAngle;
-          
-          setRotation(finalRotation);
-          playWheelSpinSound();
-          
-          setTimeout(() => {
-            const fallbackResult = {
-              segment: landedSegment.name,
-              isWin: landedSegment.name !== 'BUST',
-              reward: landedSegment.reward,
-              transactionHash: hash
-            };
-            
-            setResult(fallbackResult);
-            
-            toast({
-              title: "Transaction Confirmed",
-              description: `TX: ${hash.slice(0, 10)}...`,
-              variant: "default",
-            });
-            
-            // Update session spin count for contract spins
-            setSessionSpinsUsed(prev => prev + 1);
-            
-            if (onSpinComplete) {
-              onSpinComplete(fallbackResult);
-            }
-            
-            setTimeout(() => {
-              setResult(null);
-              setIsSpinning(false);
-            }, 4000);
-          }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
+    if (lastSpinResult) {
+      // Animate the wheel to the correct result
+      const resultSegment = WHEEL_SEGMENTS.find(s => s.name === lastSpinResult.segment) || WHEEL_SEGMENTS[0];
+      const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
+      const segmentAngle = 360 / WHEEL_SEGMENTS.length;
+      // Point arrow to center of segment (add half segment angle)
+      const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2;
+      const spins = 5; // 5 full rotations for dramatic effect
+      const finalRotation = rotation + (spins * 360) - targetAngle;
+      
+      // Start the wheel animation and sound
+      setRotation(finalRotation);
+      playWheelSpinSound();
+      
+      // Set the confirmed result after animation completes
+      setTimeout(() => {
+        const finalResult = {
+          segment: lastSpinResult.segment,
+          isWin: lastSpinResult.isWin,
+          reward: lastSpinResult.rewardAmount || '0',
+          tokenType: lastSpinResult.tokenType
+        };
+        
+        setResult(finalResult);
+        
+        // Update session spin count for server spins
+        setSessionSpinsUsed(prev => prev + 1);
+        
+        if (onSpinComplete) {
+          onSpinComplete(finalResult);
         }
-      };
-      
-      handleConfirmedTransaction();
+        
+        // Reset after showing result
+        setTimeout(() => {
+          setResult(null);
+          resetSpinResult(); // Clear the spin result from the hook
+        }, 4000);
+      }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
     }
-  }, [isSuccess, hash, rotation, address, onSpinComplete, toast]);
+  }, [lastSpinResult, rotation, onSpinComplete, resetSpinResult]);
 
-  // Handle transaction failure
-  useEffect(() => {
-    if (isPending) {
-      toast({
-        title: "Transaction Pending",
-        description: "Waiting for blockchain confirmation...",
-        variant: "default",
-      });
-    }
-  }, [isPending, toast]);
 
-  // Handle transaction errors
-  useEffect(() => {
-    if (hash && !isConfirming && !isSuccess && !isPending) {
-      // Transaction was rejected or failed
-      setIsSpinning(false);
-      setResult(null);
-      
-      toast({
-        title: "Transaction Failed",
-        description: "The spin transaction was rejected or failed. Please try again.",
-        variant: "destructive",
-      });
-    }
-  }, [hash, isConfirming, isSuccess, isPending, toast]);
 
   const handleSpin = async () => {
-    // Check for free spins first - no wallet connection required for free spins
-    if (hasFreeSpin && userId) {
-      await handleFreeSpin();
-      return;
-    }
-
-    // If no free spins available, show limit reached message
+    // Check for daily limit first
     if (userSpinsUsed >= 3) {
       toast({
         title: "Daily Limit Reached",
@@ -394,135 +256,21 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       return;
     }
 
-    // For paid spins (disabled for now), require wallet connection
-    if (!isConnected || !address) {
+    // Check if user ID is available
+    if (!userId) {
       toast({
-        title: "Connect Wallet",
-        description: "Please connect your wallet for paid spins",
+        title: "Error",
+        description: "User not found. Please refresh the page.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!CONTRACT_CONFIG.WHEEL_GAME_ADDRESS) {
-      toast({
-        title: "Contract Not Ready",
-        description: "Contract address not configured",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Set spinning state but NO animation or result yet
-    setIsSpinning(true);
-    setResult(null); // Clear any previous result
-
-    try {
-      // First show user we're initiating transaction
-      toast({
-        title: "Initiating Spin",
-        description: "Please confirm the transaction in your wallet",
-        variant: "default",
-      });
-
-      // Call the contract directly from user's wallet (user pays gas)
-      writeContract({
-        address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS as `0x${string}`,
-        abi: WHEEL_ABI,
-        functionName: 'spin',
-        args: [],
-        gas: BigInt(200000), // Set reasonable gas limit
-      });
-
-      // Note: Animation and result will ONLY happen after transaction is confirmed in useEffect
-    } catch (error: any) {
-      console.error('Contract call failed:', error);
-      let errorMessage = "Failed to call contract";
-      
-      if (error.message?.includes('execution reverted')) {
-        errorMessage = "Transaction would fail. You may have reached your daily limit or insufficient gas.";
-      } else if (error.message?.includes('insufficient funds')) {
-        errorMessage = "Insufficient ETH for gas fees. Please add more ETH to your wallet.";
-      }
-      
-      toast({
-        title: "Transaction Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setIsSpinning(false);
-      setResult(null);
-    }
+    // Use server-side spinning with the new hook
+    await triggerSpin(userId);
   };
 
-  const handleFreeSpin = async () => {
-    setIsSpinning(true);
-    setResult(null);
 
-    try {
-      // Free server-side spin
-      const response = await fetch('/api/spin-free', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          userAddress: address
-        })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Spin failed');
-      }
-
-      const spinResult = await response.json();
-      
-      // Animate wheel to result - fix arrow pointing to center of segment
-      const resultSegment = WHEEL_SEGMENTS.find(s => s.name === spinResult.segment) || WHEEL_SEGMENTS[0];
-      const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
-      const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-      // Point arrow to center of segment (add half segment angle)
-      const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2;
-      const spins = 3; // 3 full rotations
-      const finalRotation = rotation + (spins * 360) - targetAngle;
-      
-      setRotation(finalRotation);
-      playWheelSpinSound();
-      // Don't update freeSpinsUsed - use userSpinsUsed from props
-      
-      // Show result after animation completes
-      setTimeout(() => {
-        const finalResult = {
-          segment: spinResult.segment,
-          isWin: spinResult.isWin,
-          rewardAmount: spinResult.rewardAmount,
-          tokenType: spinResult.tokenType,
-          tokenAddress: spinResult.tokenAddress
-        };
-        
-        setResult(finalResult);
-        setIsSpinning(false);
-        
-        // No popup toast - result will be shown directly on wheel interface
-        
-        if (onSpinComplete) {
-          onSpinComplete(finalResult);
-        }
-      }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
-
-    } catch (error: any) {
-      console.error("Free spin error:", error);
-      setIsSpinning(false);
-      
-      toast({
-        title: "Spin Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
 
 
@@ -573,7 +321,6 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
   };
 
   const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-  const isProcessing = isPending || isConfirming;
 
   return (
     <div className="flex flex-col items-center space-y-6">
@@ -622,7 +369,6 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         {/* Spinning Wheel */}
         <motion.div
           className={`w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 will-change-transform wheel-container ${
-            isProcessing ? 'border-blue-400 shadow-blue-400/50' : 
             isSpinning ? 'border-yellow-400' : 'border-yellow-400'
           }`}
           style={{
@@ -665,7 +411,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           
           {/* Center Circle with ARB Logo - Always visible and rotates with wheel */}
           <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gray-800 rounded-full border-3 ${
-            isProcessing ? 'border-blue-400' : 'border-yellow-400'
+            isSpinning ? 'border-blue-400' : 'border-yellow-400'
           } flex items-center justify-center overflow-hidden`}>
             <img 
               src={arbLogo} 
@@ -679,44 +425,31 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       {/* Spin Status */}
       <div className="text-center space-y-2">
         <div className="text-lg font-bold text-white">
-          {hasFreeSpin 
+          {hasSpinsRemaining 
             ? `🆓 Free Spins: ${3 - userSpinsUsed} remaining`
             : `⛽ Daily Limit Reached`
           }
         </div>
         <p className="text-sm text-gray-300">
-          {hasFreeSpin 
+          {hasSpinsRemaining 
             ? "No gas fees - rewards accumulate until claimed"
-            : "Pay gas per spin - immediate blockchain rewards"
+            : "Come back tomorrow for more spins!"
           }
         </p>
       </div>
 
       <Button
         onClick={handleSpin}
-        disabled={userSpinsUsed >= 3 || isSpinning || isProcessing}
+        disabled={userSpinsUsed >= 3 || isSpinning}
         className="w-48 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg"
         data-testid="button-spin"
       >
         {userSpinsUsed >= 3 ? 'Daily Limit Reached' :
-         isProcessing ? 'Confirming Transaction...' :
          isSpinning ? 'Spinning...' : 
-         hasFreeSpin ? '🎰 FREE SPIN!' : 'No spins available'}
+         hasSpinsRemaining ? '🎰 FREE SPIN!' : 'No spins available'}
       </Button>
       
-      {/* Transaction Status */}
-      {(isPending || isConfirming) && (
-        <div className="text-center bg-blue-600/20 border border-blue-400 rounded-lg p-3">
-          <p className="text-blue-300 text-sm font-medium">
-            {isPending ? "⏳ Waiting for wallet confirmation..." : "🔄 Transaction confirming on blockchain..."}
-          </p>
-          {hash && (
-            <p className="text-blue-400 text-xs mt-1">
-              TX: {hash.slice(0, 10)}...{hash.slice(-8)}
-            </p>
-          )}
-        </div>
-      )}
+
       
       {/* Spins Counter */}
       <div className="text-center">
@@ -724,15 +457,15 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           Total daily spins: {userSpinsUsed}/3 used
         </p>
         <p className="text-white/60 text-xs">
-          (Free: {userSpinsUsed}/3, Contract: 0/0)
+          Server-side spins (no gas fees)
         </p>
       </div>
 
       {/* Accumulated Rewards Display - Modern Casino UI */}
       {userAccumulated && (
-        (userAccumulated.AIDOGE && BigInt(userAccumulated.AIDOGE) > 0) ||
-        (userAccumulated.BOOP && BigInt(userAccumulated.BOOP) > 0) ||
-        (userAccumulated.ARB && BigInt(userAccumulated.ARB) > 0)
+        (userAccumulated.AIDOGE && parseFloat(userAccumulated.AIDOGE) > 0) ||
+        (userAccumulated.BOOP && parseFloat(userAccumulated.BOOP) > 0) ||
+        (userAccumulated.ARB && parseFloat(userAccumulated.ARB) > 0)
       ) && (
         <div className="w-full max-w-md space-y-4">
           {/* Modern header with gradient background */}
@@ -758,7 +491,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
           {/* Modern token cards with gradients */}
           <div className="space-y-3">
-            {userAccumulated?.AIDOGE && BigInt(userAccumulated.AIDOGE) > 0 && (
+            {userAccumulated?.AIDOGE && parseFloat(userAccumulated.AIDOGE) > 0 && (
               <div 
                 className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
@@ -775,14 +508,14 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                       <span className="text-white font-bold text-sm">AIDOGE</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {ethers.formatEther(userAccumulated.AIDOGE)}
+                      {parseFloat(userAccumulated.AIDOGE || "0").toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
             )}
 
-            {userAccumulated?.BOOP && BigInt(userAccumulated.BOOP) > 0 && (
+            {userAccumulated?.BOOP && parseFloat(userAccumulated.BOOP) > 0 && (
               <div 
                 className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
@@ -799,14 +532,14 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                       <span className="text-white font-bold text-sm">BOOP</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {ethers.formatEther(userAccumulated.BOOP)}
+                      {parseFloat(userAccumulated.BOOP || "0").toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
             )}
 
-            {userAccumulated?.ARB && BigInt(userAccumulated.ARB) > 0 && (
+            {userAccumulated?.ARB && parseFloat(userAccumulated.ARB) > 0 && (
               <div 
                 className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
@@ -823,7 +556,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                       <span className="text-white font-bold text-sm">ARB</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {ethers.formatEther(userAccumulated.ARB)}
+                      {parseFloat(userAccumulated.ARB || "0").toFixed(2)}
                     </span>
                   </div>
                 </div>
