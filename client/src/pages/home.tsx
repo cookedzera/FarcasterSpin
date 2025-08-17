@@ -657,8 +657,9 @@ export default function Home() {
                     // Auto close spin wheel after showing result
                     setTimeout(() => setShowSpinWheel(false), 1000);
                   }
-                  // Refresh user data to update balances
-                  window.location.reload();
+                  // Refresh user data to update balances without full page reload
+                  queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
                 }}
               />
             </motion.div>

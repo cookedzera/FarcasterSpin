@@ -74,12 +74,18 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
   const [rotation, setRotation] = useState(0);
   const [result, setResult] = useState<SpinResult | null>(null);
   const [freeSpinsUsed, setFreeSpinsUsed] = useState(0);
+  const [sessionSpinsUsed, setSessionSpinsUsed] = useState(userSpinsUsed);
   
   const { address, isConnected } = useAccount();
   const { toast } = useToast();
   
   // Check if user has free spins available (3 per day)
   const hasFreeSpin = freeSpinsUsed < 3;
+  
+  // Update session spins when props change
+  useEffect(() => {
+    setSessionSpinsUsed(userSpinsUsed);
+  }, [userSpinsUsed]);
   
   const { data: hash, writeContract, isPending } = useWriteContract();
   
@@ -137,6 +143,9 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                 variant: finalResult.isWin ? "default" : "destructive",
               });
               
+              // Update session spin count for contract spins
+              setSessionSpinsUsed(prev => prev + 1);
+              
               if (onSpinComplete) {
                 onSpinComplete(finalResult);
               }
@@ -180,6 +189,9 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
               description: `TX: ${hash.slice(0, 10)}...`,
               variant: "default",
             });
+            
+            // Update session spin count for contract spins
+            setSessionSpinsUsed(prev => prev + 1);
             
             if (onSpinComplete) {
               onSpinComplete(fallbackResult);
@@ -240,7 +252,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
     }
 
     // Fall back to contract spins if no free spins available
-    if (userSpinsUsed >= 5) {
+    if (sessionSpinsUsed >= 5) {
       toast({
         title: "Daily Limit Reached",
         description: "You can spin 5 times per day. Try again tomorrow!",
@@ -535,7 +547,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         <div className="text-lg font-bold text-white">
           {hasFreeSpin 
             ? `🆓 Free Spins: ${3 - freeSpinsUsed} remaining`
-            : `⛽ Contract Spins: ${5 - userSpinsUsed} remaining`
+            : `⛽ Contract Spins: ${5 - sessionSpinsUsed} remaining`
           }
         </div>
         <p className="text-sm text-gray-300">
@@ -548,12 +560,12 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
       <Button
         onClick={handleSpin}
-        disabled={!isConnected || (!hasFreeSpin && userSpinsUsed >= 5) || isSpinning || isProcessing}
+        disabled={!isConnected || (!hasFreeSpin && sessionSpinsUsed >= 5) || isSpinning || isProcessing}
         className="w-48 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg"
         data-testid="button-spin"
       >
         {!isConnected ? 'Connect Wallet' : 
-         (!hasFreeSpin && userSpinsUsed >= 5) ? 'Daily Limit Reached' :
+         (!hasFreeSpin && sessionSpinsUsed >= 5) ? 'Daily Limit Reached' :
          isProcessing ? 'Confirming Transaction...' :
          isSpinning ? 'Spinning...' : 
          hasFreeSpin ? '🎰 FREE SPIN!' : '⛽ SPIN (Pay Gas)'}
@@ -576,7 +588,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       {/* Spins Counter */}
       <div className="text-center">
         <p className="text-white/80 text-sm">
-          {5 - userSpinsUsed} spins remaining today
+          Total daily spins: {freeSpinsUsed + sessionSpinsUsed}/8 used
+        </p>
+        <p className="text-white/60 text-xs">
+          (Free: {freeSpinsUsed}/3, Contract: {sessionSpinsUsed}/5)
         </p>
       </div>
 
