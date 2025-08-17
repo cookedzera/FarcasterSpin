@@ -14,7 +14,7 @@ const TypewriterText = memo(() => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(300);
   
-  const words = ["Spin", "Games"];
+  const words = ["SPIN", "GAMES"];
   
   useEffect(() => {
     const handleType = () => {

@@ -14,11 +14,12 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 ## Recent Changes (August 17, 2025)
 
 ✅ **Typewriter Brand Animation (Latest)**: Enhanced header with dynamic typewriter effect
-  - Replaced "ARBCASINO" with "ARB" + typewriter animation alternating between "Spin" and "Games"
-  - Created smooth typewriter animation with blinking cursor and character-by-character typing/deleting
-  - Added specific underline only under the animated text (Spin/Games) as requested
+  - Replaced "ARBCASINO" with "ARB" + typewriter animation alternating between "SPIN" and "GAMES"
+  - Created smooth, slow typewriter animation with blinking cursor and character-by-character typing/deleting
+  - Added bold underline only under the animated text (SPIN/GAMES) as requested
   - Maintained same blue color scheme and improved visual engagement
-  - Animation timing: 2 seconds display, smooth typing/deleting transitions
+  - Animation timing: 3.5 seconds display, 300ms typing speed, 120ms deletion speed for smooth experience
+  - All text displayed in capital letters for consistent branding
 
 ✅ **Center Icon Fix**: Fixed ARB logo behavior during wheel spinning
   - ARB logo now stays visible at all times and rotates with the wheel
