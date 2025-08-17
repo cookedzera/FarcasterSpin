@@ -2,11 +2,170 @@
   "network": "arbitrumSepolia",
   "chainId": 421614,
   "deployer": "0x3b0287dDC6dD5a22862702dd2FB6E3Aa17429cB6",
-  "deploymentTime": "2025-08-17T06:53:42.913Z",
+  "deploymentTime": "2025-08-17T07:36:48.268Z",
   "contracts": {
     "wheelGame": {
-      "address": "0x4be6dd3897fd6fbc8a619c69fa6f4bd94531d90a",
-      "name": "WheelGameArbitrumSepolia"
+      "address": "0x9D41F31a28BB06bEA083D88f707046B03fc04B36",
+      "name": "ARBCasinoWheel",
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "player",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "segment",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "bool",
+              "name": "isWin",
+              "type": "bool"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "tokenAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "rewardAmount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "randomSeed",
+              "type": "uint256"
+            }
+          ],
+          "name": "SpinResult",
+          "type": "event"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "player",
+              "type": "address"
+            }
+          ],
+          "name": "getPlayerStats",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "totalSpins_",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalWins_",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastSpinDate_",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "dailySpins_",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "playerSpins",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "totalSpins",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalWins",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastSpinDate",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "dailySpins",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "spin",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "segment",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isWin",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rewardAmount",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "totalSpins",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ]
     },
     "tokens": {
       "TOKEN1": {

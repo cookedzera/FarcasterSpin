@@ -1,0 +1,111 @@
+2. Deployment Script (Ethers.js v6)
+
+Create scripts/deploy.js:
+
+import { ethers } from "ethers";
+import fs from "fs";
+
+// Arbitrum Sepolia RPC
+const RPC_URL = "https://sepolia-rollup.arbitrum.io/rpc";
+
+// Load your private key from env
+const PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY;
+
+async function main() {
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+
+  // Load compiled artifact
+  const artifact = JSON.parse(fs.readFileSync("./artifacts/contracts/ARBCasinoWheel.sol/ARBCasinoWheel.json", "utf8"));
+
+  const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, wallet);
+
+  console.log("Deploying contract...");
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+
+  console.log("Contract deployed at:", await contract.getAddress());
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
+
+3. ABI Array (for Frontend Integration)
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "player", "type": "address" },
+      { "indexed": false, "internalType": "string", "name": "segment", "type": "string" },
+      { "indexed": false, "internalType": "bool", "name": "isWin", "type": "bool" },
+      { "indexed": false, "internalType": "address", "name": "tokenAddress", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "rewardAmount", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "randomSeed", "type": "uint256" }
+    ],
+    "name": "SpinResult",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "spin",
+    "outputs": [
+      { "internalType": "string", "name": "segment", "type": "string" },
+      { "internalType": "bool", "name": "isWin", "type": "bool" },
+      { "internalType": "address", "name": "tokenAddress", "type": "address" },
+      { "internalType": "uint256", "name": "rewardAmount", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "player", "type": "address" }
+    ],
+    "name": "getPlayerStats",
+    "outputs": [
+      { "internalType": "uint256", "name": "totalSpins_", "type": "uint256" },
+      { "internalType": "uint256", "name": "totalWins_", "type": "uint256" },
+      { "internalType": "uint256", "name": "lastSpinDate_", "type": "uint256" },
+      { "internalType": "uint256", "name": "dailySpins_", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalSpins",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "", "type": "address" }
+    ],
+    "name": "playerSpins",
+    "outputs": [
+      { "internalType": "uint256", "name": "totalSpins", "type": "uint256" },
+      { "internalType": "uint256", "name": "totalWins", "type": "uint256" },
+      { "internalType": "uint256", "name": "lastSpinDate", "type": "uint256" },
+      { "internalType": "uint256", "name": "dailySpins", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
+
+
+⚠️ Note:
+
+This contract does not transfer tokens — it only computes rewards. For real payouts, you’d need ERC20 transfers, allowance management, or funding logic.
+
+Randomness via block data is not secure against miners/validators manipulation. For production-grade fairness, use Chainlink VRF.

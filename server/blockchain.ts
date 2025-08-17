@@ -2,17 +2,16 @@ import { ethers } from "ethers";
 
 // Arbitrum Sepolia testnet configuration
 const ARBITRUM_RPC = process.env.ARBITRUM_SEPOLIA_RPC || "https://sepolia-rollup.arbitrum.io/rpc";
-const WHEEL_GAME_ADDRESS = process.env.DEPLOYED_CONTRACT_ADDRESS || "0x4be6dd3897fd6fbc8a619c69fa6f4bd94531d90a"; // Contract address from deployment
+const WHEEL_GAME_ADDRESS = process.env.DEPLOYED_CONTRACT_ADDRESS || "0x9D41F31a28BB06bEA083D88f707046B03fc04B36"; // New deployed ARBCasinoWheel contract
 
-// Contract ABI for the WheelGameTestnet contract
+// Contract ABI for the ARBCasinoWheel contract
 const WHEEL_GAME_ABI = [
-  "function spin() external",
-  "function claimRewards(address tokenAddress) external", 
-  "function getPlayerStats(address playerAddress) external view returns (uint256, uint256, uint256, uint256, uint256)",
-  "function getPendingRewards(address playerAddress) external view returns (uint256, uint256, uint256)",
-  "function getWheelSegments() external view returns (string[] memory)",
-  "event SpinResult(address indexed player, string segment, bool isWin, address tokenAddress, uint256 rewardAmount, uint256 randomSeed)",
-  "event RewardsClaimed(address indexed player, address indexed token, uint256 amount)"
+  "constructor()",
+  "function spin() external returns (string memory segment, bool isWin, address tokenAddress, uint256 rewardAmount)",
+  "function getPlayerStats(address player) external view returns (uint256 totalSpins_, uint256 totalWins_, uint256 lastSpinDate_, uint256 dailySpins_)",
+  "function totalSpins() external view returns (uint256)",
+  "function playerSpins(address) external view returns (uint256 totalSpins, uint256 totalWins, uint256 lastSpinDate, uint256 dailySpins)",
+  "event SpinResult(address indexed player, string segment, bool isWin, address tokenAddress, uint256 rewardAmount, uint256 randomSeed)"
 ];
 
 // Token addresses from deployed contract (actual working tokens)
