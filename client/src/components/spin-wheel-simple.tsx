@@ -84,6 +84,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
   const wheelSoundRef = useRef<{
     oscillator?: OscillatorNode;
     gainNode?: GainNode;
+    sources?: AudioBufferSourceNode[];
     isPlaying: boolean;
   }>({ isPlaying: false });
 
@@ -118,55 +119,101 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
     };
   }, []);
 
-  // Create wheel spinning sound effect
+  // Create realistic casino wheel clicking sound
   const playWheelSpinSound = () => {
     if (!audioContextRef.current || wheelSoundRef.current.isPlaying) return;
 
     try {
       const audioContext = audioContextRef.current;
+      wheelSoundRef.current.isPlaying = true;
       
-      // Create oscillator for the spinning sound
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      // Connect the nodes
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      // Configure the sound - start high and decrease for spinning effect
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 4);
-      
-      // Volume higher than background music (60% vs 12%)
-      gainNode.gain.setValueAtTime(0.6, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 4);
-      
-      // Use sawtooth wave for that classic wheel spinning sound
-      oscillator.type = 'sawtooth';
-      
-      // Store references
-      wheelSoundRef.current = { oscillator, gainNode, isPlaying: true };
-      
-      // Start the sound
-      oscillator.start();
-      
-      // Stop after 4 seconds (matches wheel animation)
-      setTimeout(() => {
-        if (wheelSoundRef.current.oscillator) {
-          wheelSoundRef.current.oscillator.stop();
-          wheelSoundRef.current.isPlaying = false;
+      // Create a series of "tick" sounds that slow down over time like a real wheel
+      const createTick = (time: number, volume: number) => {
+        // Create noise burst for tick sound
+        const bufferSize = audioContext.sampleRate * 0.02; // 20ms tick
+        const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+        
+        // Generate sharp tick sound with noise and quick decay
+        for (let i = 0; i < bufferSize; i++) {
+          const decay = Math.exp(-i / bufferSize * 15); // Quick decay
+          data[i] = (Math.random() * 2 - 1) * decay * volume;
         }
-      }, 4000);
+        
+        const source = audioContext.createBufferSource();
+        const gainNode = audioContext.createGain();
+        
+        source.buffer = buffer;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // High volume to cut through background music
+        gainNode.gain.value = 0.7;
+        
+        source.start(time);
+        
+        return source;
+      };
+      
+      // Create series of ticks that slow down over 4 seconds
+      const startTime = audioContext.currentTime;
+      let currentTime = startTime;
+      let tickInterval = 0.08; // Start with 8 ticks per second (fast spinning)
+      const sources: AudioBufferSourceNode[] = [];
+      
+      // Create ticks for 4 seconds, gradually slowing down
+      while (currentTime - startTime < 4) {
+        const progress = (currentTime - startTime) / 4;
+        const volume = 1 - progress * 0.3; // Slightly reduce volume as it slows
+        
+        sources.push(createTick(currentTime, volume));
+        
+        // Gradually increase tick interval (slow down the wheel)
+        tickInterval = 0.08 + (progress * progress * 0.15); // Exponential slowdown
+        currentTime += tickInterval;
+      }
+      
+      // Store references for cleanup
+      wheelSoundRef.current = { 
+        isPlaying: true,
+        sources // Store sources instead of oscillator
+      };
+      
+      // Stop after 4 seconds
+      setTimeout(() => {
+        if (wheelSoundRef.current.sources) {
+          wheelSoundRef.current.sources.forEach(source => {
+            try {
+              source.stop();
+            } catch (e) {
+              // Source may already be stopped
+            }
+          });
+        }
+        wheelSoundRef.current.isPlaying = false;
+      }, 4200); // Slightly longer to ensure all ticks complete
       
     } catch (error) {
       console.warn('Failed to play wheel sound:', error);
+      wheelSoundRef.current.isPlaying = false;
     }
   };
 
   // Stop wheel sound if needed
   const stopWheelSpinSound = () => {
-    if (wheelSoundRef.current.oscillator && wheelSoundRef.current.isPlaying) {
-      wheelSoundRef.current.oscillator.stop();
+    if (wheelSoundRef.current.isPlaying) {
+      if (wheelSoundRef.current.oscillator) {
+        wheelSoundRef.current.oscillator.stop();
+      }
+      if (wheelSoundRef.current.sources) {
+        wheelSoundRef.current.sources.forEach(source => {
+          try {
+            source.stop();
+          } catch (e) {
+            // Source may already be stopped
+          }
+        });
+      }
       wheelSoundRef.current.isPlaying = false;
     }
   };
