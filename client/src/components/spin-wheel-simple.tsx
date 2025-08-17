@@ -210,14 +210,15 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       // Point arrow to center of segment (add half segment angle)
       const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2;
       const spins = 5; // 5 full rotations for dramatic effect
-      const finalRotation = rotation + (spins * 360) - targetAngle;
+      const currentRotation = rotation; // Capture current rotation to avoid dependency loop
+      const finalRotation = currentRotation + (spins * 360) - targetAngle;
       
       // Start the wheel animation and sound
       setRotation(finalRotation);
       playWheelSpinSound();
       
       // Set the confirmed result after animation completes
-      setTimeout(() => {
+      const resultTimeout = setTimeout(() => {
         const finalResult = {
           segment: lastSpinResult.segment,
           isWin: lastSpinResult.isWin,
@@ -235,13 +236,17 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         }
         
         // Reset after showing result
-        setTimeout(() => {
+        const clearResultTimeout = setTimeout(() => {
           setResult(null);
           resetSpinResult(); // Clear the spin result from the hook
         }, 4000);
+        
+        return () => clearTimeout(clearResultTimeout);
       }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
+      
+      return () => clearTimeout(resultTimeout);
     }
-  }, [lastSpinResult, rotation, onSpinComplete, resetSpinResult]);
+  }, [lastSpinResult]); // Remove rotation and resetSpinResult from dependencies to prevent infinite loop
 
 
 
