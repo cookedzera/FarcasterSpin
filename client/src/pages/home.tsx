@@ -6,7 +6,7 @@ import SpinWheelSimple from "@/components/spin-wheel-simple";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
-import WinPopup from "@/components/win-popup";
+
 import { Button } from "@/components/ui/button";
 import { formatUnits } from "ethers";
 import { type GameStats, type SpinResult } from "@shared/schema";
@@ -77,8 +77,7 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { user, isLoading: userLoading } = useGameState();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
-  const [showWinPopup, setShowWinPopup] = useState(false);
-  const [spinResult, setSpinResult] = useState<SpinResult | null>(null);
+
 
 
   
@@ -571,21 +570,7 @@ export default function Home() {
       {/* Navigation */}
       <Navigation />
 
-      {/* Win Popup */}
-      <WinPopup
-        isOpen={showWinPopup}
-        onClose={() => {
-          setShowWinPopup(false);
-          setSpinResult(null);
-        }}
-        winResult={spinResult}
-        tokenInfo={spinResult && spinResult.tokenType ? {
-          name: spinResult.tokenType === 'TOKEN1' ? 'AIDOGE' : spinResult.tokenType === 'TOKEN2' ? 'BOOP' : 'BOBOTRUM',
-          symbol: spinResult.tokenType === 'TOKEN1' ? 'AIDOGE' : spinResult.tokenType === 'TOKEN2' ? 'BOOP' : 'BOBOTRUM',
-          logo: spinResult.tokenType === 'TOKEN1' ? aidogeLogo : spinResult.tokenType === 'TOKEN2' ? boopLogo : catchLogo,
-          address: spinResult.tokenAddress || ''
-        } : undefined}
-      />
+
 
 
       
@@ -640,25 +625,6 @@ export default function Home() {
                   ABET: balances.token3
                 } : undefined}
                 onSpinComplete={(result) => {
-                  if (result && result.segment && result.isWin) {
-                    setSpinResult({
-                      id: 'temp-' + Date.now(),
-                      userId: user?.id || null,
-                      symbols: [result.segment],
-                      isWin: result.isWin,
-                      rewardAmount: result.reward || result.rewardAmount || "0",
-                      tokenType: result.segment === 'IARB' ? 'TOKEN1' : result.segment === 'JUICE' ? 'TOKEN2' : result.segment === 'ABET' ? 'TOKEN3' : null,
-                      tokenId: null,
-                      tokenAddress: result.tokenAddress || null,
-                      isAccumulated: true,
-                      claimType: null,
-                      transactionHash: result.transactionHash || null,
-                      timestamp: new Date()
-                    });
-                    setShowWinPopup(true);
-                    // Auto close spin wheel after showing result
-                    setTimeout(() => setShowSpinWheel(false), 1000);
-                  }
                   // Refresh user data to update balances without full page reload
                   queryClient.invalidateQueries({ queryKey: ['/api/user'] });
                   queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
