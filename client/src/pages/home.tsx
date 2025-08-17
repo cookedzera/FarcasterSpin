@@ -78,6 +78,23 @@ export default function Home() {
   const { user, isLoading: userLoading } = useGameState();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showSpinWheel) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [showSpinWheel]);
+
 
 
   
@@ -578,59 +595,69 @@ export default function Home() {
       <AnimatePresence>
         {showSpinWheel && (
           <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-8 p-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowSpinWheel(false)}
+            style={{ touchAction: 'pan-y' }}
           >
-            <motion.div
-              className="rounded-3xl p-6 max-w-md w-full relative overflow-hidden"
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
-              }}
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Top highlight */}
-              <div 
-                className="absolute top-0 left-0 right-0 h-px"
+            <div className="min-h-full flex items-start justify-center p-4 py-8">
+              <motion.div
+                className="rounded-3xl p-6 max-w-md w-full relative my-auto"
                 style={{
-                  background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)'
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
+                  maxHeight: '90vh',
+                  overflowY: 'auto'
                 }}
-              />
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">
-                  ARB<span className="text-blue-400">CASINO</span> - Wheel of Fortune
-                </h3>
-                <button
-                  onClick={() => setShowSpinWheel(false)}
-                  className="text-white/60 hover:text-white transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Top highlight */}
+                <div 
+                  className="absolute top-0 left-0 right-0 h-px"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)'
+                  }}
+                />
+                
+                {/* Fixed header */}
+                <div className="flex items-center justify-between mb-4 sticky top-0 bg-inherit z-10 pb-2">
+                  <h3 className="text-xl font-bold text-white">
+                    ARB<span className="text-blue-400">CASINO</span> - Wheel of Fortune
+                  </h3>
+                  <button
+                    onClick={() => setShowSpinWheel(false)}
+                    className="text-white/60 hover:text-white transition-colors p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
 
-              <SpinWheelSimple 
-                userSpinsUsed={typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0}
-                userId={user?.id || ''}
-                userAccumulated={balances ? {
-                  IARB: balances.token1,
-                  JUICE: balances.token2,
-                  ABET: balances.token3
-                } : undefined}
-                onSpinComplete={(result) => {
-                  // Refresh user data to update balances without full page reload
-                  queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-                  queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
-                }}
-              />
-            </motion.div>
+                {/* Scrollable content */}
+                <div className="space-y-4">
+                  <SpinWheelSimple 
+                    userSpinsUsed={typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0}
+                    userId={user?.id || ''}
+                    userAccumulated={balances ? {
+                      IARB: balances.token1,
+                      JUICE: balances.token2,
+                      ABET: balances.token3
+                    } : undefined}
+                    onSpinComplete={(result) => {
+                      // Refresh user data to update balances without full page reload
+                      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+                      queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
+                    }}
+                  />
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
