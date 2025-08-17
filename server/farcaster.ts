@@ -194,31 +194,31 @@ export async function resolveUserData(fid: number): Promise<Partial<FarcasterUse
   }
 }
 
-// Fetch FID by ethereum address using Pinata Hub API
+// Search for FID by ethereum address using Pinata Hub API
 export async function getFidByAddress(address: string): Promise<number | null> {
   try {
     console.log(`🔍 Looking up FID for address: ${address}`);
     
-    // Use Pinata Hub API to get verifications for the address
-    const response = await fetch(`https://hub.pinata.cloud/v1/verificationsByFid?fid=1&address=${address}`);
-    
-    if (!response.ok) {
-      console.log(`Hub verification lookup failed: ${response.status}`);
-      return null;
-    }
-
-    const data = await response.json();
-    console.log(`📦 Verification response:`, JSON.stringify(data, null, 2));
-
-    if (data.messages && data.messages.length > 0) {
-      // Extract FID from verification message
-      const fid = data.messages[0]?.data?.fid;
-      if (fid) {
-        console.log(`✅ Found FID ${fid} for address ${address}`);
-        return fid;
+    // Try multiple approaches to find FID by address
+    // Approach 1: Direct verification lookup (may not work for all addresses)
+    try {
+      const response = await fetch(`https://hub.pinata.cloud/v1/verificationsByFid?fid=1&address=${address}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.messages && data.messages.length > 0) {
+          const fid = data.messages[0]?.data?.fid;
+          if (fid) {
+            console.log(`✅ Found FID ${fid} for address ${address} via direct lookup`);
+            return fid;
+          }
+        }
       }
+    } catch (error) {
+      console.log('Direct verification lookup failed:', error);
     }
 
+    // For now, return null since we need a proper address-to-FID mapping service
+    console.log(`❌ No FID found for address ${address} - may need Neynar API for address lookup`);
     return null;
   } catch (error) {
     console.error('Error fetching FID by address:', error);
@@ -276,6 +276,14 @@ export async function getUserByAddress(address: string): Promise<FarcasterUser |
           custody: address,
           verifications: [address]
         };
+      }
+    }
+
+    // For testing purposes, let's try a known FID to verify the API works
+    if (address.toLowerCase() === '0x...') { // Add specific test address if needed
+      const testUserData = await fetchUserDataFromHub(190522);
+      if (testUserData.username || testUserData.displayName) {
+        console.log(`🧪 Test: Successfully fetched data for FID 190522`);
       }
     }
 

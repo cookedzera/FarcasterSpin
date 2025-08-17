@@ -325,6 +325,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to verify Hub API is working
+  app.get("/api/farcaster/test/:fid", async (req, res) => {
+    try {
+      const fid = parseInt(req.params.fid);
+      
+      if (isNaN(fid)) {
+        return res.status(400).json({ error: "Invalid FID" });
+      }
+
+      console.log(`🧪 Testing Hub API with FID: ${fid}`);
+      
+      const response = await fetch(`https://hub.pinata.cloud/v1/userDataByFid?fid=${fid}`);
+      
+      if (!response.ok) {
+        return res.status(response.status).json({ error: `Hub API returned ${response.status}` });
+      }
+
+      const data = await response.json();
+      console.log(`📦 Raw Hub API response for FID ${fid}:`, JSON.stringify(data, null, 2));
+      
+      res.json(data);
+    } catch (error) {
+      console.error('Hub API test error:', error);
+      res.status(500).json({ error: "Failed to test Hub API" });
+    }
+  });
+
   // Get Farcaster user by Ethereum address
   app.post("/api/farcaster/user-by-address", async (req, res) => {
     try {
