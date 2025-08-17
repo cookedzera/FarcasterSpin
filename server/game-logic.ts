@@ -10,19 +10,19 @@ export interface SpinResult {
 
 // Token configurations matching the contract
 export const TOKEN_CONFIG = {
-  AIDOGE: {
-    address: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4",
-    symbol: "AIDOGE", 
+  TOKEN1: {
+    address: "",
+    symbol: "TOKEN1", 
     rewardAmount: "1000000000000000000" // 1 token
   },
-  BOOP: {
-    address: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952",
-    symbol: "BOOP",
+  TOKEN2: {
+    address: "",
+    symbol: "TOKEN2",
     rewardAmount: "2000000000000000000" // 2 tokens
   },
-  BOBOTRUM: {
-    address: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19", 
-    symbol: "BOBOTRUM",
+  TOKEN3: {
+    address: "",
+    symbol: "TOKEN3",
     rewardAmount: "500000000000000000" // 0.5 tokens
   }
 } as const;

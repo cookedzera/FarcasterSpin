@@ -10,64 +10,7 @@ import { blockchainService } from "./blockchain";
 import { handleSpinResult } from "./spin-result-route";
 import { registerSpinRoutes } from "./spin-routes";
 
-// ERC20 ABI for token transfers
-const ERC20_ABI = [
-  "function transfer(address to, uint256 amount) external returns (bool)",
-  "function balanceOf(address account) external view returns (uint256)",
-  "function decimals() external view returns (uint8)"
-];
-
-// Optimize token reward function with connection pooling
-const tokenProviderPool = new Map<string, ethers.JsonRpcProvider>();
-const walletPool = new Map<string, ethers.Wallet>();
-
-async function sendTokenReward(recipientAddress: string | null, token: any, amount: number): Promise<string> {
-  if (!recipientAddress) {
-    throw new Error("No recipient address provided");
-  }
-  
-  const PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
-  const RPC_URL = "https://sepolia-rollup.arbitrum.io/rpc";
-  
-  if (!PRIVATE_KEY) {
-    throw new Error("Wallet private key not configured");
-  }
-  
-  try {
-    // Use pooled provider and wallet for better performance
-    let provider = tokenProviderPool.get(RPC_URL);
-    if (!provider) {
-      provider = new ethers.JsonRpcProvider(RPC_URL);
-      tokenProviderPool.set(RPC_URL, provider);
-    }
-    
-    let wallet = walletPool.get(PRIVATE_KEY);
-    if (!wallet) {
-      let privateKey = PRIVATE_KEY.trim();
-      if (!privateKey.startsWith('0x')) {
-        privateKey = '0x' + privateKey;
-      }
-      wallet = new ethers.Wallet(privateKey).connect(provider);
-      walletPool.set(PRIVATE_KEY, wallet);
-    }
-    
-    // Validate address format early
-    if (!ethers.isAddress(recipientAddress)) {
-      throw new Error(`Invalid address format: ${recipientAddress}`);
-    }
-    
-    const tokenContract = new ethers.Contract(token.address, ERC20_ABI, wallet);
-    
-    // Use Promise.allSettled for better error handling
-    const tx = await tokenContract.transfer(recipientAddress, BigInt(amount));
-    const receipt = await tx.wait();
-    
-    return tx.hash;
-  } catch (error) {
-    console.error("Token transfer failed:", error);
-    throw error;
-  }
-}
+// Routes without blockchain dependencies - will be configured fresh
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Register new spin and claim routes
@@ -124,35 +67,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Daily spin limit reached" });
       }
 
-      // Use blockchain service for contract interaction
-      console.log(`🎰 Calling contract spin for user ${userId} at address ${userAddress}`);
+      // Blockchain integration will be implemented when contracts are ready
+      console.log(`🎰 Spin request for user ${userId} - blockchain integration pending`);
       
-      // Use only real contract - no fallback simulation
-      const spinResult = await blockchainService.performSpin(userAddress);
-      console.log(`🎯 Real contract spin result:`, spinResult);
-      
-      // Store the result in database
-      const dbSpinResult = await storage.createSpinResult({
-        userId,
-        symbols: spinResult.symbols,
-        isWin: spinResult.isWin,
-        rewardAmount: spinResult.rewardAmount,
-        tokenType: spinResult.tokenType,
-        tokenId: null,
-        tokenAddress: spinResult.tokenAddress || spinResult.symbols[0],
-        isAccumulated: true,
-        transactionHash: spinResult.transactionHash || null
-      });
-
-      // Add to accumulated rewards if won
-      if (spinResult.isWin && spinResult.tokenType && spinResult.rewardAmount) {
-        console.log(`💰 Adding ${spinResult.rewardAmount} ${spinResult.tokenType} to accumulated balance`);
-        await storage.addAccumulatedReward(userId, spinResult.tokenType, spinResult.rewardAmount);
-      }
-
-      res.json({
-        ...dbSpinResult,
-        transactionHash: spinResult.transactionHash
+      // For now, return a clear message until contracts are deployed
+      res.status(503).json({ 
+        error: "Blockchain integration not yet configured - contracts need to be deployed first",
+        message: "Please deploy contracts first to enable spinning functionality"
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to perform spin" });
@@ -278,12 +199,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const balances = await storage.getUserAccumulatedBalances(userId);
       
-      // Prepare token transfers
-      const tokenAddresses = {
-        TOKEN1: '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4', // AIDOGE
-        TOKEN2: '0x0E1CD6557D2BA59C61c75850E674C2AD73253952', // BOOP
-        TOKEN3: '0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19'  // BOBOTRUM
-      };
+      // Token addresses will be configured when contracts are deployed
+      const tokenAddresses = await blockchainService.getTokenAddresses();
 
       let transactionHash = null;
       let claimStatus = "pending";
@@ -433,14 +350,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Configuration endpoint for frontend
   app.get("/api/config", async (req, res) => {
     try {
+      const contractAddress = await blockchainService.getContractAddress();
+      const tokenAddresses = await blockchainService.getTokenAddresses();
+      const chainId = await blockchainService.getChainId();
+      
       res.json({
-        contractAddress: (process.env.DEPLOYED_CONTRACT_ADDRESS || "").trim(),
-        tokenAddresses: {
-          TOKEN1: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4", // AIDOGE
-          TOKEN2: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952", // BOOP  
-          TOKEN3: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19"  // BOBOTRUM
-        },
-        chainId: 421614 // Arbitrum Sepolia
+        contractAddress,
+        tokenAddresses,
+        chainId
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to get configuration" });
