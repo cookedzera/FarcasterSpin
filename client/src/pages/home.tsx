@@ -114,42 +114,48 @@ const BackgroundMusic = memo(() => {
     };
   }, []);
 
-  const toggleMute = useCallback(() => {
+  const toggleMute = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (isMuted) {
-      audio.volume = 0.12;
-      setIsMuted(false);
+      // Resume playing from current position
+      try {
+        await audio.play();
+        setIsPlaying(true);
+        setIsMuted(false);
+      } catch (error) {
+        console.log('Failed to resume audio:', error);
+      }
     } else {
-      audio.volume = 0;
+      // Pause the audio (keeps current position)
+      audio.pause();
+      setIsPlaying(false);
       setIsMuted(true);
     }
   }, [isMuted]);
 
   return (
     <>
-      {/* Mute button in top left */}
+      {/* Casino-styled mute button in top left */}
       <button
         onClick={toggleMute}
-        className="fixed top-4 left-4 z-50 bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg transition-colors backdrop-blur-sm"
+        className={`fixed top-4 left-4 z-50 w-10 h-10 rounded-md transition-all duration-300 font-mono text-xs font-bold backdrop-blur-sm ${
+          isMuted 
+            ? 'bg-red-900/80 border-2 border-red-400 text-red-400 shadow-lg hover:bg-red-800/90 hover:shadow-red-400/20' 
+            : 'bg-emerald-900/80 border-2 border-emerald-400 text-emerald-400 neon-border hover:bg-emerald-800/90'
+        }`}
+        style={{
+          textShadow: isMuted 
+            ? '0 0 8px rgba(248, 113, 113, 0.8)' 
+            : '0 0 8px rgba(52, 211, 153, 0.8)',
+          boxShadow: isMuted
+            ? '0 0 15px rgba(248, 113, 113, 0.3), inset 0 0 8px rgba(248, 113, 113, 0.1)'
+            : '0 0 15px rgba(52, 211, 153, 0.3), inset 0 0 8px rgba(52, 211, 153, 0.1)'
+        }}
         data-testid="button-mute-music"
       >
-        {isMuted ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 4H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"/>
-            <path d="m15 4 6 6-6 6V4Z"/>
-            <line x1="22" y1="9" x2="16" y2="15"/>
-            <line x1="16" y1="9" x2="22" y2="15"/>
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 4H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"/>
-            <path d="m15 4 6 6-6 6V4Z"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
-        )}
+        {isMuted ? '🔇' : '♪'}
       </button>
       
       <audio
