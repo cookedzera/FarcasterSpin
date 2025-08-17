@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { initializeFarcaster } from '@/services/farcaster-service';
+import { initializeFarcaster, testFarcasterSDK } from '@/services/farcaster-service';
 
 interface FarcasterUser {
   fid: number;
@@ -31,7 +31,14 @@ export function useFarcaster(): UseFarcasterResult {
 
     async function loadFarcasterUser() {
       try {
-        console.log('Loading Farcaster user...');
+        console.log('🚀 Loading Farcaster user...');
+        
+        // First, test SDK availability
+        testFarcasterSDK();
+        
+        // Add a small delay to ensure SDK is loaded
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         const user = await initializeFarcaster();
         
         if (isMounted) {
@@ -39,17 +46,17 @@ export function useFarcaster(): UseFarcasterResult {
           setIsLoading(false);
           
           if (user) {
-            console.log('Farcaster user loaded:', {
+            console.log('✅ Farcaster user loaded successfully:', {
               fid: user.fid,
               displayName: user.displayName,
               username: user.username
             });
           } else {
-            console.log('No Farcaster user found - using fallback');
+            console.log('ℹ️ No Farcaster user found - using fallback');
           }
         }
       } catch (error) {
-        console.error('Error loading Farcaster user:', error);
+        console.error('💥 Error loading Farcaster user:', error);
         if (isMounted) {
           setFarcasterUser(null);
           setIsLoading(false);
