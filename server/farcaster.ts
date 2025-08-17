@@ -86,12 +86,76 @@ export function createFarcasterAuthMiddleware(domain: string) {
   };
 }
 
+// Fetch user data from Farcaster Hub API (free, no API key needed)
+export async function fetchUserDataFromHub(fid: number): Promise<Partial<FarcasterUser>> {
+  try {
+    console.log(`🔍 Fetching Farcaster profile for FID: ${fid}`);
+    
+    // Use official Farcaster Hub API endpoint
+    const response = await fetch(`https://nemes.farcaster.xyz:2281/v1/userDataByFid?fid=${fid}`);
+    
+    if (!response.ok) {
+      console.log(`Hub API response not ok: ${response.status}`);
+      return {};
+    }
+
+    const data = await response.json();
+    console.log(`📦 Raw Hub API response:`, JSON.stringify(data, null, 2));
+
+    if (!data.messages || data.messages.length === 0) {
+      console.log('No user data messages found');
+      return {};
+    }
+
+    // Parse user data from Hub API response
+    const userData: Partial<FarcasterUser> = { fid };
+    
+    for (const message of data.messages) {
+      const userDataBody = message.data?.userDataBody;
+      if (!userDataBody) continue;
+
+      switch (userDataBody.type) {
+        case 'USER_DATA_TYPE_USERNAME':
+        case 6: // Username type
+          userData.username = userDataBody.value;
+          break;
+        case 'USER_DATA_TYPE_DISPLAY':
+        case 2: // Display name type
+          userData.displayName = userDataBody.value;
+          break;
+        case 'USER_DATA_TYPE_BIO':
+        case 3: // Bio type
+          userData.bio = userDataBody.value;
+          break;
+        case 'USER_DATA_TYPE_PFP':
+        case 1: // Profile picture type
+          userData.pfpUrl = userDataBody.value;
+          break;
+      }
+    }
+
+    console.log(`✅ Parsed user data:`, userData);
+    return userData;
+  } catch (error) {
+    console.error('Error fetching from Farcaster Hub API:', error);
+    return {};
+  }
+}
+
 // Helper function to resolve additional user data from external APIs
 export async function resolveUserData(fid: number): Promise<Partial<FarcasterUser>> {
   try {
-    // Try to fetch from Neynar API first
+    // First try the official Farcaster Hub API (free, no API key needed)
+    const hubData = await fetchUserDataFromHub(fid);
+    if (hubData.username || hubData.displayName) {
+      console.log(`📝 Successfully fetched from Hub API for FID ${fid}`);
+      return hubData;
+    }
+
+    // Fallback to Neynar API if available
     if (neynarClient) {
       try {
+        console.log(`🔄 Trying Neynar API for FID ${fid}`);
         const { users } = await neynarClient.fetchBulkUsers({ fids: [fid] });
         if (users && users.length > 0) {
           const user = users[0];
@@ -110,44 +174,56 @@ export async function resolveUserData(fid: number): Promise<Partial<FarcasterUse
       }
     }
 
-    // Fallback to Farcaster Hub API (free alternative)
-    try {
-      const response = await fetch(`https://api.farcaster.xyz/v2/user-by-fid?fid=${fid}`);
-      if (response.ok) {
-        const data = await response.json();
-        return {
-          fid: data.fid,
-          username: data.username,
-          displayName: data.display_name,
-          bio: data.profile?.bio?.text || '',
-          pfpUrl: data.pfp_url,
-          custody: data.custody_address,
-          verifications: data.verifications || []
-        };
-      }
-    } catch (hubError) {
-      console.log('Farcaster Hub API failed:', hubError);
-    }
-
-    // Final fallback to mock data
-    return {
-      username: `farcaster-${fid}`,
-      displayName: `FC User ${fid}`,
-      bio: 'Farcaster community member',
-      pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${fid}`
-    };
+    // If no real data found, return minimal data (not mock)
+    console.log(`⚠️ No profile data found for FID ${fid}`);
+    return { fid };
   } catch (error) {
     console.error('Error resolving user data:', error);
-    return {};
+    return { fid };
+  }
+}
+
+// Fetch FID by ethereum address using Hub API
+export async function getFidByAddress(address: string): Promise<number | null> {
+  try {
+    console.log(`🔍 Looking up FID for address: ${address}`);
+    
+    // Use Hub API to get verifications for the address
+    const response = await fetch(`https://nemes.farcaster.xyz:2281/v1/verificationsByFid?fid=1&address=${address}`);
+    
+    if (!response.ok) {
+      console.log(`Hub verification lookup failed: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    console.log(`📦 Verification response:`, JSON.stringify(data, null, 2));
+
+    if (data.messages && data.messages.length > 0) {
+      // Extract FID from verification message
+      const fid = data.messages[0]?.data?.fid;
+      if (fid) {
+        console.log(`✅ Found FID ${fid} for address ${address}`);
+        return fid;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error fetching FID by address:', error);
+    return null;
   }
 }
 
 // Fetch user by ethereum address
 export async function getUserByAddress(address: string): Promise<FarcasterUser | null> {
   try {
-    // Try Neynar API first
+    console.log(`🔍 Fetching Farcaster user for address: ${address}`);
+
+    // Try Neynar API first if available
     if (neynarClient) {
       try {
+        console.log(`🔄 Trying Neynar API for address ${address}`);
         const response = await neynarClient.fetchBulkUsersByEthOrSolAddress({
           addresses: [address]
         });
@@ -156,6 +232,7 @@ export async function getUserByAddress(address: string): Promise<FarcasterUser |
           const addressData = response[address.toLowerCase()];
           if (addressData && addressData.length > 0) {
             const user = addressData[0];
+            console.log(`✅ Found user via Neynar for address ${address}`);
             return {
               fid: user.fid,
               username: user.username,
@@ -172,13 +249,34 @@ export async function getUserByAddress(address: string): Promise<FarcasterUser |
       }
     }
 
-    // Fallback: Try direct hub lookup
+    // Try to find FID using Hub API verification lookup
+    const fid = await getFidByAddress(address);
+    if (fid) {
+      // Get user data using the FID
+      const userData = await fetchUserDataFromHub(fid);
+      if (userData.username || userData.displayName) {
+        console.log(`✅ Found user via Hub API for address ${address}`);
+        return {
+          fid,
+          username: userData.username || '',
+          displayName: userData.displayName || '',
+          bio: userData.bio || '',
+          pfpUrl: userData.pfpUrl || '',
+          custody: address,
+          verifications: [address]
+        };
+      }
+    }
+
+    // Fallback to Searchcaster API (free alternative)
     try {
+      console.log(`🔄 Trying Searchcaster for address ${address}`);
       const response = await fetch(`https://searchcaster.xyz/api/profiles?connected_address=${address}`);
       if (response.ok) {
         const data = await response.json();
         if (data && data.length > 0) {
           const user = data[0];
+          console.log(`✅ Found user via Searchcaster for address ${address}`);
           return {
             fid: user.body?.fid || 0,
             username: user.body?.username || '',
@@ -194,6 +292,7 @@ export async function getUserByAddress(address: string): Promise<FarcasterUser |
       console.log('Searchcaster lookup failed:', searchError);
     }
 
+    console.log(`❌ No Farcaster profile found for address ${address}`);
     return null;
   } catch (error) {
     console.error('Error fetching user by address:', error);

@@ -13,7 +13,16 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
-✅ **Typewriter Brand Animation (Latest)**: Enhanced header with dynamic typewriter effect
+✅ **Free Farcaster Hub API Integration (Latest)**: Implemented automatic Farcaster user detection using free APIs
+  - Integrated official Farcaster Hub API (nemes.farcaster.xyz) for free profile data access without API keys
+  - Enhanced user lookup by address with comprehensive fallback system (Hub API → Neynar → Searchcaster)
+  - Added real-time profile detection with visual loading states and status indicators
+  - Improved user experience with automatic profile detection on wallet connection
+  - Distinguished between real Farcaster users and wallet-only users in the UI
+  - Added detailed logging for debugging profile lookup process
+  - No external API keys required - uses completely free Farcaster infrastructure
+
+✅ **Typewriter Brand Animation**: Enhanced header with dynamic typewriter effect
   - Replaced "ARBCASINO" with "ARB" + typewriter animation alternating between "SPIN" and "GAMES"
   - Created smooth, slow typewriter animation with blinking cursor and character-by-character typing/deleting
   - Added bold underline only under the animated text (SPIN/GAMES) as requested
