@@ -159,38 +159,38 @@ export class BlockchainService {
           const isWin = parsed.args.isWin;
           const rewardAmount = parsed.args.rewardAmount.toString();
 
-          // Map token address to type (handle any token address from contract)
+          // Map token address to type
           let tokenType = "";
           if (tokenAddress === TOKEN_ADDRESSES.TOKEN1) tokenType = "TOKEN1";
           else if (tokenAddress === TOKEN_ADDRESSES.TOKEN2) tokenType = "TOKEN2";
           else if (tokenAddress === TOKEN_ADDRESSES.TOKEN3) tokenType = "TOKEN3";
-          else {
-            // Handle dynamic token addresses from contract
-            tokenType = "TOKEN2"; // Default to JUICE for unknown tokens
+          else if (tokenAddress === "0x0000000000000000000000000000000000000000") {
+            tokenType = "BUST";
           }
 
           return {
-            symbols: [tokenAddress, tokenAddress, tokenAddress], // Simulate 3 matching symbols for win
+            symbols: [segment, segment, segment],
             isWin,
             rewardAmount,
             tokenType,
-            tokenAddress,
+            tokenAddress: tokenAddress !== "0x0000000000000000000000000000000000000000" ? tokenAddress : undefined,
             transactionHash: receipt.hash
           };
         }
       }
 
-      // Default response if no event found
+      // If no event found but transaction successful, return neutral result
       return {
-        symbols: ["", "", ""],
+        symbols: ["BUST", "BUST", "BUST"],
         isWin: false,
         rewardAmount: "0",
-        tokenType: "",
+        tokenType: "BUST",
         transactionHash: receipt.hash
       };
 
     } catch (error: any) {
       console.error("Contract spin error:", error);
+      console.log(`Contract address being used: ${this.contractAddress}`);
       throw new Error(`Spin failed: ${error.message}`);
     }
   }
