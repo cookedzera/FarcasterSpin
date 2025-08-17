@@ -626,16 +626,27 @@ export default function Home() {
                   }}
                 />
                 
-                {/* Fixed header */}
-                <div className="flex items-center justify-between mb-4 sticky top-0 bg-inherit z-10 pb-2">
-                  <h3 className="text-xl font-bold text-white">
-                    ARB<span className="text-blue-400">CASINO</span> - Wheel of Fortune
-                  </h3>
+                {/* Modern Fixed Header */}
+                <div className="flex items-center justify-between mb-6 sticky top-0 z-10 pb-4 backdrop-blur-md"
+                     style={{
+                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                       borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                     }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">🎰</span>
+                    </div>
+                    <h3 className="text-xl font-bold">
+                      <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">ARB</span>
+                      <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">CASINO</span>
+                      <span className="text-white/60 text-base ml-2 font-normal">- Wheel of Fortune</span>
+                    </h3>
+                  </div>
                   <button
                     onClick={() => setShowSpinWheel(false)}
-                    className="text-white/60 hover:text-white transition-colors p-1"
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 group"
                   >
-                    ✕
+                    <span className="text-white/80 group-hover:text-white text-lg">✕</span>
                   </button>
                 </div>
 
