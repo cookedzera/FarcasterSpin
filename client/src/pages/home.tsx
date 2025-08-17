@@ -72,26 +72,35 @@ const BackgroundMusic = memo(() => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [audioInitialized, setAudioInitialized] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || audioInitialized) return;
 
     // Set reduced volume (12% of original)
     audio.volume = 0.12;
     audio.loop = true;
+    setAudioInitialized(true);
+
+    // Add event listeners to track audio state
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
 
     // Auto-play attempt with user interaction fallback
     const playAudio = async () => {
       try {
         await audio.play();
-        setIsPlaying(true);
       } catch (error) {
         // Auto-play failed, wait for user interaction
         const handleUserInteraction = async () => {
           try {
-            await audio.play();
-            setIsPlaying(true);
+            if (!isMuted) {
+              await audio.play();
+            }
             document.removeEventListener('click', handleUserInteraction);
             document.removeEventListener('touchstart', handleUserInteraction);
           } catch (e) {
@@ -108,32 +117,32 @@ const BackgroundMusic = memo(() => {
 
     return () => {
       if (audio) {
+        audio.removeEventListener('play', handlePlay);
+        audio.removeEventListener('pause', handlePause);
         audio.pause();
         audio.currentTime = 0;
       }
     };
-  }, []);
+  }, [audioInitialized, isMuted]);
 
   const toggleMute = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (isMuted) {
-      // Resume playing from current position
+    if (audio.paused) {
+      // Resume playing
       try {
         await audio.play();
-        setIsPlaying(true);
         setIsMuted(false);
       } catch (error) {
         console.log('Failed to resume audio:', error);
       }
     } else {
-      // Pause the audio (keeps current position)
+      // Pause the audio
       audio.pause();
-      setIsPlaying(false);
       setIsMuted(true);
     }
-  }, [isMuted]);
+  }, []);
 
   return (
     <>
@@ -141,21 +150,21 @@ const BackgroundMusic = memo(() => {
       <button
         onClick={toggleMute}
         className={`fixed top-4 left-4 z-50 w-10 h-10 rounded-md transition-all duration-300 font-mono text-xs font-bold backdrop-blur-sm ${
-          isMuted 
+          !isPlaying 
             ? 'bg-red-900/80 border-2 border-red-400 text-red-400 shadow-lg hover:bg-red-800/90 hover:shadow-red-400/20' 
             : 'bg-emerald-900/80 border-2 border-emerald-400 text-emerald-400 neon-border hover:bg-emerald-800/90'
         }`}
         style={{
-          textShadow: isMuted 
+          textShadow: !isPlaying 
             ? '0 0 8px rgba(248, 113, 113, 0.8)' 
             : '0 0 8px rgba(52, 211, 153, 0.8)',
-          boxShadow: isMuted
+          boxShadow: !isPlaying
             ? '0 0 15px rgba(248, 113, 113, 0.3), inset 0 0 8px rgba(248, 113, 113, 0.1)'
             : '0 0 15px rgba(52, 211, 153, 0.3), inset 0 0 8px rgba(52, 211, 153, 0.1)'
         }}
         data-testid="button-mute-music"
       >
-        {isMuted ? '🔇' : '♪'}
+        {!isPlaying ? '🔇' : '♪'}
       </button>
       
       <audio
