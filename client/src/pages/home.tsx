@@ -13,6 +13,7 @@ import { type GameStats, type SpinResult } from "@shared/schema";
 import aidogeLogo from "@assets/aidoge_1755435810322.png";
 import boopLogo from "@assets/boop_1755435810327.png";
 import arbLogo from "@assets/image_1755435826976.png";
+const backgroundMusic = "/assets/background-music.mp3";
 
 // Completely rebuilt audio system - single global instance with proper state management
 class AudioManager {
@@ -208,7 +209,7 @@ const BackgroundMusic = memo(() => {
         preload="auto"
         className="hidden"
       >
-        {/* Background music source removed */}
+        <source src={backgroundMusic} type="audio/mpeg" />
       </audio>
     </>
   );
