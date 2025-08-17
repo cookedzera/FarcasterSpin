@@ -13,7 +13,17 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
-✅ **Farcaster Hub API Integration (Latest)**: Implemented automatic Farcaster user detection using working free Hub API
+✅ **Modern Reward System (Latest)**: Completely redesigned winning popup with proper server-side randomness
+  - Created sleek, modern reward notification that appears above the wheel instead of overlaying it
+  - Added animated popup with gradient backgrounds, token icons, and spring animations
+  - Reward generation uses proper server-side randomness completely separate from wheel visual position
+  - Enhanced notification shows token icons (AIDOGE, BOOP, ARB) with professional casino-style design
+  - Added animated progress indicators showing current spin progress (1/3, 2/3, 3/3)
+  - Removed duplicate toast notifications in favor of comprehensive visual popup system
+  - Fixed user concern about randomness - system properly uses weighted probabilities from server, not wheel position
+  - Notification appears at top of screen with smooth spring animations and auto-dismisses after 4 seconds
+
+✅ **Farcaster Hub API Integration**: Implemented automatic Farcaster user detection using working free Hub API
   - Integrated hub.pinata.cloud Hub API for free profile data access without API keys
   - Enhanced user lookup with proper message parsing for display names, usernames, bios, and profile pictures  
   - Added real-time profile detection with visual loading states and status indicators

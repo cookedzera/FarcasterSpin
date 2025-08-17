@@ -272,14 +272,8 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         
         setResult(finalResult);
         
-        // Show toast notification AFTER wheel animation with correct segment name
-        toast({
-          title: lastSpinResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time",
-          description: lastSpinResult.isWin 
-            ? `You won ${(parseFloat(lastSpinResult.rewardAmount) / 1e18).toFixed(1)} ${displaySegmentName} tokens!` 
-            : `You landed on ${displaySegmentName}. ${lastSpinResult.spinsRemaining} spins remaining today.`,
-          variant: lastSpinResult.isWin ? "default" : "destructive",
-        });
+        // Modern popup notification replaces toast system
+        // The visual reward popup provides all the feedback we need
         
         // Update session spin count for server spins
         setSessionSpinsUsed(prev => prev + 1);
@@ -372,6 +366,117 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
   return (
     <div className="flex flex-col items-center space-y-6">
+      {/* Modern Reward Notification - Appears above wheel */}
+      <AnimatePresence>
+        {result && (
+          <motion.div
+            initial={{ y: -100, opacity: 0, scale: 0.9 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -100, opacity: 0, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-80 max-w-[90vw]"
+          >
+            <div className={`${
+              result.isWin 
+                ? 'bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500' 
+                : 'bg-gradient-to-r from-red-500 via-pink-500 to-red-600'
+            } rounded-2xl p-6 shadow-2xl border-2 ${
+              result.isWin ? 'border-emerald-300' : 'border-red-300'
+            } backdrop-blur-sm relative overflow-hidden`}>
+              
+              {/* Background Pattern */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 transform translate-x-16 -translate-y-16"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/10 transform -translate-x-12 translate-y-12"></div>
+              </div>
+              
+              {/* Content */}
+              <div className="relative z-10 text-center">
+                <div className="text-5xl mb-3 animate-bounce">
+                  {result.isWin ? '🎉' : '💀'}
+                </div>
+                
+                <div className="text-white font-bold text-2xl mb-2">
+                  {result.isWin ? 'WINNER!' : 'BUST!'}
+                </div>
+                
+                <div className="text-white/90 text-lg font-medium mb-3 flex items-center justify-center space-x-2">
+                  <span>You landed on</span>
+                  <div className="flex items-center space-x-1 font-bold text-yellow-200">
+                    {result.segment === 'AIDOGE' && (
+                      <img src={aidogeLogo} alt="AIDOGE" className="w-6 h-6 rounded-full" />
+                    )}
+                    {result.segment === 'BOOP' && (
+                      <img src={boopLogo} alt="BOOP" className="w-6 h-6 rounded-full" />
+                    )}
+                    {result.segment === 'ARB' && (
+                      <img src={arbLogo} alt="ARB" className="w-6 h-6 rounded-full" />
+                    )}
+                    <span>{result.segment}</span>
+                  </div>
+                </div>
+                
+                {result.isWin && result.rewardAmount && result.rewardAmount !== '0' && (
+                  <div className="bg-white/20 rounded-xl p-3 mb-3">
+                    <div className="text-yellow-300 font-bold text-xl">
+                      +{(parseFloat(result.rewardAmount) / 1e18).toFixed(1)} tokens
+                    </div>
+                    <div className="text-white/80 text-sm">
+                      Added to your balance
+                    </div>
+                  </div>
+                )}
+                
+                {!result.isWin && (
+                  <div className="bg-white/20 rounded-xl p-3 mb-3">
+                    <div className="text-white/90 text-base">
+                      Better luck next time!
+                    </div>
+                    <div className="text-white/70 text-sm">
+                      You still have spins remaining
+                    </div>
+                  </div>
+                )}
+                
+                {/* Progress indicator */}
+                <div className="flex justify-center space-x-1 mt-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        i < userSpinsUsed 
+                          ? (result.isWin ? 'bg-yellow-300' : 'bg-red-300')
+                          : 'bg-white/40'
+                      }`}
+                    />
+                  ))}
+                </div>
+                
+                <div className="text-white/70 text-sm mt-2">
+                  Spin {userSpinsUsed}/3 completed
+                </div>
+              </div>
+              
+              {/* Animated border effect for wins */}
+              {result.isWin && (
+                <motion.div
+                  className="absolute inset-0 rounded-2xl border-2 border-yellow-400"
+                  animate={{ 
+                    boxShadow: [
+                      '0 0 0 0 rgba(251, 191, 36, 0.4)',
+                      '0 0 0 10px rgba(251, 191, 36, 0)',
+                      '0 0 0 0 rgba(251, 191, 36, 0)'
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Wheel Container */}
       <div className="relative">
         {/* Pointer */}
@@ -379,40 +484,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           <div className="w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow-lg"></div>
         </div>
         
-        {/* Result Overlay - Mobile-friendly winning display */}
-        {result && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="absolute inset-0 flex items-center justify-center z-30"
-          >
-            <div className={`${
-              result.isWin 
-                ? 'bg-gradient-to-br from-green-500/90 to-emerald-600/90 border-green-400' 
-                : 'bg-gradient-to-br from-red-500/90 to-red-600/90 border-red-400'
-            } backdrop-blur-sm rounded-full w-48 h-48 border-4 flex flex-col items-center justify-center text-center p-4 shadow-2xl`}>
-              <div className="text-4xl mb-2">
-                {result.isWin ? '🎉' : '💀'}
-              </div>
-              <div className="text-white font-bold text-lg mb-1">
-                {result.segment}
-              </div>
-              <div className="text-white/90 text-sm">
-                {result.isWin ? 'Winner!' : 'Try Again!'}
-              </div>
-              {result.isWin && result.rewardAmount && result.rewardAmount !== '0' && (
-                <div className="text-yellow-300 font-bold text-xs mt-2">
-                  +{(parseFloat(result.rewardAmount) / 1e18).toFixed(1)} tokens
-                </div>
-              )}
-              {result.isWin && (
-                <div className="text-green-200 text-xs mt-1">
-                  Added to balance!
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
+
         
         {/* Spinning Wheel */}
         <motion.div
