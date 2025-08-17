@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useGameState } from "@/hooks/use-game-state";
-import { useFarcasterAuth } from "@/hooks/use-farcaster-auth";
+import { useFarcaster } from "@/hooks/use-farcaster";
 
 import { Trophy, Zap, Target, Star, Award, Coins, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -9,8 +9,8 @@ import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 
 
 export default function Profile() {
-  const { user, farcasterUser, isFarcasterAuthenticated, isLoading: userLoading } = useGameState();
-  const { user: authUser, walletConnected } = useFarcasterAuth();
+  const { user, isLoading: userLoading } = useGameState();
+  const { user: farcasterUser, displayName, username, avatarUrl, isAuthenticated: isFarcasterAuthenticated, loading: farcasterLoading } = useFarcaster();
 
   // Render background immediately, show loading state for content only
   const shouldShowContent = !userLoading && user;
@@ -130,14 +130,14 @@ export default function Profile() {
             whileHover={{ scale: 1.05, y: -2 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            {isFarcasterAuthenticated && farcasterUser?.pfpUrl ? (
+            {isFarcasterAuthenticated && avatarUrl ? (
               <img 
-                src={farcasterUser.pfpUrl} 
+                src={avatarUrl} 
                 alt="Profile" 
                 className="w-full h-full object-cover"
               />
             ) : (
-              user?.username?.charAt(0) || 'P'
+              displayName?.charAt(0) || username?.charAt(0) || user?.username?.charAt(0) || 'P'
             )}
             <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-3 border-gray-900">
               <span className="text-white text-xs font-bold">{level}</span>
@@ -150,14 +150,14 @@ export default function Profile() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
-              {isFarcasterAuthenticated && farcasterUser 
-                ? (farcasterUser.displayName || farcasterUser.username)
+              {isFarcasterAuthenticated 
+                ? (displayName || username || user?.username)
                 : user?.username
               }
             </motion.h1>
-            {isFarcasterAuthenticated && farcasterUser && (
+            {isFarcasterAuthenticated && (
               <Badge className="mb-2 bg-purple-500/20 text-purple-400 border-purple-400/30 text-xs">
-                Farcaster Verified
+                @{username}
               </Badge>
             )}
             <div className="w-16 h-0.5 bg-blue-400 mx-auto mb-1 rounded-full"></div>
