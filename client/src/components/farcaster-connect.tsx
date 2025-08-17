@@ -33,55 +33,20 @@ export function FarcasterConnect() {
         setIsLoading(true)
         console.log(`🔍 Starting automatic Farcaster detection for: ${address}`)
         
-        // Try to get real Farcaster user data using the improved Hub API
-        try {
-          const response = await fetch('/api/farcaster/user-by-address', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ address })
-          })
-          
-          if (response.ok) {
-            const userData = await response.json()
-            console.log(`✅ Found Farcaster profile:`, userData)
-            setUser(userData)
-            localStorage.setItem('farcaster_user', JSON.stringify(userData))
-          } else if (response.status === 404) {
-            // No Farcaster profile found - create wallet-only user
-            console.log(`❌ No Farcaster profile found for ${address}`)
-            const walletOnlyUser = {
-              fid: 0, // No FID since no Farcaster profile
-              username: `wallet-${address.slice(-4)}`,
-              displayName: `Wallet User`,
-              bio: 'Wallet connected - no Farcaster profile detected',
-              pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`,
-              custody: address,
-              verifications: [address],
-              isWalletOnly: true
-            }
-            setUser(walletOnlyUser)
-            localStorage.setItem('farcaster_user', JSON.stringify(walletOnlyUser))
-          } else {
-            throw new Error(`API responded with ${response.status}`)
-          }
-        } catch (apiError) {
-          console.error('Farcaster API lookup failed:', apiError)
-          // Create fallback user data when API fails
-          const fallbackUser = {
-            fid: 0,
-            username: `wallet-${address.slice(-4)}`,
-            displayName: `Wallet User`,
-            bio: 'Wallet connected - Farcaster lookup temporarily unavailable',
-            pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`,
-            custody: address,
-            verifications: [address],
-            isWalletOnly: true
-          }
-          setUser(fallbackUser)
-          localStorage.setItem('farcaster_user', JSON.stringify(fallbackUser))
+        // Create wallet-only user (Farcaster detection temporarily disabled)
+        console.log(`📱 Creating wallet-only user for ${address}`)
+        const walletUser = {
+          fid: 0, // No FID since automatic detection is disabled
+          username: `wallet-${address.slice(-4)}`,
+          displayName: `Wallet User`,
+          bio: 'Wallet connected - automatic Farcaster detection disabled',
+          pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`,
+          custody: address,
+          verifications: [address],
+          isWalletOnly: true
         }
+        setUser(walletUser)
+        localStorage.setItem('farcaster_user', JSON.stringify(walletUser))
       } catch (error) {
         console.error('Failed to fetch user data:', error)
       } finally {

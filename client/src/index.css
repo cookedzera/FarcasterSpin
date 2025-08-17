@@ -65,6 +65,19 @@
     box-sizing: border-box;
   }
   
+  /* Remove all scrollbars */
+  html, body {
+    overflow: hidden;
+    height: 100vh;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+  
   /* Global performance optimizations */
   *,
   *::before,
