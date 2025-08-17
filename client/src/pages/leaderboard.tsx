@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo, memo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trophy, Medal, Award, Coins, Zap, Target } from "lucide-react";
+import { Trophy, Medal, Award, Coins, Zap, Target, Crown, Star, Flame } from "lucide-react";
 import { Link } from "wouter";
+import Navigation from "@/components/navigation";
 
 interface LeaderboardEntry {
   id: string;
@@ -32,6 +34,49 @@ interface WeeklyEntry {
   weeklyRewards: string;
 }
 
+// Floating particles component matching homepage style
+const FloatingParticles = memo(() => {
+  const particles = useMemo(() => 
+    Array.from({ length: 4 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: 4 + Math.random() * 2,
+      delay: Math.random() * 3
+    })), []
+  );
+  
+  return (
+    <div className="fixed inset-0 pointer-events-none will-change-transform">
+      {particles.map((particle) => (
+        <div
+          key={particle.id}
+          className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-20"
+          style={{
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+            animation: `float ${particle.duration}s infinite ${particle.delay}s ease-out`,
+            transform: 'translateZ(0)'
+          }}
+        />
+      ))}
+    </div>
+  );
+});
+
+// Memoized styles matching homepage
+const BACKGROUND_STYLE = {
+  background: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 50%, #2c2c2e 100%)'
+};
+
+const NOISE_STYLE = {
+  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+};
+
+const RADIAL_STYLE = {
+  background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
+};
+
 export default function Leaderboard() {
   const [category, setCategory] = useState<'wins' | 'spins' | 'rewards'>('wins');
 
@@ -57,10 +102,25 @@ export default function Leaderboard() {
 
   const getRankIcon = (position: number) => {
     switch (position) {
-      case 1: return <Trophy className="w-6 h-6 text-yellow-500" />;
-      case 2: return <Medal className="w-6 h-6 text-gray-400" />;
-      case 3: return <Award className="w-6 h-6 text-amber-600" />;
-      default: return <div className="w-6 h-6 flex items-center justify-center text-sm font-bold text-muted-foreground">#{position}</div>;
+      case 1: return (
+        <div className="relative">
+          <Crown className="w-7 h-7 text-yellow-400" />
+          <motion.div 
+            className="absolute inset-0"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Crown className="w-7 h-7 text-yellow-300 opacity-50" />
+          </motion.div>
+        </div>
+      );
+      case 2: return <Medal className="w-6 h-6 text-gray-300" />;
+      case 3: return <Award className="w-6 h-6 text-amber-500" />;
+      default: return (
+        <div className="w-7 h-7 flex items-center justify-center text-sm font-bold text-white/70 bg-gray-700/50 rounded-full border border-gray-600/50">
+          #{position}
+        </div>
+      );
     }
   };
 
@@ -88,161 +148,142 @@ export default function Leaderboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="animate-pulse space-y-4">
-            {[...Array(10)].map((_, i) => (
-              <div key={i} className="bg-gray-800/50 rounded-lg h-16" />
-            ))}
+      <div className="min-h-screen relative overflow-hidden overscroll-contain gpu-accelerated" style={BACKGROUND_STYLE}>
+        <FloatingParticles />
+        <div className="absolute inset-0 opacity-[0.03]" style={NOISE_STYLE} />
+        <div className="absolute inset-0" style={RADIAL_STYLE} />
+        
+        <div className="relative z-10 min-h-screen pb-20 px-4">
+          <div className="max-w-md mx-auto pt-8">
+            <div className="animate-pulse space-y-4">
+              {[...Array(10)].map((_, i) => (
+                <motion.div 
+                  key={i} 
+                  className="bg-gray-800/30 rounded-xl h-16 backdrop-blur-sm"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                />
+              ))}
+            </div>
           </div>
         </div>
+        <Navigation />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-white flex items-center justify-center gap-3">
-            <Trophy className="w-10 h-10 text-yellow-500" />
-            ArbCasino Leaderboard
-          </h1>
-          <p className="text-blue-200">
-            Top players competing for crypto rewards on Arbitrum
-          </p>
-        </div>
+    <div className="min-h-screen relative overflow-hidden overscroll-contain gpu-accelerated" style={BACKGROUND_STYLE}>
+      <FloatingParticles />
+      <div className="absolute inset-0 opacity-[0.03]" style={NOISE_STYLE} />
+      <div className="absolute inset-0" style={RADIAL_STYLE} />
+      
+      <div className="relative z-10 min-h-screen pb-20 px-4">
+        <div className="max-w-md mx-auto space-y-6">
+          {/* Header */}
+          <motion.div 
+            className="text-center space-y-3 pt-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="flex items-center justify-center gap-3">
+              <motion.div
+                animate={{ 
+                  rotate: [0, 5, -5, 0],
+                  scale: [1, 1.05, 1]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <Trophy className="w-8 h-8 text-yellow-400" />
+              </motion.div>
+              <h1 className="text-2xl font-bold text-white font-pixel">
+                LEADERBOARD
+              </h1>
+            </div>
+            <p className="text-gray-400 text-sm">
+              Top players on Arbitrum Sepolia
+            </p>
+          </motion.div>
 
-        <Tabs value={category} onValueChange={(value) => setCategory(value as any)} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4 bg-black/20 border-blue-500/20">
-            <TabsTrigger value="wins" className="data-[state=active]:bg-blue-600">
-              <Target className="w-4 h-4 mr-2" />
-              Most Wins
-            </TabsTrigger>
-            <TabsTrigger value="spins" className="data-[state=active]:bg-purple-600">
-              <Zap className="w-4 h-4 mr-2" />
-              Most Spins  
-            </TabsTrigger>
-            <TabsTrigger value="rewards" className="data-[state=active]:bg-green-600">
-              <Coins className="w-4 h-4 mr-2" />
-              Biggest Rewards
-            </TabsTrigger>
-            <TabsTrigger value="weekly" className="data-[state=active]:bg-orange-600">
-              <Trophy className="w-4 h-4 mr-2" />
-              This Week
-            </TabsTrigger>
-          </TabsList>
+          {/* Tabs for categories */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Tabs value={category} onValueChange={(value) => setCategory(value as any)} className="space-y-4">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-1">
+                <TabsTrigger 
+                  value="wins" 
+                  className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 text-gray-400 rounded-lg transition-all duration-200"
+                >
+                  <Target className="w-4 h-4 mr-1" />
+                  Wins
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="spins" 
+                  className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 text-gray-400 rounded-lg transition-all duration-200"
+                >
+                  <Zap className="w-4 h-4 mr-1" />
+                  Spins
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="rewards" 
+                  className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400 text-gray-400 rounded-lg transition-all duration-200"
+                >
+                  <Coins className="w-4 h-4 mr-1" />
+                  Rewards
+                </TabsTrigger>
+              </TabsList>
 
-          {/* All-Time Leaderboards */}
-          <TabsContent value="wins" className="space-y-4">
-            <LeaderboardCard 
-              title={getCategoryLabel(category)}
-              data={leaderboard || []}
-              category={category}
-              getRankIcon={getRankIcon}
-              getCategoryValue={getCategoryValue}
-              formatAddress={formatAddress}
-            />
-          </TabsContent>
+              {/* All-Time Leaderboards */}
+              <AnimatePresence mode="wait">
+                <TabsContent value="wins" className="space-y-3">
+                  <LeaderboardList 
+                    title={getCategoryLabel(category)}
+                    data={leaderboard || []}
+                    category={category}
+                    getRankIcon={getRankIcon}
+                    getCategoryValue={getCategoryValue}
+                    formatAddress={formatAddress}
+                  />
+                </TabsContent>
 
-          <TabsContent value="spins" className="space-y-4">
-            <LeaderboardCard 
-              title={getCategoryLabel(category)}
-              data={leaderboard || []}
-              category={category}
-              getRankIcon={getRankIcon}
-              getCategoryValue={getCategoryValue}
-              formatAddress={formatAddress}
-            />
-          </TabsContent>
+                <TabsContent value="spins" className="space-y-3">
+                  <LeaderboardList 
+                    title={getCategoryLabel(category)}
+                    data={leaderboard || []}
+                    category={category}
+                    getRankIcon={getRankIcon}
+                    getCategoryValue={getCategoryValue}
+                    formatAddress={formatAddress}
+                  />
+                </TabsContent>
 
-          <TabsContent value="rewards" className="space-y-4">
-            <LeaderboardCard 
-              title={getCategoryLabel(category)}
-              data={leaderboard || []}
-              category={category}
-              getRankIcon={getRankIcon}
-              getCategoryValue={getCategoryValue}
-              formatAddress={formatAddress}
-            />
-          </TabsContent>
-
-          {/* Weekly Leaderboard */}
-          <TabsContent value="weekly" className="space-y-4">
-            <Card className="bg-black/40 border-orange-500/30 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-orange-500" />
-                  Weekly Champions
-                </CardTitle>
-                <CardDescription className="text-blue-200">
-                  Top performers this week • Resets every Monday
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {weeklyLoading ? (
-                  <div className="animate-pulse space-y-3">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="bg-gray-800/50 rounded-lg h-12" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {weeklyLeaderboard?.map((entry, index) => (
-                      <div 
-                        key={entry.userId} 
-                        className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-900/20 to-red-900/20 rounded-lg border border-orange-500/20 hover:border-orange-500/40 transition-all"
-                      >
-                        <div className="flex items-center gap-3">
-                          {getRankIcon(index + 1)}
-                          <Avatar className="w-8 h-8 border-2 border-orange-500/30">
-                            <AvatarImage src={entry.farcasterPfpUrl} />
-                            <AvatarFallback className="bg-gradient-to-br from-orange-600 to-red-600 text-white text-xs">
-                              {entry.farcasterUsername?.[0]?.toUpperCase() || entry.username[0]?.toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-white font-medium">
-                              {entry.farcasterUsername || entry.username}
-                            </div>
-                            <div className="text-orange-200 text-xs">
-                              {formatAddress(entry.walletAddress)}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right space-y-1">
-                          <div className="text-orange-400 font-bold">
-                            {entry.weeklyWins} wins
-                          </div>
-                          <div className="text-orange-300 text-xs">
-                            {entry.weeklySpins} spins • {(parseFloat(entry.weeklyRewards) / 1e18).toFixed(0)} tokens
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* Back to Game */}
-        <div className="text-center">
-          <Link href="/">
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-bold transition-all transform hover:scale-105">
-              Back to Game
-            </button>
-          </Link>
+                <TabsContent value="rewards" className="space-y-3">
+                  <LeaderboardList 
+                    title={getCategoryLabel(category)}
+                    data={leaderboard || []}
+                    category={category}
+                    getRankIcon={getRankIcon}
+                    getCategoryValue={getCategoryValue}
+                    formatAddress={formatAddress}
+                  />
+                </TabsContent>
+              </AnimatePresence>
+            </Tabs>
+          </motion.div>
         </div>
       </div>
+      <Navigation />
     </div>
   );
 }
 
-// Reusable leaderboard card component
-function LeaderboardCard({ 
+// Leaderboard list component with casino aesthetics
+function LeaderboardList({ 
   title, 
   data, 
   category, 
@@ -258,60 +299,66 @@ function LeaderboardCard({
   formatAddress: (address: string) => string;
 }) {
   return (
-    <Card className="bg-black/40 border-blue-500/30 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-blue-500" />
-          {title}
-        </CardTitle>
-        <CardDescription className="text-blue-200">
-          All-time leaderboard based on on-chain contract events
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {data.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No players found. Start spinning to join the leaderboard!
-            </div>
-          ) : (
-            data.map((entry, index) => (
-              <div 
-                key={entry.id} 
-                className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-lg border border-blue-500/20 hover:border-blue-500/40 transition-all"
-              >
-                <div className="flex items-center gap-3">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-3"
+    >
+      {data.length === 0 ? (
+        <motion.div 
+          className="text-center py-12 text-gray-400"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Trophy className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+          <p className="text-lg font-medium">No players yet</p>
+          <p className="text-sm">Start spinning to join the leaderboard!</p>
+        </motion.div>
+      ) : (
+        data.map((entry, index) => (
+          <motion.div 
+            key={entry.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="bg-gray-900/30 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 hover:border-gray-600/70 transition-all duration-300 hover:bg-gray-800/40"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
                   {getRankIcon(index + 1)}
-                  <Avatar className="w-8 h-8 border-2 border-blue-500/30">
-                    <AvatarImage src={entry.farcasterPfpUrl} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-purple-600 text-white text-xs">
-                      {entry.farcasterUsername?.[0]?.toUpperCase() || entry.username[0]?.toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="text-white font-medium">
-                      {entry.farcasterUsername || entry.username}
-                    </div>
-                    <div className="text-blue-200 text-xs">
-                      {formatAddress(entry.walletAddress)}
-                    </div>
-                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-blue-400 font-bold">
-                    {getCategoryValue(entry, category)}
+                <Avatar className="w-10 h-10 border-2 border-gray-600/50">
+                  <AvatarImage src={entry.farcasterPfpUrl} />
+                  <AvatarFallback className="bg-gradient-to-br from-gray-700 to-gray-800 text-white text-sm">
+                    {entry.farcasterUsername?.[0]?.toUpperCase() || entry.username[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="text-white font-medium text-sm">
+                    {entry.farcasterUsername || entry.username}
                   </div>
-                  {category !== 'rewards' && (
-                    <div className="text-blue-300 text-xs">
-                      {entry.totalSpins} total spins
-                    </div>
-                  )}
+                  <div className="text-gray-400 text-xs">
+                    {formatAddress(entry.walletAddress)}
+                  </div>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      </CardContent>
-    </Card>
+              <div className="text-right">
+                <div className="text-white font-bold text-sm">
+                  {getCategoryValue(entry, category)}
+                </div>
+                {category !== 'rewards' && (
+                  <div className="text-gray-400 text-xs">
+                    {entry.totalSpins} spins
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))
+      )}
+    </motion.div>
   );
 }
