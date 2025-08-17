@@ -1,6 +1,6 @@
 # Overview
 
-ArbCasino is a web-based slot machine game designed as a Farcaster Mini App for the Arbitrum blockchain network (specifically Arbitrum Sepolia testnet). Users can spin a virtual slot machine up to 5 times daily to win AIDOGE, BOOP, and BOBOTRUM tokens. The application includes a leaderboard system to track player performance and encourage engagement.
+ArbCasino is a web-based Wheel of Fortune game designed as a Farcaster Mini App for the Arbitrum blockchain network (specifically Arbitrum Sepolia testnet). Users can spin a virtual wheel up to 5 times daily to win IARB, JUICE, and ABET tokens. The application features a complete smart contract integration with real token rewards, pending reward tracking, and a comprehensive claiming system.
 
 # User Preferences
 
@@ -35,10 +35,11 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 - **Data Validation**: Zod schemas for type-safe operations.
 
 ## Game Logic
-- **Spin Mechanics**: Random symbol generation with configurable win conditions.
-- **Rate Limiting**: 5 spins per user per day (UTC midnight reset).
-- **Reward System**: Real token rewards (TOKEN1, TOKEN2, TOKEN3) for winning combinations.
-- **Wallet Integration**: Automatic token distribution via Arbitrum network.
+- **Spin Mechanics**: Smart contract-based wheel spinning with 8 segments (IARB, JUICE, ABET, BONUS, JACKPOT, BUST).
+- **Rate Limiting**: 5 spins per user per day enforced by smart contract.
+- **Reward System**: Real token rewards with contract-managed pending balances and individual token claiming.
+- **Token Types**: IARB (1 token), JUICE (2 tokens), ABET (0.5 tokens) with BONUS (2x) and JACKPOT (10x) multipliers.
+- **Claim System**: Users can claim accumulated rewards directly from smart contract to their wallet.
 - **Leaderboard**: Real-time ranking based on total wins, implemented using contract events.
 
 ## Farcaster Integration

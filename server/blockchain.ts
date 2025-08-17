@@ -17,9 +17,18 @@ const WHEEL_GAME_ABI = [
 
 // Token addresses from deployed contract (actual working tokens)
 export const TOKEN_ADDRESSES = {
-  TOKEN1: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4", // IARB
-  TOKEN2: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952", // JUICE  
-  TOKEN3: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19"  // ABET
+  TOKEN1: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4", // IARB - Base reward token
+  TOKEN2: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952", // JUICE - Medium reward token
+  TOKEN3: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19"  // ABET - High reward token
+} as const;
+
+// Token reward amounts (in wei) based on wheel segments
+export const TOKEN_REWARDS = {
+  IARB_BASE: "1000000000000000000",     // 1 IARB
+  JUICE_BASE: "2000000000000000000",    // 2 JUICE  
+  ABET_BASE: "500000000000000000",      // 0.5 ABET
+  BONUS_MULTIPLIER: 2,                  // 2x for BONUS
+  JACKPOT_MULTIPLIER: 10                // 10x for JACKPOT
 } as const;
 
 export class BlockchainService {
@@ -150,11 +159,15 @@ export class BlockchainService {
           const isWin = parsed.args.isWin;
           const rewardAmount = parsed.args.rewardAmount.toString();
 
-          // Map token address to type
+          // Map token address to type (handle any token address from contract)
           let tokenType = "";
           if (tokenAddress === TOKEN_ADDRESSES.TOKEN1) tokenType = "TOKEN1";
           else if (tokenAddress === TOKEN_ADDRESSES.TOKEN2) tokenType = "TOKEN2";
           else if (tokenAddress === TOKEN_ADDRESSES.TOKEN3) tokenType = "TOKEN3";
+          else {
+            // Handle dynamic token addresses from contract
+            tokenType = "TOKEN2"; // Default to JUICE for unknown tokens
+          }
 
           return {
             symbols: [tokenAddress, tokenAddress, tokenAddress], // Simulate 3 matching symbols for win
@@ -182,12 +195,65 @@ export class BlockchainService {
     }
   }
 
+  async claimSingleReward(
+    userAddress: string,
+    tokenAddress: string
+  ): Promise<{ transactionHash: string; amount: string }> {
+    await this.initializeWallet();
+    
+    if (!this.contract || !this.wallet) {
+      throw new Error("Contract not initialized - check WALLET_PRIVATE_KEY and DEPLOYED_CONTRACT_ADDRESS");
+    }
+
+    try {
+      console.log(`🚀 Claiming rewards for token ${tokenAddress} for user ${userAddress}`);
+      
+      // Get pending rewards before claiming
+      const pendingRewards = await this.contract.getPendingRewards(userAddress);
+      let tokenIndex = 0;
+      let claimAmount = "0";
+      
+      if (tokenAddress === TOKEN_ADDRESSES.TOKEN1) {
+        tokenIndex = 0;
+        claimAmount = pendingRewards[0].toString();
+      } else if (tokenAddress === TOKEN_ADDRESSES.TOKEN2) {
+        tokenIndex = 1;
+        claimAmount = pendingRewards[1].toString();
+      } else if (tokenAddress === TOKEN_ADDRESSES.TOKEN3) {
+        tokenIndex = 2;
+        claimAmount = pendingRewards[2].toString();
+      } else {
+        throw new Error("Invalid token address");
+      }
+      
+      if (claimAmount === "0") {
+        throw new Error("No pending rewards to claim for this token");
+      }
+      
+      const tx = await this.contract.claimRewards(tokenAddress);
+      const receipt = await tx.wait();
+      
+      console.log(`✅ Token claimed: ${receipt.hash}`);
+      
+      return {
+        transactionHash: receipt.hash,
+        amount: claimAmount
+      };
+
+    } catch (error: any) {
+      console.error("Contract claim error:", error);
+      throw new Error(`Claim failed: ${error.message}`);
+    }
+  }
+
   async claimRewards(
     userAddress: string,
     token1Amount: string,
     token2Amount: string,
     token3Amount: string
   ): Promise<{ transactionHash: string }> {
+    await this.initializeWallet();
+    
     if (!this.contract || !this.wallet) {
       throw new Error("Contract not initialized - check WALLET_PRIVATE_KEY and DEPLOYED_CONTRACT_ADDRESS");
     }

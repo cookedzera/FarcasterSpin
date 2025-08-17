@@ -185,16 +185,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (isWin) {
           const winningSymbol = result[0];
           const tokenRewards: Record<string, { type: string; amount: string }> = {
-            '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4': { type: 'TOKEN1', amount: '10000000000000000' }, // AIDOGE
-            '0x0E1CD6557D2BA59C61c75850E674C2AD73253952': { type: 'TOKEN2', amount: '5000000000000000' },  // BOOP
-            '0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19': { type: 'TOKEN3', amount: '2000000000000000' }   // BOBOTRUM
+            '0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4': { type: 'TOKEN1', amount: '1000000000000000000' }, // 1 IARB
+            '0x0E1CD6557D2BA59C61c75850E674C2AD73253952': { type: 'TOKEN2', amount: '2000000000000000000' },  // 2 JUICE
+            '0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19': { type: 'TOKEN3', amount: '500000000000000000' }   // 0.5 ABET
           };
           
           const reward = tokenRewards[winningSymbol];
           if (reward) {
             tokenType = reward.type;
             rewardAmount = reward.amount;
-            await storage.addAccumulatedReward(userId, tokenType, rewardAmount);
+            // Add to database tracking
+        await storage.addAccumulatedReward(userId, tokenType, rewardAmount);
+        console.log(`💰 Added ${ethers.formatEther(rewardAmount)} ${tokenType} to user ${userId}`);
           }
         }
 
