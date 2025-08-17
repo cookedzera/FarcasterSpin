@@ -7,15 +7,18 @@ import { Badge } from "@/components/ui/badge";
 import { CONTRACT_CONFIG } from "@/lib/config";
 import { ethers } from "ethers";
 import { Coins, Gift } from "lucide-react";
+import aidogeLogo from "@assets/aidoge_1755435810322.png";
+import boopLogo from "@assets/boop_1755435810327.png";
+import arbLogo from "@assets/image_1755435826976.png";
 
 const WHEEL_SEGMENTS = [
-  { name: 'IARB', color: '#3B82F6', reward: '1' },
+  { name: 'AIDOGE', color: '#3B82F6', reward: '1' },
   { name: 'BUST', color: '#EF4444', reward: '0' },
-  { name: 'JUICE', color: '#10B981', reward: '2' },
+  { name: 'BOOP', color: '#10B981', reward: '2' },
   { name: 'BONUS', color: '#F59E0B', reward: '2x' },
-  { name: 'ABET', color: '#8B5CF6', reward: '0.5' },
+  { name: 'ARB', color: '#8B5CF6', reward: '0.5' },
   { name: 'BUST', color: '#EF4444', reward: '0' },
-  { name: 'IARB', color: '#3B82F6', reward: '1' },
+  { name: 'AIDOGE', color: '#3B82F6', reward: '1' },
   { name: 'JACKPOT', color: '#F97316', reward: '10x' },
 ];
 
@@ -63,9 +66,9 @@ interface SpinWheelSimpleProps {
   userSpinsUsed: number;
   userId?: string;
   userAccumulated?: {
-    IARB: string;
-    JUICE: string;
-    ABET: string;
+    AIDOGE: string;
+    BOOP: string;
+    ARB: string;
   };
 }
 
@@ -660,15 +663,23 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
             );
           })}
           
-          {/* Center Circle */}
-          <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gray-800 rounded-full border-2 ${
+          {/* Center Circle with ARB Logo */}
+          <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gray-800 rounded-full border-3 ${
             isProcessing ? 'border-blue-400' : 'border-yellow-400'
-          } flex items-center justify-center`}>
-            <span className={`font-bold text-xs ${
-              isProcessing ? 'text-blue-400' : 'text-yellow-400'
-            }`}>
-              {isProcessing ? '⏳' : isSpinning ? '🎰' : 'SPIN'}
-            </span>
+          } flex items-center justify-center overflow-hidden`}>
+            {isProcessing || isSpinning ? (
+              <span className={`font-bold text-xs ${
+                isProcessing ? 'text-blue-400' : 'text-yellow-400'
+              }`}>
+                {isProcessing ? '⏳' : '🎰'}
+              </span>
+            ) : (
+              <img 
+                src={arbLogo} 
+                alt="ARB" 
+                className="w-12 h-12 object-contain"
+              />
+            )}
           </div>
         </motion.div>
       </div>
@@ -727,9 +738,9 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
       {/* Accumulated Rewards Display - Modern Casino UI */}
       {userAccumulated && (
-        (userAccumulated.IARB && BigInt(userAccumulated.IARB) > 0) ||
-        (userAccumulated.JUICE && BigInt(userAccumulated.JUICE) > 0) ||
-        (userAccumulated.ABET && BigInt(userAccumulated.ABET) > 0)
+        (userAccumulated.AIDOGE && BigInt(userAccumulated.AIDOGE) > 0) ||
+        (userAccumulated.BOOP && BigInt(userAccumulated.BOOP) > 0) ||
+        (userAccumulated.ARB && BigInt(userAccumulated.ARB) > 0)
       ) && (
         <div className="w-full max-w-md space-y-4">
           {/* Modern header with gradient background */}
@@ -755,7 +766,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
           {/* Modern token cards with gradients */}
           <div className="space-y-3">
-            {userAccumulated?.IARB && BigInt(userAccumulated.IARB) > 0 && (
+            {userAccumulated?.AIDOGE && BigInt(userAccumulated.AIDOGE) > 0 && (
               <div 
                 className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
@@ -769,17 +780,17 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                 <div className="relative flex items-center justify-center">
                   <div className="flex items-center gap-3">
                     <div className="px-3 py-1 bg-blue-600/80 backdrop-blur-sm rounded-full border border-blue-400/50">
-                      <span className="text-white font-bold text-sm">IARB</span>
+                      <span className="text-white font-bold text-sm">AIDOGE</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {ethers.formatEther(userAccumulated.IARB)}
+                      {ethers.formatEther(userAccumulated.AIDOGE)}
                     </span>
                   </div>
                 </div>
               </div>
             )}
 
-            {userAccumulated?.JUICE && BigInt(userAccumulated.JUICE) > 0 && (
+            {userAccumulated?.BOOP && BigInt(userAccumulated.BOOP) > 0 && (
               <div 
                 className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
@@ -793,17 +804,17 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                 <div className="relative flex items-center justify-center">
                   <div className="flex items-center gap-3">
                     <div className="px-3 py-1 bg-green-600/80 backdrop-blur-sm rounded-full border border-green-400/50">
-                      <span className="text-white font-bold text-sm">JUICE</span>
+                      <span className="text-white font-bold text-sm">BOOP</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {ethers.formatEther(userAccumulated.JUICE)}
+                      {ethers.formatEther(userAccumulated.BOOP)}
                     </span>
                   </div>
                 </div>
               </div>
             )}
 
-            {userAccumulated?.ABET && BigInt(userAccumulated.ABET) > 0 && (
+            {userAccumulated?.ARB && BigInt(userAccumulated.ARB) > 0 && (
               <div 
                 className="relative p-4 rounded-xl overflow-hidden will-change-transform"
                 style={{
@@ -817,10 +828,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                 <div className="relative flex items-center justify-center">
                   <div className="flex items-center gap-3">
                     <div className="px-3 py-1 bg-purple-600/80 backdrop-blur-sm rounded-full border border-purple-400/50">
-                      <span className="text-white font-bold text-sm">ABET</span>
+                      <span className="text-white font-bold text-sm">ARB</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {ethers.formatEther(userAccumulated.ABET)}
+                      {ethers.formatEther(userAccumulated.ARB)}
                     </span>
                   </div>
                 </div>

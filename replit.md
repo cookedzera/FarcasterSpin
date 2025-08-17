@@ -13,7 +13,17 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
-✅ **Code Cleanup & Optimization (Latest)**: Comprehensive codebase cleanup to improve maintainability and performance
+✅ **Token Integration & UI Enhancement (Latest)**: Replaced generic tokens with actual cryptocurrencies and improved visual design
+  - Updated all token references from IARB/JUICE/ABET to AIDOGE/BOOP/ARB throughout the codebase
+  - Integrated provided token logos: Aidoge, Boop, and ARB with proper asset imports
+  - Added ARB logo to the center of the spin wheel, displayed when wheel is not spinning
+  - Updated wheel segments to display actual token names (AIDOGE, BOOP, ARB)
+  - Fixed all TypeScript interface compatibility issues between frontend and backend
+  - Enhanced token display cards with proper icons and names in profile section
+  - Maintained all existing functionality while using authentic token branding
+  - Application successfully displaying real token logos and names with Nintendo-style aesthetic
+
+✅ **Code Cleanup & Optimization**: Comprehensive codebase cleanup to improve maintainability and performance
   - Removed duplicate JavaScript server files (index.js, storage.js, vite.js) - keeping only TypeScript versions
   - Deleted unused spin wheel components (spin-wheel-clean.tsx, spin-wheel-free.tsx) - keeping only spin-wheel-simple.tsx which is actively used
   - Cleaned up extensive documentation files (18 .md files) that were outdated deployment guides and instructions

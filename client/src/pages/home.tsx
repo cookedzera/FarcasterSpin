@@ -10,7 +10,9 @@ import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 import { Button } from "@/components/ui/button";
 import { formatUnits } from "ethers";
 import { type GameStats, type SpinResult } from "@shared/schema";
-// Asset imports removed - using placeholder data instead
+import aidogeLogo from "@assets/aidoge_1755435810322.png";
+import boopLogo from "@assets/boop_1755435810327.png";
+import arbLogo from "@assets/image_1755435826976.png";
 
 // Completely rebuilt audio system - single global instance with proper state management
 class AudioManager {
@@ -268,9 +270,9 @@ export default function Home() {
 
   // Memoize token data to prevent recreation - MUST be before early return
   const tokenData = useMemo(() => [
-    { name: 'IARB', icon: null, amount: balances?.token1 || '0', time: '2h 14 min', emoji: '🪙' },
-    { name: 'JUICE', icon: null, amount: balances?.token2 || '0', time: '5h 22 min', emoji: '🧃' },
-    { name: 'ABET', icon: null, amount: balances?.token3 || '0', time: '1h 8 min', emoji: '🎯' }
+    { name: 'AIDOGE', icon: aidogeLogo, amount: balances?.token1 || '0', time: '2h 14 min', emoji: '🐕' },
+    { name: 'BOOP', icon: boopLogo, amount: balances?.token2 || '0', time: '5h 22 min', emoji: '🎭' },
+    { name: 'ARB', icon: arbLogo, amount: balances?.token3 || '0', time: '1h 8 min', emoji: '🔷' }
   ], [balances?.token1, balances?.token2, balances?.token3]);
 
   // Show minimal loading state while preserving background
@@ -822,9 +824,9 @@ export default function Home() {
                     userSpinsUsed={typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0}
                     userId={user?.id || ''}
                     userAccumulated={balances ? {
-                      IARB: balances.token1,
-                      JUICE: balances.token2,
-                      ABET: balances.token3
+                      AIDOGE: balances.token1,
+                      BOOP: balances.token2,
+                      ARB: balances.token3
                     } : undefined}
                     onSpinComplete={(result) => {
                       // Refresh user data to update balances without full page reload
