@@ -1,65 +1,45 @@
 /**
- * React hook for Farcaster integration
- * Provides real user data instead of generic player IDs
+ * React hook for Farcaster Mini App integration
+ * Uses official SDK Method 1: Auto FID from Context
  */
 
 import { useState, useEffect } from 'react';
-import { initializeFarcaster, testFarcasterSDK } from '@/services/farcaster-service';
+import { getFarcasterUser, type FarcasterUser } from '@/services/farcaster';
 
-interface FarcasterUser {
-  fid: number;
-  displayName?: string;
-  username?: string;
-  avatarUrl?: string;
-}
-
-interface UseFarcasterResult {
-  farcasterUser: FarcasterUser | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  displayName: string;
-  username: string;
-  avatarUrl?: string;
-}
-
-export function useFarcaster(): UseFarcasterResult {
-  const [farcasterUser, setFarcasterUser] = useState<FarcasterUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function useFarcaster() {
+  const [user, setUser] = useState<FarcasterUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
     async function loadFarcasterUser() {
       try {
         console.log('🚀 Loading Farcaster user...');
         
-        // First, test SDK availability
-        testFarcasterSDK();
+        // Add small delay to ensure SDK is loaded
+        await new Promise(resolve => setTimeout(resolve, 200));
         
-        // Add a small delay to ensure SDK is loaded
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const farcasterUser = await getFarcasterUser();
         
-        const user = await initializeFarcaster();
-        
-        if (isMounted) {
-          setFarcasterUser(user);
-          setIsLoading(false);
+        if (mounted) {
+          setUser(farcasterUser);
+          setIsAuthenticated(!!farcasterUser);
+          setLoading(false);
           
-          if (user) {
-            console.log('✅ Farcaster user loaded successfully:', {
-              fid: user.fid,
-              displayName: user.displayName,
-              username: user.username
-            });
+          if (farcasterUser) {
+            console.log('✅ Farcaster user loaded:', farcasterUser.displayName || farcasterUser.username);
           } else {
-            console.log('ℹ️ No Farcaster user found - using fallback');
+            console.log('ℹ️ No Farcaster user - using fallback');
           }
         }
       } catch (error) {
         console.error('💥 Error loading Farcaster user:', error);
-        if (isMounted) {
-          setFarcasterUser(null);
-          setIsLoading(false);
+        if (mounted) {
+          setUser(null);
+          setIsAuthenticated(false);
+          setLoading(false);
         }
       }
     }
@@ -67,22 +47,18 @@ export function useFarcaster(): UseFarcasterResult {
     loadFarcasterUser();
 
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, []);
 
-  // Derived values with fallbacks
-  const isAuthenticated = !!farcasterUser?.fid;
-  const displayName = farcasterUser?.displayName || farcasterUser?.username || 'Player';
-  const username = farcasterUser?.username || `user${farcasterUser?.fid || ''}`;
-  const avatarUrl = farcasterUser?.avatarUrl;
-
   return {
-    farcasterUser,
-    isLoading,
+    user,
+    fid: user?.fid,
+    username: user?.username,
+    displayName: user?.displayName,
+    avatarUrl: user?.pfpUrl,
+    bio: user?.bio,
     isAuthenticated,
-    displayName,
-    username,
-    avatarUrl
+    loading
   };
 }

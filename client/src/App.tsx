@@ -12,7 +12,7 @@ const TokenCollection = lazy(() => import("@/pages/token-collection"));
 const Admin = lazy(() => import("@/pages/admin"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Leaderboard = lazy(() => import("@/pages/leaderboard"));
-const TestFarcaster = lazy(() => import("@/pages/test-farcaster"));
+
 
 // Preload commonly accessed pages after initial load
 const preloadComponents = () => {
@@ -40,7 +40,7 @@ function Router() {
           <Route path="/profile" component={Profile} />
           <Route path="/leaderboard" component={Leaderboard} />
           <Route path="/admin" component={Admin} />
-          <Route path="/test-farcaster" component={TestFarcaster} />
+
           <Route component={NotFound} />
         </Switch>
       </Suspense>
