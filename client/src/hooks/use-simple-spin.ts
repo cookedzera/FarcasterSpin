@@ -68,8 +68,6 @@ export function useSimpleSpin() {
   const { address, isConnected } = useAccount()
   const chainId = useChainId()
   const { toast } = useToast()
-  const [testMode, setTestMode] = useState(false) // Use real contract mode
-
   const triggerGasPopup = async () => {
     if (!isConnected || !address) {
       toast({
@@ -105,44 +103,8 @@ export function useSimpleSpin() {
     setIsSpinning(true)
 
     try {
-      // TEST MODE: Simulate gas popup without calling contract
-      if (testMode) {
-        toast({
-          title: "Test Mode Active",
-          description: "Simulating gas popup - no real transaction",
-          variant: "default",
-        })
-
-        // Simulate MetaMask popup delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // Generate random result
-        const segments = [
-          { name: 'AIDOGE', reward: '10000', color: '#3B82F6' },
-          { name: 'BUST', reward: '0', color: '#EF4444' },
-          { name: 'BOOP', reward: '20000', color: '#10B981' },
-          { name: 'BONUS', reward: '5000', color: '#F59E0B' },
-          { name: 'BOBOTRUM', reward: '15000', color: '#8B5CF6' },
-          { name: 'JACKPOT', reward: '50000', color: '#F97316' }
-        ]
-        
-        const randomIndex = Math.floor(Math.random() * segments.length)
-        const result = segments[randomIndex]
-        
-        setLastSpinResult({
-          segment: result,
-          transactionHash: '0x' + Math.random().toString(16).substr(2, 40) + Math.random().toString(16).substr(2, 24),
-          isWin: result.name !== 'BUST'
-        })
-
-        toast({
-          title: "Test Spin Complete!",
-          description: `You landed on ${result.name}! (Simulated)`,
-          variant: result.name !== 'BUST' ? "default" : "destructive",
-        })
-
-        return true
-      }
+      // REAL CONTRACT MODE: Direct contract interaction
+      console.log('🎰 Calling real smart contract...');
 
       // REAL MODE: Use ethers directly for actual gas popup
       if (window.ethereum) {

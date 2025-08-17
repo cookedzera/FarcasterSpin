@@ -6,12 +6,14 @@ import { useToast } from "@/hooks/use-toast";
 import { CONTRACT_CONFIG } from "@/lib/config";
 
 const WHEEL_SEGMENTS = [
-  { name: 'AIDOGE', color: '#3B82F6', reward: '10000' },
+  { name: 'IARB', color: '#3B82F6', reward: '1' },
   { name: 'BUST', color: '#EF4444', reward: '0' },
-  { name: 'BOOP', color: '#10B981', reward: '20000' },
+  { name: 'JUICE', color: '#10B981', reward: '2' },
+  { name: 'BONUS', color: '#F59E0B', reward: '2x' },
+  { name: 'ABET', color: '#8B5CF6', reward: '0.5' },
   { name: 'BUST', color: '#EF4444', reward: '0' },
-  { name: 'BOBOTRUM', color: '#8B5CF6', reward: '15000' },
-  { name: 'JACKPOT', color: '#F97316', reward: '50000' },
+  { name: 'IARB', color: '#3B82F6', reward: '1' },
+  { name: 'JACKPOT', color: '#F97316', reward: '10x' },
 ];
 
 const WHEEL_ABI = [
@@ -24,8 +26,7 @@ const WHEEL_ABI = [
   }
 ] as const;
 
-// TEMPORARY: Safe mode to bypass contract bug
-const SAFE_MODE = true; // Set to false once contract is fixed
+// Real contract mode only
 
 interface SpinResult {
   segment: string;
@@ -127,41 +128,53 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
     });
 
     try {
-      if (SAFE_MODE) {
-        // TEMPORARY: Mock successful transaction to bypass contract bug
-        console.log('🔧 SAFE MODE: Bypassing problematic contract call');
-        
-        // Simulate blockchain delay
-        setTimeout(() => {
-          const mockHash = '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-          
-          toast({
-            title: "🎉 Spin Complete (Safe Mode)!",
-            description: `You landed on ${result?.segment}! ${result?.isWin ? 'You won!' : 'Try again!'}`,
-            variant: result?.isWin ? "default" : "destructive",
-          });
-          
-          if (onSpinComplete && result) {
-            onSpinComplete({
-              ...result,
-              transactionHash: mockHash
-            });
-          }
-          
-          // Reset after showing result
-          setTimeout(() => {
-            setResult(null);
-            setIsSpinning(false);
-          }, 3000);
-        }, 2000);
-      } else {
-        // Call actual contract (only when safe)
-        writeContract({
-          address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS as `0x${string}`,
-          abi: WHEEL_ABI,
-          functionName: 'spin',
+      // Call the backend API which handles real contract interaction
+      const response = await fetch('/api/spin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: localStorage.getItem('arbcasino_user_id') || '56cbf268-416e-4a46-b71f-ae2f55d08621',
+          userAddress: address
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Spin request failed');
+      }
+
+      const spinResult = await response.json();
+      
+      // Update UI with real result
+      setResult({
+        segment: spinResult.symbols[0] || 'UNKNOWN',
+        isWin: spinResult.isWin,
+        reward: spinResult.rewardAmount || '0',
+        transactionHash: spinResult.transactionHash
+      });
+
+      toast({
+        title: spinResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time!",
+        description: `Transaction: ${spinResult.transactionHash?.slice(0, 10)}...`,
+        variant: spinResult.isWin ? "default" : "destructive",
+      });
+
+      if (onSpinComplete) {
+        onSpinComplete({
+          segment: spinResult.symbols[0] || 'UNKNOWN',
+          isWin: spinResult.isWin,
+          reward: spinResult.rewardAmount || '0',
+          transactionHash: spinResult.transactionHash
         });
       }
+
+      // Reset after showing result
+      setTimeout(() => {
+        setResult(null);
+        setIsSpinning(false);
+      }, 3000);
+
     } catch (error: any) {
       console.error('Contract call failed:', error);
       toast({
@@ -229,15 +242,6 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
         </motion.div>
       </div>
 
-      {/* Spin Button */}
-      {SAFE_MODE && (
-        <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500 rounded-lg text-center">
-          <p className="text-yellow-400 text-sm font-medium">
-            🔧 Safe Mode Active - Contract bug detected. Playing in simulation mode.
-          </p>
-        </div>
-      )}
-      
       <Button
         onClick={handleSpin}
         disabled={!isConnected || userSpinsUsed >= 3 || isSpinning || isProcessing}
@@ -246,8 +250,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
         {!isConnected ? 'Connect Wallet' : 
          userSpinsUsed >= 3 ? 'Daily Limit Reached' :
          isProcessing ? 'Processing...' :
-         isSpinning ? 'Spinning...' : 
-         SAFE_MODE ? 'SPIN (Safe Mode)' : 'SPIN (Pay Gas)'}
+         isSpinning ? 'Spinning...' : 'SPIN (Real Contract)'}
       </Button>
       
       {/* Spins Counter */}
@@ -259,7 +262,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
 
       {/* Result Display */}
       <AnimatePresence>
-        {result && isSuccess && (
+        {result && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
