@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -79,6 +79,98 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
   const { address, isConnected } = useAccount();
   const { toast } = useToast();
   
+  // Audio context for wheel spinning sound
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const wheelSoundRef = useRef<{
+    oscillator?: OscillatorNode;
+    gainNode?: GainNode;
+    isPlaying: boolean;
+  }>({ isPlaying: false });
+
+  // Initialize audio context
+  useEffect(() => {
+    const initAudio = () => {
+      try {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      } catch (error) {
+        console.warn('Web Audio API not supported');
+      }
+    };
+
+    // Initialize on first user interaction
+    const handleUserInteraction = () => {
+      if (!audioContextRef.current) {
+        initAudio();
+      }
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
+  // Create wheel spinning sound effect
+  const playWheelSpinSound = () => {
+    if (!audioContextRef.current || wheelSoundRef.current.isPlaying) return;
+
+    try {
+      const audioContext = audioContextRef.current;
+      
+      // Create oscillator for the spinning sound
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      // Connect the nodes
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Configure the sound - start high and decrease for spinning effect
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 4);
+      
+      // Volume higher than background music (60% vs 12%)
+      gainNode.gain.setValueAtTime(0.6, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 4);
+      
+      // Use sawtooth wave for that classic wheel spinning sound
+      oscillator.type = 'sawtooth';
+      
+      // Store references
+      wheelSoundRef.current = { oscillator, gainNode, isPlaying: true };
+      
+      // Start the sound
+      oscillator.start();
+      
+      // Stop after 4 seconds (matches wheel animation)
+      setTimeout(() => {
+        if (wheelSoundRef.current.oscillator) {
+          wheelSoundRef.current.oscillator.stop();
+          wheelSoundRef.current.isPlaying = false;
+        }
+      }, 4000);
+      
+    } catch (error) {
+      console.warn('Failed to play wheel sound:', error);
+    }
+  };
+
+  // Stop wheel sound if needed
+  const stopWheelSpinSound = () => {
+    if (wheelSoundRef.current.oscillator && wheelSoundRef.current.isPlaying) {
+      wheelSoundRef.current.oscillator.stop();
+      wheelSoundRef.current.isPlaying = false;
+    }
+  };
+  
   // Check if user has free spins available (3 per day)
   const hasFreeSpin = userSpinsUsed < 3;
   
@@ -124,10 +216,11 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
             const spins = 5; // 5 full rotations for dramatic effect
             const finalRotation = rotation + (spins * 360) - targetAngle;
             
-            // Start the wheel animation
+            // Start the wheel animation and sound
             setRotation(finalRotation);
+            playWheelSpinSound();
             
-            // Set the confirmed result after animation
+            // Set the confirmed result after animation completes
             setTimeout(() => {
               const finalResult = {
                 segment: spinResult.segment,
@@ -152,7 +245,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                 setResult(null);
                 setIsSpinning(false);
               }, 4000);
-            }, 3000); // Wait for wheel animation to complete
+            }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
             
           } else {
             throw new Error('Failed to get spin result from API');
@@ -171,6 +264,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           const finalRotation = rotation + (spins * 360) - targetAngle;
           
           setRotation(finalRotation);
+          playWheelSpinSound();
           
           setTimeout(() => {
             const fallbackResult = {
@@ -199,7 +293,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
               setResult(null);
               setIsSpinning(false);
             }, 4000);
-          }, 3000);
+          }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
         }
       };
       
@@ -345,9 +439,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       const finalRotation = rotation + (spins * 360) - targetAngle;
       
       setRotation(finalRotation);
+      playWheelSpinSound();
       // Don't update freeSpinsUsed - use userSpinsUsed from props
       
-      // Show result after animation
+      // Show result after animation completes
       setTimeout(() => {
         const finalResult = {
           segment: spinResult.segment,
@@ -365,7 +460,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         if (onSpinComplete) {
           onSpinComplete(finalResult);
         }
-      }, 3000);
+      }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
 
     } catch (error: any) {
       console.error("Free spin error:", error);
