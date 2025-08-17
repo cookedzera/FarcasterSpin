@@ -606,9 +606,9 @@ export default function Home() {
               willChange: 'scroll-position'
             }}
           >
-            <div className="min-h-full flex items-start justify-center p-4 py-8">
+            <div className="min-h-full flex items-start justify-center p-4 pt-8 pb-20">
               <motion.div
-                className="rounded-3xl max-w-md w-full relative my-auto flex flex-col will-change-transform"
+                className="rounded-3xl max-w-md w-full relative flex flex-col will-change-transform"
                 style={{
                   background: 'rgba(255, 255, 255, 0.08)',
                   backdropFilter: 'blur(20px)',
