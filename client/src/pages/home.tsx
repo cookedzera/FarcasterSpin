@@ -72,16 +72,14 @@ const BackgroundMusic = memo(() => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [audioInitialized, setAudioInitialized] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || audioInitialized) return;
+    if (!audio) return;
 
     // Set reduced volume (12% of original)
     audio.volume = 0.12;
     audio.loop = true;
-    setAudioInitialized(true);
 
     // Add event listeners to track audio state
     const handlePlay = () => setIsPlaying(true);
@@ -98,9 +96,7 @@ const BackgroundMusic = memo(() => {
         // Auto-play failed, wait for user interaction
         const handleUserInteraction = async () => {
           try {
-            if (!isMuted) {
-              await audio.play();
-            }
+            await audio.play();
             document.removeEventListener('click', handleUserInteraction);
             document.removeEventListener('touchstart', handleUserInteraction);
           } catch (e) {
@@ -123,26 +119,22 @@ const BackgroundMusic = memo(() => {
         audio.currentTime = 0;
       }
     };
-  }, [audioInitialized, isMuted]);
+  }, []);
 
-  const toggleMute = useCallback(async () => {
+  const toggleMute = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (audio.paused) {
-      // Resume playing
-      try {
-        await audio.play();
-        setIsMuted(false);
-      } catch (error) {
-        console.log('Failed to resume audio:', error);
-      }
+    if (isMuted) {
+      // Unmute by restoring volume
+      audio.volume = 0.12;
+      setIsMuted(false);
     } else {
-      // Pause the audio
-      audio.pause();
+      // Mute by setting volume to 0
+      audio.volume = 0;
       setIsMuted(true);
     }
-  }, []);
+  }, [isMuted]);
 
   return (
     <>
@@ -150,21 +142,21 @@ const BackgroundMusic = memo(() => {
       <button
         onClick={toggleMute}
         className={`fixed top-4 left-4 z-50 w-10 h-10 rounded-md transition-all duration-300 font-mono text-xs font-bold backdrop-blur-sm ${
-          !isPlaying 
+          isMuted 
             ? 'bg-red-900/80 border-2 border-red-400 text-red-400 shadow-lg hover:bg-red-800/90 hover:shadow-red-400/20' 
             : 'bg-emerald-900/80 border-2 border-emerald-400 text-emerald-400 neon-border hover:bg-emerald-800/90'
         }`}
         style={{
-          textShadow: !isPlaying 
+          textShadow: isMuted 
             ? '0 0 8px rgba(248, 113, 113, 0.8)' 
             : '0 0 8px rgba(52, 211, 153, 0.8)',
-          boxShadow: !isPlaying
+          boxShadow: isMuted
             ? '0 0 15px rgba(248, 113, 113, 0.3), inset 0 0 8px rgba(248, 113, 113, 0.1)'
             : '0 0 15px rgba(52, 211, 153, 0.3), inset 0 0 8px rgba(52, 211, 153, 0.1)'
         }}
         data-testid="button-mute-music"
       >
-        {!isPlaying ? '🔇' : '♪'}
+        {isMuted ? '🔇' : '♪'}
       </button>
       
       <audio
