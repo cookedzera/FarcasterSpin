@@ -167,6 +167,37 @@
   .winning-glow {
     animation: winning-glow 1s ease-in-out infinite alternate;
   }
+  
+  /* Navigation Performance Optimizations */
+  .nav-button {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform, background-color, box-shadow;
+    transition: all 0.05s ease-out;
+    perspective: 1000px;
+  }
+  
+  .nav-button:hover {
+    transform: translateZ(0) scale(1.02) translateY(-1px);
+  }
+  
+  .nav-button:active {
+    transform: translateZ(0) scale(0.97);
+  }
+  
+  /* Fast page transitions */
+  .page-transition {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+  }
+  
+  /* GPU-accelerated animations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
 }
 
 
