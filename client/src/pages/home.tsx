@@ -67,17 +67,18 @@ const RADIAL_STYLE = {
   background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
 };
 
-// Background music component with reduced volume
+// Background music component with volume control and mute button
 const BackgroundMusic = memo(() => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Set reduced volume (20% of original)
-    audio.volume = 0.2;
+    // Set reduced volume (12% of original)
+    audio.volume = 0.12;
     audio.loop = true;
 
     // Auto-play attempt with user interaction fallback
@@ -113,14 +114,52 @@ const BackgroundMusic = memo(() => {
     };
   }, []);
 
+  const toggleMute = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isMuted) {
+      audio.volume = 0.12;
+      setIsMuted(false);
+    } else {
+      audio.volume = 0;
+      setIsMuted(true);
+    }
+  }, [isMuted]);
+
   return (
-    <audio
-      ref={audioRef}
-      preload="auto"
-      className="hidden"
-    >
-      <source src={backgroundMusic} type="audio/mpeg" />
-    </audio>
+    <>
+      {/* Mute button in top left */}
+      <button
+        onClick={toggleMute}
+        className="fixed top-4 left-4 z-50 bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg transition-colors backdrop-blur-sm"
+        data-testid="button-mute-music"
+      >
+        {isMuted ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"/>
+            <path d="m15 4 6 6-6 6V4Z"/>
+            <line x1="22" y1="9" x2="16" y2="15"/>
+            <line x1="16" y1="9" x2="22" y2="15"/>
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"/>
+            <path d="m15 4 6 6-6 6V4Z"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+        )}
+      </button>
+      
+      <audio
+        ref={audioRef}
+        preload="auto"
+        className="hidden"
+      >
+        <source src={backgroundMusic} type="audio/mpeg" />
+      </audio>
+    </>
   );
 });
 
