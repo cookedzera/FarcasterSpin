@@ -251,11 +251,11 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       return;
     }
 
-    // Fall back to contract spins if no free spins available
-    if (sessionSpinsUsed >= 5) {
+    // Contract spins are disabled - only free spins available
+    if (freeSpinsUsed >= 3) {
       toast({
         title: "Daily Limit Reached",
-        description: "You can spin 5 times per day. Try again tomorrow!",
+        description: "You can spin 3 times per day. Try again tomorrow!",
         variant: "destructive",
       });
       return;
@@ -560,15 +560,15 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
       <Button
         onClick={handleSpin}
-        disabled={!isConnected || (!hasFreeSpin && sessionSpinsUsed >= 5) || isSpinning || isProcessing}
+        disabled={!isConnected || freeSpinsUsed >= 3 || isSpinning || isProcessing}
         className="w-48 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg"
         data-testid="button-spin"
       >
         {!isConnected ? 'Connect Wallet' : 
-         (!hasFreeSpin && sessionSpinsUsed >= 5) ? 'Daily Limit Reached' :
+         freeSpinsUsed >= 3 ? 'Daily Limit Reached' :
          isProcessing ? 'Confirming Transaction...' :
          isSpinning ? 'Spinning...' : 
-         hasFreeSpin ? '🎰 FREE SPIN!' : '⛽ SPIN (Pay Gas)'}
+         hasFreeSpin ? '🎰 FREE SPIN!' : 'No spins available'}
       </Button>
       
       {/* Transaction Status */}
@@ -588,10 +588,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       {/* Spins Counter */}
       <div className="text-center">
         <p className="text-white/80 text-sm">
-          Total daily spins: {freeSpinsUsed + sessionSpinsUsed}/8 used
+          Total daily spins: {freeSpinsUsed}/3 used
         </p>
         <p className="text-white/60 text-xs">
-          (Free: {freeSpinsUsed}/3, Contract: {sessionSpinsUsed}/5)
+          (Free: {freeSpinsUsed}/3, Contract: 0/0)
         </p>
       </div>
 
