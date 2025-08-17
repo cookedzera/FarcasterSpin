@@ -60,7 +60,6 @@
 
 @layer base {
   * {
-    @apply border-border;
     /* Hardware acceleration for smooth scrolling */
     box-sizing: border-box;
   }
@@ -88,6 +87,28 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
+    border: none;
+    outline: none;
+  }
+  
+  /* Remove any default browser borders and ensure full width */
+  body, html, #root, * {
+    border: none !important;
+    outline: none !important;
+  }
+  
+  /* Specific Farcaster mini app full-width styles */
+  body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  /* Override any container or tailwind border classes */
+  .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-full {
+    border: none !important;
   }
   
   html::-webkit-scrollbar,
