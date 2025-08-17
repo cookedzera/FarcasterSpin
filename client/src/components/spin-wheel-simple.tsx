@@ -202,15 +202,15 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
   // Handle spin result from server-side spinning with improved animation
   useEffect(() => {
-    if (lastSpinResult && isSpinning) {
+    if (lastSpinResult) {
       // Calculate target rotation for result
       const resultSegment = WHEEL_SEGMENTS.find(s => s.name === lastSpinResult.segment) || WHEEL_SEGMENTS[0];
       const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
       const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-      // Point arrow to center of segment
-      const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2;
-      const spins = 4; // 4 full rotations for smooth effect
-      const finalRotation = (spins * 360) + targetAngle;
+      // Point arrow to center of segment - adjust for proper alignment
+      const targetAngle = (segmentIndex * segmentAngle) + (segmentAngle / 2) + 90; // Add 90deg offset for proper pointing
+      const spins = 5; // 5 full rotations for dramatic effect
+      const finalRotation = rotation + (spins * 360) + targetAngle;
       
       // Start the wheel animation and sound
       setRotation(finalRotation);
@@ -227,6 +227,15 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         
         setResult(finalResult);
         
+        // Show toast notification AFTER wheel animation
+        toast({
+          title: lastSpinResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time",
+          description: lastSpinResult.isWin 
+            ? `You won ${(parseFloat(lastSpinResult.rewardAmount) / 1e18).toFixed(1)} ${lastSpinResult.tokenType} tokens!` 
+            : `You landed on ${lastSpinResult.segment}. ${lastSpinResult.spinsRemaining} spins remaining today.`,
+          variant: lastSpinResult.isWin ? "default" : "destructive",
+        });
+        
         // Update session spin count for server spins
         setSessionSpinsUsed(prev => prev + 1);
         
@@ -238,36 +247,26 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         const clearResultTimeout = setTimeout(() => {
           setResult(null);
           resetSpinResult(); // Clear the spin result from the hook
-        }, 3000);
+        }, 4000);
         
         return () => clearTimeout(clearResultTimeout);
-      }, 4200); // Wait for wheel animation to complete
+      }, 4500); // Wait for wheel animation (4s) + small delay (0.5s)
       
       return () => clearTimeout(resultTimeout);
     }
-  }, [lastSpinResult, isSpinning]); // Simplified dependencies
+  }, [lastSpinResult]); // Only depend on lastSpinResult
 
 
 
   const handleSpin = async () => {
     // Check for daily limit first
     if (userSpinsUsed >= 3) {
-      toast({
-        title: "Daily Limit Reached",
-        description: "You can spin 3 times per day. Try again tomorrow!",
-        variant: "destructive",
-      });
-      return;
+      return; // Don't show toast for daily limit - user can see the button is disabled
     }
 
     // Check if user ID is available
     if (!userId) {
-      toast({
-        title: "Error",
-        description: "User not found. Please refresh the page.",
-        variant: "destructive",
-      });
-      return;
+      return; // Don't show toast - user will see the wheel doesn't spin
     }
 
     // Use server-side spinning with the new hook
@@ -372,15 +371,16 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         
         {/* Spinning Wheel */}
         <motion.div
-          className="w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 border-yellow-400 will-change-transform"
+          className="w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 border-yellow-400 wheel-container"
           animate={{ 
             rotate: rotation,
             scale: isSpinning ? 1.02 : 1
           }}
           transition={{
             rotate: {
-              duration: isSpinning ? 4 : 0,
-              ease: isSpinning ? [0.25, 0.1, 0.25, 1] : "linear"
+              duration: 4.5,
+              ease: [0.25, 0.1, 0.25, 1],
+              type: "tween"
             },
             scale: {
               duration: 0.3,

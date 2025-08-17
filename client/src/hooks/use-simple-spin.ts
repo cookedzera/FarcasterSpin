@@ -47,13 +47,7 @@ export function useSimpleSpin() {
         spinsRemaining: data.spinsRemaining
       })
 
-      toast({
-        title: data.isWin ? "You Won!" : "Better Luck Next Time",
-        description: data.isWin 
-          ? `You won ${data.rewardAmount} ${data.tokenType} tokens!` 
-          : `You landed on ${data.segment}. ${data.spinsRemaining} spins remaining today.`,
-        variant: data.isWin ? "default" : "destructive",
-      })
+      // Don't show toast - will show after wheel animation completes
 
       return true
     } catch (error: any) {
@@ -72,15 +66,19 @@ export function useSimpleSpin() {
         errorMessage = error.message || "An unexpected error occurred"
       }
 
-      toast({
-        title: errorTitle,
-        description: errorMessage,
-        variant: "destructive",
-      })
+      // Only show error toast for actual failures (not animation results)
+      if (!error.message.includes('Daily spin limit')) {
+        toast({
+          title: errorTitle,
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
       
       return false
     } finally {
-      setIsSpinning(false)
+      // Don't set spinning false immediately - let animation complete
+      setTimeout(() => setIsSpinning(false), 4800);
     }
   }
 
