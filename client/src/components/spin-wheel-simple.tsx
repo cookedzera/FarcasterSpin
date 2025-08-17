@@ -9,7 +9,7 @@ import { ethers } from "ethers";
 import { Coins, Gift } from "lucide-react";
 import aidogeLogo from "@assets/aidoge_1755435810322.png";
 import boopLogo from "@assets/boop_1755435810327.png";
-import arbLogo from "@assets/image_1755435826976.png";
+import arbLogo from "@assets/arb-logo.png";
 
 const WHEEL_SEGMENTS = [
   { name: 'AIDOGE', color: '#3B82F6', reward: '1' },

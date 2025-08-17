@@ -12,7 +12,7 @@ import { formatUnits } from "ethers";
 import { type GameStats, type SpinResult } from "@shared/schema";
 import aidogeLogo from "@assets/aidoge_1755435810322.png";
 import boopLogo from "@assets/boop_1755435810327.png";
-import arbLogo from "@assets/image_1755435826976.png";
+import arbLogo from "@assets/arb-logo.png";
 // Audio is now managed globally in App.tsx via GlobalAudio component
 
 interface TokenBalances {
