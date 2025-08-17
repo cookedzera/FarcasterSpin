@@ -17,8 +17,6 @@ export function useSimpleSpin() {
     setIsSpinning(true)
 
     try {
-      console.log('🎰 Starting server-side spin...');
-
       // Call server API for free spinning
       const response = await fetch('/api/spin-free', {
         method: 'POST',
@@ -37,7 +35,7 @@ export function useSimpleSpin() {
         throw new Error(data.error || 'Spin failed');
       }
 
-      console.log('✅ Spin result:', data);
+
       
       setLastSpinResult({
         segment: data.segment,
@@ -51,7 +49,6 @@ export function useSimpleSpin() {
 
       return true
     } catch (error: any) {
-      console.error('Spin failed:', error)
       
       let errorMessage = "Failed to execute spin"
       let errorTitle = "Spin Failed"

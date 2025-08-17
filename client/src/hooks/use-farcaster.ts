@@ -16,26 +16,15 @@ export function useFarcaster() {
 
     async function loadFarcasterUser() {
       try {
-        console.log('🚀 Loading Farcaster user...');
-        
-        // Add small delay to ensure SDK is loaded
         await new Promise(resolve => setTimeout(resolve, 200));
-        
         const farcasterUser = await getFarcasterUser();
         
         if (mounted) {
           setUser(farcasterUser);
           setIsAuthenticated(!!farcasterUser);
           setLoading(false);
-          
-          if (farcasterUser) {
-            console.log('✅ Farcaster user loaded:', farcasterUser.displayName || farcasterUser.username);
-          } else {
-            console.log('ℹ️ No Farcaster user - using fallback');
-          }
         }
       } catch (error) {
-        console.error('💥 Error loading Farcaster user:', error);
         if (mounted) {
           setUser(null);
           setIsAuthenticated(false);

@@ -89,25 +89,18 @@ export function createFarcasterAuthMiddleware(domain: string) {
 // Fetch user data from Pinata Farcaster Hub API (free, no API key needed)
 export async function fetchUserDataFromHub(fid: number): Promise<Partial<FarcasterUser>> {
   try {
-    console.log(`🔍 Fetching Farcaster profile for FID: ${fid}`);
-    
-    // Use working Pinata Hub API endpoint
     const response = await fetch(`https://hub.pinata.cloud/v1/userDataByFid?fid=${fid}`);
     
     if (!response.ok) {
-      console.log(`Hub API response not ok: ${response.status}`);
       return {};
     }
 
     const data = await response.json();
-    console.log(`📦 Raw Hub API response:`, JSON.stringify(data, null, 2));
 
     if (!data.messages || data.messages.length === 0) {
-      console.log('No user data messages found');
       return {};
     }
 
-    // Extract display name, username, bio, and profile picture
     const messages = data.messages;
     let displayName = '';
     let username = '';
@@ -134,7 +127,7 @@ export async function fetchUserDataFromHub(fid: number): Promise<Partial<Farcast
       }
     });
 
-    const userData: Partial<FarcasterUser> = {
+    return {
       fid,
       username: username || '',
       displayName: displayName || '',
@@ -143,11 +136,7 @@ export async function fetchUserDataFromHub(fid: number): Promise<Partial<Farcast
       custody: '',
       verifications: []
     };
-
-    console.log(`✅ Parsed user data:`, userData);
-    return userData;
   } catch (error) {
-    console.error('Error fetching from Pinata Hub API:', error);
     return {};
   }
 }
@@ -155,21 +144,16 @@ export async function fetchUserDataFromHub(fid: number): Promise<Partial<Farcast
 // Helper function to resolve additional user data from external APIs
 export async function resolveUserData(fid: number): Promise<Partial<FarcasterUser>> {
   try {
-    // First try the free Farcaster Hub API
     const hubData = await fetchUserDataFromHub(fid);
     if (hubData.username || hubData.displayName) {
-      console.log(`📝 Successfully fetched from Hub API for FID ${fid}`);
       return hubData;
     }
 
-    // Fallback to Neynar API if available
     if (neynarClient) {
       try {
-        console.log(`🔄 Trying Neynar API for FID ${fid}`);
         const { users } = await neynarClient.fetchBulkUsers({ fids: [fid] });
         if (users && users.length > 0) {
           const user = users[0];
-          console.log(`✅ Successfully fetched from Neynar API for FID ${fid}`);
           return {
             fid: user.fid,
             username: user.username,
@@ -181,15 +165,12 @@ export async function resolveUserData(fid: number): Promise<Partial<FarcasterUse
           };
         }
       } catch (neynarError) {
-        console.log('Neynar API request failed:', neynarError);
+        // Silently handle error
       }
     }
 
-    // If no data found, return basic FID data
-    console.log(`⚠️ No profile data found for FID ${fid}`);
     return { fid };
   } catch (error) {
-    console.error('Error resolving user data:', error);
     return { fid };
   }
 }
