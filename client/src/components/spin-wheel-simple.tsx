@@ -297,9 +297,9 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
 
   const handleSpin = async () => {
-    // Check for daily limit first
-    if (userSpinsUsed >= 3) {
-      return; // Don't show toast for daily limit - user can see the button is disabled
+    // Prevent multiple spins - check all blocking conditions
+    if (userSpinsUsed >= 3 || isSpinning || result !== null) {
+      return; // Don't allow spin if: daily limit reached, currently spinning, or result showing
     }
 
     // Check if user ID is available
@@ -517,12 +517,13 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
       <Button
         onClick={handleSpin}
-        disabled={userSpinsUsed >= 3 || isSpinning}
-        className="w-48 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg"
+        disabled={userSpinsUsed >= 3 || isSpinning || result !== null}
+        className="w-48 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         data-testid="button-spin"
       >
         {userSpinsUsed >= 3 ? 'Daily Limit Reached' :
          isSpinning ? 'Spinning...' : 
+         result !== null ? 'Processing...' :
          hasSpinsRemaining ? '🎰 FREE SPIN!' : 'No spins available'}
       </Button>
       

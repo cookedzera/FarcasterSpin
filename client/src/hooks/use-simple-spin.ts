@@ -77,8 +77,8 @@ export function useSimpleSpin() {
       
       return false
     } finally {
-      // Don't set spinning false immediately - let animation complete
-      setTimeout(() => setIsSpinning(false), 4800);
+      // Don't set spinning false immediately - let animation complete (increased time for safety)
+      setTimeout(() => setIsSpinning(false), 5000);
     }
   }
 
