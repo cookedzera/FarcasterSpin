@@ -71,14 +71,13 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
     hash,
   });
 
-  // Handle successful transaction
+  // Handle successful transaction - THIS IS WHERE ANIMATION AND RESULT HAPPEN
   useEffect(() => {
     if (isSuccess && hash) {
-      // Parse transaction logs to get spin result
-      const parseTransactionResult = async () => {
+      // NOW we start the wheel animation and get results from blockchain
+      const handleConfirmedTransaction = async () => {
         try {
-          // In a real implementation, you would parse the transaction receipt logs
-          // For now, let's update the backend to still track the spin but not execute it
+          // Get the actual spin result from the blockchain transaction
           const response = await fetch('/api/spin-result', {
             method: 'POST',
             headers: {
@@ -93,63 +92,120 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
           
           if (response.ok) {
             const spinResult = await response.json();
-            const finalResult = {
-              segment: spinResult.segment || result?.segment || 'UNKNOWN',
-              isWin: spinResult.isWin ?? result?.isWin ?? false,
-              reward: spinResult.rewardAmount || result?.reward || '0',
+            
+            // NOW animate the wheel to the correct result
+            const resultSegment = WHEEL_SEGMENTS.find(s => s.name === spinResult.segment) || WHEEL_SEGMENTS[0];
+            const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
+            const segmentAngle = 360 / WHEEL_SEGMENTS.length;
+            const targetAngle = segmentIndex * segmentAngle;
+            const spins = 5; // 5 full rotations for dramatic effect
+            const finalRotation = rotation + (spins * 360) - targetAngle;
+            
+            // Start the wheel animation
+            setRotation(finalRotation);
+            
+            // Set the confirmed result after animation
+            setTimeout(() => {
+              const finalResult = {
+                segment: spinResult.segment,
+                isWin: spinResult.isWin,
+                reward: spinResult.rewardAmount || '0',
+                transactionHash: hash
+              };
+              
+              setResult(finalResult);
+              
+              toast({
+                title: finalResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time!",
+                description: `${finalResult.segment} - TX: ${hash.slice(0, 10)}...`,
+                variant: finalResult.isWin ? "default" : "destructive",
+              });
+              
+              if (onSpinComplete) {
+                onSpinComplete(finalResult);
+              }
+              
+              // Reset after showing result
+              setTimeout(() => {
+                setResult(null);
+                setIsSpinning(false);
+              }, 4000);
+            }, 3000); // Wait for wheel animation to complete
+            
+          } else {
+            throw new Error('Failed to get spin result from API');
+          }
+        } catch (error) {
+          console.error('Failed to handle transaction result:', error);
+          
+          // Fallback - generate random result for animation
+          const randomIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
+          const landedSegment = WHEEL_SEGMENTS[randomIndex];
+          
+          const segmentAngle = 360 / WHEEL_SEGMENTS.length;
+          const targetAngle = randomIndex * segmentAngle;
+          const spins = 5;
+          const finalRotation = rotation + (spins * 360) - targetAngle;
+          
+          setRotation(finalRotation);
+          
+          setTimeout(() => {
+            const fallbackResult = {
+              segment: landedSegment.name,
+              isWin: landedSegment.name !== 'BUST',
+              reward: landedSegment.reward,
               transactionHash: hash
             };
             
-            setResult(finalResult);
+            setResult(fallbackResult);
             
             toast({
-              title: finalResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time!",
-              description: `Transaction confirmed! Hash: ${hash.slice(0, 10)}...`,
-              variant: finalResult.isWin ? "default" : "destructive",
+              title: "Transaction Confirmed",
+              description: `TX: ${hash.slice(0, 10)}...`,
+              variant: "default",
             });
             
             if (onSpinComplete) {
-              onSpinComplete(finalResult);
+              onSpinComplete(fallbackResult);
             }
             
-            // Reset after showing result
             setTimeout(() => {
               setResult(null);
               setIsSpinning(false);
-            }, 3000);
-          }
-        } catch (error) {
-          console.error('Failed to parse transaction result:', error);
-          // Fallback to local result
-          const finalResult = {
-            segment: result?.segment || 'UNKNOWN',
-            isWin: result?.isWin || false,
-            reward: result?.reward || '0',
-            transactionHash: hash
-          };
-          
-          setResult(finalResult);
-          
-          toast({
-            title: "Transaction Complete",
-            description: `Hash: ${hash.slice(0, 10)}...`,
-            variant: "default",
-          });
-          
-          if (onSpinComplete) {
-            onSpinComplete(finalResult);
-          }
-          
-          setTimeout(() => {
-            setResult(null);
-            setIsSpinning(false);
+            }, 4000);
           }, 3000);
         }
       };
       
-      parseTransactionResult();
+      handleConfirmedTransaction();
     }
-  }, [isSuccess, hash, result, address, onSpinComplete, toast]);
+  }, [isSuccess, hash, rotation, address, onSpinComplete, toast]);
+
+  // Handle transaction failure
+  useEffect(() => {
+    if (isPending) {
+      toast({
+        title: "Transaction Pending",
+        description: "Waiting for blockchain confirmation...",
+        variant: "default",
+      });
+    }
+  }, [isPending, toast]);
+
+  // Handle transaction errors
+  useEffect(() => {
+    if (hash && !isConfirming && !isSuccess && !isPending) {
+      // Transaction was rejected or failed
+      setIsSpinning(false);
+      setResult(null);
+      
+      toast({
+        title: "Transaction Failed",
+        description: "The spin transaction was rejected or failed. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [hash, isConfirming, isSuccess, isPending, toast]);
 
   const handleSpin = async () => {
     if (!isConnected || !address) {
@@ -161,10 +217,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
       return;
     }
 
-    if (userSpinsUsed >= 3) {
+    if (userSpinsUsed >= 5) {
       toast({
         title: "Daily Limit Reached",
-        description: "You've used all 3 spins for today!",
+        description: "You can spin 5 times per day. Try again tomorrow!",
         variant: "destructive",
       });
       return;
@@ -179,50 +235,28 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
       return;
     }
 
-    // Generate random result (in real app, this would come from contract events)
-    const randomIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
-    const landedSegment = WHEEL_SEGMENTS[randomIndex];
-    
-    // Calculate wheel rotation to land on the segment
-    const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-    const targetAngle = randomIndex * segmentAngle;
-    const spins = 5; // 5 full rotations
-    const finalRotation = rotation + (spins * 360) - targetAngle;
-    
+    // Set spinning state but NO animation or result yet
     setIsSpinning(true);
-    setRotation(finalRotation);
-    
-    // Set result for later use
-    setResult({
-      segment: landedSegment.name,
-      isWin: landedSegment.name !== 'BUST',
-      reward: landedSegment.reward,
-      transactionHash: '' // Will be set when transaction confirms
-    });
+    setResult(null); // Clear any previous result
 
     try {
-      // First check if user has reached daily limit
-      if (userSpinsUsed >= 5) {
-        toast({
-          title: "Daily Limit Reached",
-          description: "You can spin 5 times per day. Try again tomorrow!",
-          variant: "destructive",
-        });
-        setIsSpinning(false);
-        setResult(null);
-        return;
-      }
+      // First show user we're initiating transaction
+      toast({
+        title: "Initiating Spin",
+        description: "Please confirm the transaction in your wallet",
+        variant: "default",
+      });
 
       // Call the contract directly from user's wallet (user pays gas)
       writeContract({
-        address: CONTRACT_CONFIG.contractAddress as `0x${string}`,
+        address: CONTRACT_CONFIG.WHEEL_GAME_ADDRESS as `0x${string}`,
         abi: WHEEL_ABI,
         functionName: 'spin',
         args: [],
-        gas: 200000n, // Set reasonable gas limit
+        gas: BigInt(200000), // Set reasonable gas limit
       });
 
-      // Note: Transaction result will be handled by useEffect when isSuccess becomes true
+      // Note: Animation and result will ONLY happen after transaction is confirmed in useEffect
     } catch (error: any) {
       console.error('Contract call failed:', error);
       let errorMessage = "Failed to call contract";
@@ -257,7 +291,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
         
         {/* Spinning Wheel */}
         <motion.div
-          className="w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 border-yellow-400"
+          className={`w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 ${
+            isProcessing ? 'border-blue-400 shadow-blue-400/50' : 
+            isSpinning ? 'border-yellow-400' : 'border-yellow-400'
+          }`}
           animate={{ rotate: rotation }}
           transition={{
             duration: isSpinning ? 4 : 0,
@@ -292,27 +329,47 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
           })}
           
           {/* Center Circle */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gray-800 rounded-full border-2 border-yellow-400 flex items-center justify-center">
-            <span className="text-yellow-400 font-bold text-xs">SPIN</span>
+          <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gray-800 rounded-full border-2 ${
+            isProcessing ? 'border-blue-400' : 'border-yellow-400'
+          } flex items-center justify-center`}>
+            <span className={`font-bold text-xs ${
+              isProcessing ? 'text-blue-400' : 'text-yellow-400'
+            }`}>
+              {isProcessing ? '⏳' : isSpinning ? '🎰' : 'SPIN'}
+            </span>
           </div>
         </motion.div>
       </div>
 
       <Button
         onClick={handleSpin}
-        disabled={!isConnected || userSpinsUsed >= 3 || isSpinning || isProcessing}
+        disabled={!isConnected || userSpinsUsed >= 5 || isSpinning || isProcessing}
         className="w-48 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg"
       >
         {!isConnected ? 'Connect Wallet' : 
-         userSpinsUsed >= 3 ? 'Daily Limit Reached' :
-         isProcessing ? 'Processing...' :
-         isSpinning ? 'Spinning...' : 'SPIN (Real Contract)'}
+         userSpinsUsed >= 5 ? 'Daily Limit Reached' :
+         isProcessing ? 'Confirming Transaction...' :
+         isSpinning ? 'Waiting for Confirmation...' : 'SPIN'}
       </Button>
+      
+      {/* Transaction Status */}
+      {(isPending || isConfirming) && (
+        <div className="text-center bg-blue-600/20 border border-blue-400 rounded-lg p-3">
+          <p className="text-blue-300 text-sm font-medium">
+            {isPending ? "⏳ Waiting for wallet confirmation..." : "🔄 Transaction confirming on blockchain..."}
+          </p>
+          {hash && (
+            <p className="text-blue-400 text-xs mt-1">
+              TX: {hash.slice(0, 10)}...{hash.slice(-8)}
+            </p>
+          )}
+        </div>
+      )}
       
       {/* Spins Counter */}
       <div className="text-center">
         <p className="text-white/80 text-sm">
-          {3 - userSpinsUsed} spins remaining today
+          {5 - userSpinsUsed} spins remaining today
         </p>
       </div>
 
