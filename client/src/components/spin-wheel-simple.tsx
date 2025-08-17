@@ -369,9 +369,16 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
       {/* Wheel Container */}
       <div className="relative">
-        {/* Pointer */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-20">
-          <div className="w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow-lg"></div>
+        {/* Arrow Pointer - Points to winning segment */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 z-20">
+          <div className="relative">
+            {/* Main arrow body */}
+            <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-b-[20px] border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow-lg"></div>
+            {/* Arrow tip highlight */}
+            <div className="absolute top-[20px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[8px] border-l-transparent border-r-transparent border-b-yellow-300"></div>
+            {/* Arrow shadow for depth */}
+            <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[12px] border-r-[12px] border-b-[20px] border-l-transparent border-r-transparent border-b-yellow-600/50 -z-10"></div>
+          </div>
         </div>
         
 
