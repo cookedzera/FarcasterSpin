@@ -93,7 +93,7 @@ export class BlockchainService {
       const spinEvent = receipt.logs.find((log: any) => {
         try {
           const parsed = this.contract!.interface.parseLog(log);
-          return parsed.name === "SpinResult";
+          return parsed?.name === "SpinResult";
         } catch {
           return false;
         }
@@ -146,7 +146,7 @@ export class BlockchainService {
       const spinEvent = receipt.logs.find((log: any) => {
         try {
           const parsed = this.contract!.interface.parseLog(log);
-          return parsed.name === "SpinResult";
+          return parsed?.name === "SpinResult";
         } catch {
           return false;
         }
@@ -200,7 +200,7 @@ export class BlockchainService {
 
     } catch (error: any) {
       console.error("Contract spin error:", error);
-      console.log(`Contract address being used: ${this.contractAddress}`);
+      console.log(`Contract address being used: ${WHEEL_GAME_ADDRESS}`);
       throw new Error(`Spin failed: ${error.message}`);
     }
   }
