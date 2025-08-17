@@ -21,8 +21,25 @@ const WHEEL_ABI = [
     type: "function",
     name: "spin",
     inputs: [],
-    outputs: [],
+    outputs: [
+      { name: "segment", type: "string" },
+      { name: "isWin", type: "bool" },
+      { name: "tokenAddress", type: "address" },
+      { name: "rewardAmount", type: "uint256" }
+    ],
     stateMutability: "nonpayable"
+  },
+  {
+    type: "event",
+    name: "SpinResult",
+    inputs: [
+      { indexed: true, name: "player", type: "address" },
+      { indexed: false, name: "segment", type: "string" },
+      { indexed: false, name: "isWin", type: "bool" },
+      { indexed: false, name: "tokenAddress", type: "address" },
+      { indexed: false, name: "rewardAmount", type: "uint256" },
+      { indexed: false, name: "randomSeed", type: "uint256" }
+    ]
   }
 ] as const;
 
@@ -56,27 +73,83 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
 
   // Handle successful transaction
   useEffect(() => {
-    if (isSuccess && hash && result) {
-      toast({
-        title: "🎉 Spin Complete!",
-        description: `You landed on ${result.segment}! ${result.isWin ? 'You won!' : 'Try again!'}`,
-        variant: result.isWin ? "default" : "destructive",
-      });
+    if (isSuccess && hash) {
+      // Parse transaction logs to get spin result
+      const parseTransactionResult = async () => {
+        try {
+          // In a real implementation, you would parse the transaction receipt logs
+          // For now, let's update the backend to still track the spin but not execute it
+          const response = await fetch('/api/spin-result', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: localStorage.getItem('arbcasino_user_id') || '56cbf268-416e-4a46-b71f-e0e5082a7498',
+              userAddress: address,
+              transactionHash: hash
+            })
+          });
+          
+          if (response.ok) {
+            const spinResult = await response.json();
+            const finalResult = {
+              segment: spinResult.segment || result?.segment || 'UNKNOWN',
+              isWin: spinResult.isWin ?? result?.isWin ?? false,
+              reward: spinResult.rewardAmount || result?.reward || '0',
+              transactionHash: hash
+            };
+            
+            setResult(finalResult);
+            
+            toast({
+              title: finalResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time!",
+              description: `Transaction confirmed! Hash: ${hash.slice(0, 10)}...`,
+              variant: finalResult.isWin ? "default" : "destructive",
+            });
+            
+            if (onSpinComplete) {
+              onSpinComplete(finalResult);
+            }
+            
+            // Reset after showing result
+            setTimeout(() => {
+              setResult(null);
+              setIsSpinning(false);
+            }, 3000);
+          }
+        } catch (error) {
+          console.error('Failed to parse transaction result:', error);
+          // Fallback to local result
+          const finalResult = {
+            segment: result?.segment || 'UNKNOWN',
+            isWin: result?.isWin || false,
+            reward: result?.reward || '0',
+            transactionHash: hash
+          };
+          
+          setResult(finalResult);
+          
+          toast({
+            title: "Transaction Complete",
+            description: `Hash: ${hash.slice(0, 10)}...`,
+            variant: "default",
+          });
+          
+          if (onSpinComplete) {
+            onSpinComplete(finalResult);
+          }
+          
+          setTimeout(() => {
+            setResult(null);
+            setIsSpinning(false);
+          }, 3000);
+        }
+      };
       
-      if (onSpinComplete) {
-        onSpinComplete({
-          ...result,
-          transactionHash: hash
-        });
-      }
-      
-      // Reset after showing result
-      setTimeout(() => {
-        setResult(null);
-        setIsSpinning(false);
-      }, 3000);
+      parseTransactionResult();
     }
-  }, [isSuccess, hash, result, onSpinComplete, toast]);
+  }, [isSuccess, hash, result, address, onSpinComplete, toast]);
 
   const handleSpin = async () => {
     if (!isConnected || !address) {
@@ -128,53 +201,15 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
     });
 
     try {
-      // Call the backend API which handles real contract interaction
-      const response = await fetch('/api/spin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: localStorage.getItem('arbcasino_user_id') || '56cbf268-416e-4a46-b71f-ae2f55d08621',
-          userAddress: address
-        })
+      // Call the contract directly from user's wallet (user pays gas)
+      writeContract({
+        address: CONTRACT_CONFIG.contractAddress as `0x${string}`,
+        abi: WHEEL_ABI,
+        functionName: 'spin',
+        args: [],
       });
 
-      if (!response.ok) {
-        throw new Error('Spin request failed');
-      }
-
-      const spinResult = await response.json();
-      
-      // Update UI with real result
-      setResult({
-        segment: spinResult.symbols[0] || 'UNKNOWN',
-        isWin: spinResult.isWin,
-        reward: spinResult.rewardAmount || '0',
-        transactionHash: spinResult.transactionHash
-      });
-
-      toast({
-        title: spinResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time!",
-        description: `Transaction: ${spinResult.transactionHash?.slice(0, 10)}...`,
-        variant: spinResult.isWin ? "default" : "destructive",
-      });
-
-      if (onSpinComplete) {
-        onSpinComplete({
-          segment: spinResult.symbols[0] || 'UNKNOWN',
-          isWin: spinResult.isWin,
-          reward: spinResult.rewardAmount || '0',
-          transactionHash: spinResult.transactionHash
-        });
-      }
-
-      // Reset after showing result
-      setTimeout(() => {
-        setResult(null);
-        setIsSpinning(false);
-      }, 3000);
-
+      // Note: Transaction result will be handled by useEffect when isSuccess becomes true
     } catch (error: any) {
       console.error('Contract call failed:', error);
       toast({

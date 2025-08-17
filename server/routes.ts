@@ -7,6 +7,7 @@ import { ethers } from "ethers";
 import { z } from "zod";
 import { createFarcasterAuthMiddleware, verifyFarcasterToken, getUserByAddress } from "./farcaster";
 import { blockchainService } from "./blockchain";
+import { handleSpinResult } from "./spin-result-route";
 
 // ERC20 ABI for token transfers
 const ERC20_ABI = [
@@ -154,6 +155,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to perform spin" });
     }
   });
+
+  // Parse user's transaction for spin result (user pays gas fees)
+  app.post("/api/spin-result", handleSpinResult);
 
   // Get game statistics
   app.get("/api/stats", async (req, res) => {

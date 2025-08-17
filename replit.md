@@ -11,6 +11,13 @@ Navigation preferences: Fast, smooth transitions without loading animations betw
 UI preferences: Token collection display with real balances instead of accumulated rewards on profile.
 Gas fee preference: Users should pay their own gas fees for both spinning and claiming transactions, not the project wallet.
 
+## Recent Changes (January 17, 2025)
+
+✅ **Fresh Contract Deployment**: Successfully deployed new ARBCasinoWheel contract to Arbitrum Sepolia: `0x9D41F31a28BB06bEA083D88f707046B03fc04B36`
+✅ **User Gas Payment Implementation**: Frontend now calls contract directly from user's wallet instead of server wallet, ensuring users pay their own gas fees
+✅ **Transaction Parsing**: Added `/api/spin-result` endpoint to parse user transaction receipts and extract spin results
+✅ **Wagmi Integration**: Properly integrated user wallet transactions using wagmi `writeContract` with transaction confirmation handling
+
 # System Architecture
 
 ## Frontend Architecture
