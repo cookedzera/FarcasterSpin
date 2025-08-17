@@ -12,7 +12,7 @@ const TypewriterText = memo(() => {
   const [displayText, setDisplayText] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [typingSpeed, setTypingSpeed] = useState(150);
+  const [typingSpeed, setTypingSpeed] = useState(300);
   
   const words = ["Spin", "Games"];
   
@@ -22,17 +22,18 @@ const TypewriterText = memo(() => {
       
       if (isDeleting) {
         setDisplayText(prev => prev.slice(0, -1));
-        setTypingSpeed(75);
+        setTypingSpeed(120); // Slower deletion
       } else {
         setDisplayText(prev => currentWord.slice(0, prev.length + 1));
-        setTypingSpeed(150);
+        setTypingSpeed(300); // Slower typing
       }
       
       if (!isDeleting && displayText === currentWord) {
-        setTimeout(() => setIsDeleting(true), 2000);
+        setTimeout(() => setIsDeleting(true), 3500); // Longer pause before deleting
       } else if (isDeleting && displayText === "") {
         setIsDeleting(false);
         setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        setTypingSpeed(600); // Pause before starting new word
       }
     };
     
@@ -45,13 +46,13 @@ const TypewriterText = memo(() => {
       {displayText}
       <motion.span
         animate={{ opacity: [1, 0] }}
-        transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
+        transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse" }}
         className="inline-block ml-1"
       >
         |
       </motion.span>
-      {/* Underline specifically for the typewriter text */}
-      <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded-full"></div>
+      {/* Bold underline specifically for the typewriter text */}
+      <div className="absolute -bottom-1 left-0 right-0 h-1 bg-blue-400 rounded-full"></div>
     </span>
   );
 });
