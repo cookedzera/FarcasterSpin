@@ -290,7 +290,6 @@ export default function Home() {
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(2deg) rotateY(-1deg)',
               boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
@@ -427,7 +426,6 @@ export default function Home() {
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(-1deg) rotateY(1deg)',
               boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
@@ -519,7 +517,6 @@ export default function Home() {
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
               transform: 'perspective(1000px) rotateX(1deg) rotateY(-0.5deg)',
               boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
             }}
@@ -578,7 +575,6 @@ export default function Home() {
                   style={{
                     background: 'rgba(255, 255, 255, 0.08)',
                     backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     transform: `perspective(1000px) rotateX(${index % 2 === 0 ? '0.5deg' : '-0.5deg'}) rotateY(${index % 2 === 0 ? '-0.3deg' : '0.3deg'})`,
                     boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2), 0 1px 8px rgba(255, 255, 255, 0.1) inset'
                   }}
@@ -696,7 +692,6 @@ export default function Home() {
                 style={{
                   background: 'rgba(255, 255, 255, 0.08)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 1px 8px rgba(255, 255, 255, 0.1) inset',
                   maxHeight: '90vh',
                   transform: 'translateZ(0)', // Hardware acceleration
