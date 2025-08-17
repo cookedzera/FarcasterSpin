@@ -13,7 +13,13 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
-✅ **Token Integration & UI Enhancement (Latest)**: Replaced generic tokens with actual cryptocurrencies and improved visual design
+✅ **Center Icon Fix (Latest)**: Fixed ARB logo behavior during wheel spinning
+  - ARB logo now stays visible at all times and rotates with the wheel
+  - Removed emoji replacements (⏳, 🎰) that were hiding the ARB logo during spinning/processing
+  - Center icon now provides consistent visual feedback and maintains branding throughout spin animation
+  - Enhanced user experience with persistent ARB logo visibility
+
+✅ **Token Integration & UI Enhancement**: Replaced generic tokens with actual cryptocurrencies and improved visual design
   - Updated all token references from IARB/JUICE/ABET to AIDOGE/BOOP/ARB throughout the codebase
   - Integrated provided token logos: Aidoge, Boop, and ARB with proper asset imports
   - Added ARB logo to the center of the spin wheel, displayed when wheel is not spinning

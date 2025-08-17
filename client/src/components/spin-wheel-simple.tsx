@@ -663,23 +663,15 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
             );
           })}
           
-          {/* Center Circle with ARB Logo */}
+          {/* Center Circle with ARB Logo - Always visible and rotates with wheel */}
           <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gray-800 rounded-full border-3 ${
             isProcessing ? 'border-blue-400' : 'border-yellow-400'
           } flex items-center justify-center overflow-hidden`}>
-            {isProcessing || isSpinning ? (
-              <span className={`font-bold text-xs ${
-                isProcessing ? 'text-blue-400' : 'text-yellow-400'
-              }`}>
-                {isProcessing ? '⏳' : '🎰'}
-              </span>
-            ) : (
-              <img 
-                src={arbLogo} 
-                alt="ARB" 
-                className="w-12 h-12 object-contain"
-              />
-            )}
+            <img 
+              src={arbLogo} 
+              alt="ARB" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
         </motion.div>
       </div>
