@@ -95,10 +95,16 @@ export function FarcasterConnect() {
   const handleConnect = async () => {
     try {
       if (connectors[0]) {
+        // Add MetaMask detection
+        if (connectors[0].id === 'injected' && typeof window?.ethereum === 'undefined') {
+          alert('Please install MetaMask to connect.')
+          return
+        }
         await connect({ connector: connectors[0] })
       }
     } catch (error) {
       console.error('Failed to connect wallet:', error)
+      alert('Failed to connect wallet. Please try again.')
     }
   }
 

@@ -3,9 +3,7 @@ import { arbitrum, arbitrumSepolia } from 'wagmi/chains'
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector'
 import { coinbaseWallet, walletConnect, injected } from 'wagmi/connectors'
 
-// WalletConnect project ID - using a demo project ID for testing
-const projectId = '2f05a4b1fc5791a6ab9f3a9b5c5a5b4f'
-
+// Simplified wallet config - remove WalletConnect to fix connection issues
 export const config = createConfig({
   chains: [arbitrumSepolia, arbitrum], // Support both testnet and mainnet
   connectors: [
@@ -13,16 +11,6 @@ export const config = createConfig({
     injected(), // MetaMask and other injected wallets
     coinbaseWallet({
       appName: 'ArbCasino',
-      appLogoUrl: '/logo.png',
-    }),
-    walletConnect({
-      projectId,
-      metadata: {
-        name: 'ArbCasino',
-        description: 'Arbitrum Slot Machine Game',
-        url: 'https://arbcasino.replit.app',
-        icons: ['/logo.png']
-      }
     }),
   ],
   transports: {

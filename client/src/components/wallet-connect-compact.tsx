@@ -83,9 +83,17 @@ export function WalletConnectCompact() {
 
   const handleConnect = async (connector: any) => {
     try {
+      // Add error handling for MetaMask detection
+      if (connector.id === 'injected' && typeof window?.ethereum === 'undefined') {
+        alert('Please install MetaMask to connect with this wallet option.')
+        return
+      }
       await connect({ connector })
+      setShowWallets(false)
     } catch (error) {
       console.error('Failed to connect wallet:', error)
+      // Show user-friendly error message
+      alert('Failed to connect wallet. Please try again or use a different wallet.')
     }
   }
 
