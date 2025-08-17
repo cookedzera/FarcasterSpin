@@ -325,6 +325,27 @@
   animation: bounce-win 0.6s ease-out;
 }
 
+/* Optimized wheel spinning animations */
+.wheel-container {
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+@supports (transform: rotate(0deg)) {
+  .wheel-container {
+    /* GPU acceleration for modern browsers */
+    transform: translateZ(0);
+  }
+}
+
+/* Smooth wheel rotation */
+.smooth-rotation {
+  transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-origin: center center;
+}
+
 /* Frame constraints for Farcaster Mini App */
 .app-container {
   max-width: 390px;

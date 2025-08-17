@@ -13,6 +13,7 @@ export function useSimpleSpin() {
   const { address, isConnected } = useAccount()
   const { toast } = useToast()
   const triggerSpin = async (userId: string) => {
+    if (isSpinning) return false; // Prevent double-spinning
     setIsSpinning(true)
 
     try {

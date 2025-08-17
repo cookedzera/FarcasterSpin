@@ -200,18 +200,17 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
     setSessionSpinsUsed(userSpinsUsed);
   }, [userSpinsUsed]);
 
-  // Handle spin result from server-side spinning
+  // Handle spin result from server-side spinning with improved animation
   useEffect(() => {
-    if (lastSpinResult) {
-      // Animate the wheel to the correct result
+    if (lastSpinResult && isSpinning) {
+      // Calculate target rotation for result
       const resultSegment = WHEEL_SEGMENTS.find(s => s.name === lastSpinResult.segment) || WHEEL_SEGMENTS[0];
       const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
       const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-      // Point arrow to center of segment (add half segment angle)
+      // Point arrow to center of segment
       const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2;
-      const spins = 5; // 5 full rotations for dramatic effect
-      const currentRotation = rotation; // Capture current rotation to avoid dependency loop
-      const finalRotation = currentRotation + (spins * 360) - targetAngle;
+      const spins = 4; // 4 full rotations for smooth effect
+      const finalRotation = (spins * 360) + targetAngle;
       
       // Start the wheel animation and sound
       setRotation(finalRotation);
@@ -239,14 +238,14 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         const clearResultTimeout = setTimeout(() => {
           setResult(null);
           resetSpinResult(); // Clear the spin result from the hook
-        }, 4000);
+        }, 3000);
         
         return () => clearTimeout(clearResultTimeout);
-      }, 4500); // Wait for wheel animation (4s) + small delay (0.5s) to feel natural
+      }, 4200); // Wait for wheel animation to complete
       
       return () => clearTimeout(resultTimeout);
     }
-  }, [lastSpinResult]); // Remove rotation and resetSpinResult from dependencies to prevent infinite loop
+  }, [lastSpinResult, isSpinning]); // Simplified dependencies
 
 
 
@@ -373,17 +372,20 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         
         {/* Spinning Wheel */}
         <motion.div
-          className={`w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 will-change-transform wheel-container ${
-            isSpinning ? 'border-yellow-400' : 'border-yellow-400'
-          }`}
-          style={{
-            transform: `rotate(${rotation}deg) translateZ(0)`,
-            backfaceVisibility: 'hidden'
+          className="w-64 h-64 rounded-full relative overflow-hidden shadow-2xl border-4 border-yellow-400 will-change-transform"
+          animate={{ 
+            rotate: rotation,
+            scale: isSpinning ? 1.02 : 1
           }}
-          animate={{ rotate: rotation }}
           transition={{
-            duration: isSpinning ? 4 : 0,
-            ease: isSpinning ? [0.25, 0.1, 0.25, 1] : "linear"
+            rotate: {
+              duration: isSpinning ? 4 : 0,
+              ease: isSpinning ? [0.25, 0.1, 0.25, 1] : "linear"
+            },
+            scale: {
+              duration: 0.3,
+              ease: "easeOut"
+            }
           }}
         >
           {WHEEL_SEGMENTS.map((segment, index) => {
