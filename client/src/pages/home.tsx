@@ -226,7 +226,7 @@ export default function Home() {
 
 
       {/* Main Content */}
-      <div className="relative z-10 px-4 py-4 pb-24">
+      <div className="relative z-10 px-2 py-4 pb-24">
         {/* User Profile - Compact */}
         <motion.div 
           className="text-center mb-4"
@@ -686,7 +686,7 @@ export default function Home() {
               willChange: 'scroll-position'
             }}
           >
-            <div className="min-h-full flex items-start justify-center p-4 pt-8 pb-20">
+            <div className="min-h-full flex items-start justify-center p-2 pt-8 pb-20">
               <motion.div
                 className="rounded-3xl max-w-md w-full relative flex flex-col will-change-transform"
                 style={{
