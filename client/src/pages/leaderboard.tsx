@@ -1,11 +1,9 @@
-import { useState, useMemo, memo } from "react";
+import { useMemo, memo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trophy, Medal, Award, Coins, Zap, Target, Crown, Star, Flame } from "lucide-react";
+import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { Link } from "wouter";
 import Navigation from "@/components/navigation";
 
@@ -78,25 +76,13 @@ const RADIAL_STYLE = {
 };
 
 export default function Leaderboard() {
-  const [category, setCategory] = useState<'wins' | 'spins' | 'rewards'>('wins');
-
-  // Fetch main leaderboard
+  // Only fetch wins leaderboard
   const { data: leaderboard, isLoading } = useQuery({
-    queryKey: ['/api/leaderboard', category],
+    queryKey: ['/api/leaderboard', 'wins'],
     queryFn: async () => {
-      const response = await fetch(`/api/leaderboard?category=${category}&limit=20`);
+      const response = await fetch(`/api/leaderboard?category=wins&limit=20`);
       if (!response.ok) throw new Error('Failed to fetch leaderboard');
       return response.json() as Promise<LeaderboardEntry[]>;
-    }
-  });
-
-  // Fetch weekly leaderboard
-  const { data: weeklyLeaderboard, isLoading: weeklyLoading } = useQuery({
-    queryKey: ['/api/leaderboard/weekly'],
-    queryFn: async () => {
-      const response = await fetch('/api/leaderboard/weekly?limit=10');
-      if (!response.ok) throw new Error('Failed to fetch weekly leaderboard');
-      return response.json() as Promise<WeeklyEntry[]>;
     }
   });
 
@@ -207,73 +193,21 @@ export default function Leaderboard() {
             </p>
           </motion.div>
 
-          {/* Tabs for categories */}
+          {/* Simple Wins Leaderboard */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            className="space-y-3"
           >
-            <Tabs value={category} onValueChange={(value) => setCategory(value as any)} className="space-y-4">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-1">
-                <TabsTrigger 
-                  value="wins" 
-                  className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 text-gray-400 rounded-lg transition-all duration-200"
-                >
-                  <Target className="w-4 h-4 mr-1" />
-                  Wins
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="spins" 
-                  className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 text-gray-400 rounded-lg transition-all duration-200"
-                >
-                  <Zap className="w-4 h-4 mr-1" />
-                  Spins
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="rewards" 
-                  className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400 text-gray-400 rounded-lg transition-all duration-200"
-                >
-                  <Coins className="w-4 h-4 mr-1" />
-                  Rewards
-                </TabsTrigger>
-              </TabsList>
-
-              {/* All-Time Leaderboards */}
-              <AnimatePresence mode="wait">
-                <TabsContent value="wins" className="space-y-3">
-                  <LeaderboardList 
-                    title={getCategoryLabel(category)}
-                    data={leaderboard || []}
-                    category={category}
-                    getRankIcon={getRankIcon}
-                    getCategoryValue={getCategoryValue}
-                    formatAddress={formatAddress}
-                  />
-                </TabsContent>
-
-                <TabsContent value="spins" className="space-y-3">
-                  <LeaderboardList 
-                    title={getCategoryLabel(category)}
-                    data={leaderboard || []}
-                    category={category}
-                    getRankIcon={getRankIcon}
-                    getCategoryValue={getCategoryValue}
-                    formatAddress={formatAddress}
-                  />
-                </TabsContent>
-
-                <TabsContent value="rewards" className="space-y-3">
-                  <LeaderboardList 
-                    title={getCategoryLabel(category)}
-                    data={leaderboard || []}
-                    category={category}
-                    getRankIcon={getRankIcon}
-                    getCategoryValue={getCategoryValue}
-                    formatAddress={formatAddress}
-                  />
-                </TabsContent>
-              </AnimatePresence>
-            </Tabs>
+            <LeaderboardList 
+              title="Most Wins"
+              data={leaderboard || []}
+              category="wins"
+              getRankIcon={getRankIcon}
+              getCategoryValue={getCategoryValue}
+              formatAddress={formatAddress}
+            />
           </motion.div>
         </div>
       </div>
