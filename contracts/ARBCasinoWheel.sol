@@ -51,6 +51,16 @@ contract ARBCasinoWheel {
 
     // ---- Main Spin Function ----
     function spin() external returns (string memory segment, bool isWin, address tokenAddress, uint256 rewardAmount) {
+        Player storage p = playerSpins[msg.sender];
+        
+        // Reset daily spins if new day
+        if (block.timestamp - p.lastSpinDate >= 1 days) {
+            p.dailySpins = 0;
+        }
+        
+        // Enforce daily spin limit
+        require(p.dailySpins < 5, "Daily spin limit reached");
+        
         uint256 randomSeed = uint256(
             keccak256(
                 abi.encodePacked(
@@ -94,14 +104,8 @@ contract ARBCasinoWheel {
         }
 
         // Update stats
-        Player storage p = playerSpins[msg.sender];
         p.totalSpins += 1;
         globalTotalSpins += 1;
-
-        // Reset daily spins if new day
-        if (block.timestamp - p.lastSpinDate >= 1 days) {
-            p.dailySpins = 0;
-        }
         p.dailySpins += 1;
         p.lastSpinDate = block.timestamp;
 

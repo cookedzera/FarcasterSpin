@@ -201,20 +201,41 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed }: SpinW
     });
 
     try {
+      // First check if user has reached daily limit
+      if (userSpinsUsed >= 5) {
+        toast({
+          title: "Daily Limit Reached",
+          description: "You can spin 5 times per day. Try again tomorrow!",
+          variant: "destructive",
+        });
+        setIsSpinning(false);
+        setResult(null);
+        return;
+      }
+
       // Call the contract directly from user's wallet (user pays gas)
       writeContract({
         address: CONTRACT_CONFIG.contractAddress as `0x${string}`,
         abi: WHEEL_ABI,
         functionName: 'spin',
         args: [],
+        gas: 200000n, // Set reasonable gas limit
       });
 
       // Note: Transaction result will be handled by useEffect when isSuccess becomes true
     } catch (error: any) {
       console.error('Contract call failed:', error);
+      let errorMessage = "Failed to call contract";
+      
+      if (error.message?.includes('execution reverted')) {
+        errorMessage = "Transaction would fail. You may have reached your daily limit or insufficient gas.";
+      } else if (error.message?.includes('insufficient funds')) {
+        errorMessage = "Insufficient ETH for gas fees. Please add more ETH to your wallet.";
+      }
+      
       toast({
         title: "Transaction Failed",
-        description: error.message || "Failed to call contract",
+        description: errorMessage,
         variant: "destructive",
       });
       setIsSpinning(false);

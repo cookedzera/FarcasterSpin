@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 // Arbitrum Sepolia testnet configuration
 const ARBITRUM_RPC = process.env.ARBITRUM_SEPOLIA_RPC || "https://sepolia-rollup.arbitrum.io/rpc";
-const WHEEL_GAME_ADDRESS = process.env.DEPLOYED_CONTRACT_ADDRESS || "0x9D41F31a28BB06bEA083D88f707046B03fc04B36"; // New deployed ARBCasinoWheel contract
+const WHEEL_GAME_ADDRESS = process.env.DEPLOYED_CONTRACT_ADDRESS || "0xa6555dfA38538cFd853051DafA2E33898E0D7C06"; // Latest deployed ARBCasinoWheel contract with daily limit fix
 
 // Contract ABI for the ARBCasinoWheel contract
 const WHEEL_GAME_ABI = [

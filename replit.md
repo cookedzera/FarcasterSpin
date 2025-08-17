@@ -13,10 +13,11 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (January 17, 2025)
 
-✅ **Fresh Contract Deployment**: Successfully deployed new ARBCasinoWheel contract to Arbitrum Sepolia: `0x9D41F31a28BB06bEA083D88f707046B03fc04B36`
+✅ **Contract Deployment with Daily Limits**: Successfully deployed ARBCasinoWheel contract to Arbitrum Sepolia: `0xa6555dfA38538cFd853051DafA2E33898E0D7C06`
 ✅ **User Gas Payment Implementation**: Frontend now calls contract directly from user's wallet instead of server wallet, ensuring users pay their own gas fees
 ✅ **Transaction Parsing**: Added `/api/spin-result` endpoint to parse user transaction receipts and extract spin results
 ✅ **Wagmi Integration**: Properly integrated user wallet transactions using wagmi `writeContract` with transaction confirmation handling
+✅ **Gas Estimation Fix**: Fixed high gas estimation errors by adding proper daily spin limit enforcement in the smart contract (5 spins per day per user)
 
 # System Architecture
 

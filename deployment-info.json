@@ -2,10 +2,10 @@
   "network": "arbitrumSepolia",
   "chainId": 421614,
   "deployer": "0x3b0287dDC6dD5a22862702dd2FB6E3Aa17429cB6",
-  "deploymentTime": "2025-08-17T07:36:48.268Z",
+  "deploymentTime": "2025-08-17T07:51:27.483Z",
   "contracts": {
     "wheelGame": {
-      "address": "0x9D41F31a28BB06bEA083D88f707046B03fc04B36",
+      "address": "0xa6555dfA38538cFd853051DafA2E33898E0D7C06",
       "name": "ARBCasinoWheel",
       "abi": [
         {
