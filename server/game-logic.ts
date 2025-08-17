@@ -27,14 +27,14 @@ export const TOKEN_CONFIG = {
   }
 } as const;
 
-// Wheel segments with probabilities
+// Wheel segments with probabilities - reduced BUST for more wins
 const WHEEL_SEGMENTS = [
-  { name: 'IARB', weight: 15 }, // 15%
-  { name: 'BUST', weight: 25 },   // 25%
-  { name: 'JUICE', weight: 12 },   // 12%
-  { name: 'BONUS', weight: 8 },   // 8% (2x JUICE)
-  { name: 'ABET', weight: 15 }, // 15%
-  { name: 'BUST', weight: 20 },   // 20%
+  { name: 'IARB', weight: 20 }, // 20%
+  { name: 'BUST', weight: 15 },   // 15% (reduced from 25%)
+  { name: 'JUICE', weight: 18 },   // 18% (increased)
+  { name: 'BONUS', weight: 12 },   // 12% (2x JUICE, increased)
+  { name: 'ABET', weight: 20 }, // 20% (increased)
+  { name: 'BUST', weight: 10 },   // 10% (reduced from 20%)
   { name: 'IARB', weight: 3 },  // 3%
   { name: 'JACKPOT', weight: 2 }, // 2% (10x IARB)
 ];

@@ -13,16 +13,19 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
-✅ **Database Connection Fixed**: Resolved startup issues by adding dotenv configuration to load DATABASE_URL environment variable
+✅ **Database Connection Fixed**: Resolved startup issues by creating PostgreSQL database and adding dotenv configuration to load DATABASE_URL environment variable
 ✅ **PostgreSQL Database Setup**: Successfully configured PostgreSQL database with proper environment variables (DATABASE_URL, PGPORT, PGUSER, PGPASSWORD, PGDATABASE, PGHOST)
 ✅ **Database Schema Migration**: Successfully pushed database schema using Drizzle Kit, creating all required tables (users, game_stats, spin_results, tokens, token_claims)
 ✅ **API Endpoints**: Confirmed working API endpoints including /api/health, /api/stats, /api/config, and /api/user
 ✅ **TypeScript Errors Fixed**: Resolved all blockchain service TypeScript compilation errors
 ✅ **Clean Slate Blockchain Setup**: Removed all hardcoded contract addresses and private key dependencies to prepare for fresh blockchain integration
-  - Simplified blockchain service to placeholder methods
-  - Cleaned up hardcoded token addresses from configuration files
-  - Updated contract configuration to return empty values until contracts are deployed
-  - Prepared clean foundation for new contract deployment
+✅ **Wheel Mechanics Improvements**: Enhanced game mechanics for better user experience
+  - Fixed arrow positioning to point correctly at center of wheel segments
+  - Reduced BUST probability from 45% to 25% (15% + 10% instead of 25% + 20%)
+  - Increased winning token probabilities: IARB (20%), JUICE (18%), ABET (20%), BONUS (12%)
+  - Replaced popup winning animations with mobile-friendly overlay display on wheel
+  - Added clear balance update notifications showing exact token amounts won
+  - Improved mobile responsiveness for winning status display
 
 ## Previous Changes (January 17, 2025)
 

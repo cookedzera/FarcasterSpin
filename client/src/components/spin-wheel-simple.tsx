@@ -115,11 +115,12 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           if (response.ok) {
             const spinResult = await response.json();
             
-            // NOW animate the wheel to the correct result
+            // NOW animate the wheel to the correct result - fix arrow pointing to center of segment
             const resultSegment = WHEEL_SEGMENTS.find(s => s.name === spinResult.segment) || WHEEL_SEGMENTS[0];
             const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
             const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-            const targetAngle = segmentIndex * segmentAngle;
+            // Point arrow to center of segment (add half segment angle)
+            const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2;
             const spins = 5; // 5 full rotations for dramatic effect
             const finalRotation = rotation + (spins * 360) - targetAngle;
             
@@ -137,11 +138,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
               
               setResult(finalResult);
               
-              toast({
-                title: finalResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time!",
-                description: `${finalResult.segment} - TX: ${hash.slice(0, 10)}...`,
-                variant: finalResult.isWin ? "default" : "destructive",
-              });
+              // No popup toast - result will be shown directly on wheel interface
               
               // Update session spin count for contract spins
               setSessionSpinsUsed(prev => prev + 1);
@@ -168,7 +165,8 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           const landedSegment = WHEEL_SEGMENTS[randomIndex];
           
           const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-          const targetAngle = randomIndex * segmentAngle;
+          // Point arrow to center of segment (add half segment angle)
+          const targetAngle = randomIndex * segmentAngle + segmentAngle / 2;
           const spins = 5;
           const finalRotation = rotation + (spins * 360) - targetAngle;
           
@@ -337,11 +335,12 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
       const spinResult = await response.json();
       
-      // Animate wheel to result
+      // Animate wheel to result - fix arrow pointing to center of segment
       const resultSegment = WHEEL_SEGMENTS.find(s => s.name === spinResult.segment) || WHEEL_SEGMENTS[0];
       const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
       const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-      const targetAngle = segmentIndex * segmentAngle;
+      // Point arrow to center of segment (add half segment angle)
+      const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2;
       const spins = 3; // 3 full rotations
       const finalRotation = rotation + (spins * 360) - targetAngle;
       
@@ -361,13 +360,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         setResult(finalResult);
         setIsSpinning(false);
         
-        toast({
-          title: spinResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time!",
-          description: spinResult.isWin 
-            ? `${spinResult.segment} - Free spin rewards accumulated!`
-            : `${spinResult.segment} - Try again!`,
-          variant: spinResult.isWin ? "default" : "destructive",
-        });
+        // No popup toast - result will be shown directly on wheel interface
         
         if (onSpinComplete) {
           onSpinComplete(finalResult);
@@ -490,6 +483,41 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-20">
           <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-400"></div>
         </div>
+        
+        {/* Result Overlay - Mobile-friendly winning display */}
+        {result && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute inset-0 flex items-center justify-center z-30"
+          >
+            <div className={`${
+              result.isWin 
+                ? 'bg-gradient-to-br from-green-500/90 to-emerald-600/90 border-green-400' 
+                : 'bg-gradient-to-br from-red-500/90 to-red-600/90 border-red-400'
+            } backdrop-blur-sm rounded-full w-48 h-48 border-4 flex flex-col items-center justify-center text-center p-4 shadow-2xl`}>
+              <div className="text-4xl mb-2">
+                {result.isWin ? '🎉' : '💀'}
+              </div>
+              <div className="text-white font-bold text-lg mb-1">
+                {result.segment}
+              </div>
+              <div className="text-white/90 text-sm">
+                {result.isWin ? 'Winner!' : 'Try Again!'}
+              </div>
+              {result.isWin && result.rewardAmount && result.rewardAmount !== '0' && (
+                <div className="text-yellow-300 font-bold text-xs mt-2">
+                  +{(parseFloat(result.rewardAmount) / 1e18).toFixed(1)} tokens
+                </div>
+              )}
+              {result.isWin && (
+                <div className="text-green-200 text-xs mt-1">
+                  Added to balance!
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
         
         {/* Spinning Wheel */}
         <motion.div
