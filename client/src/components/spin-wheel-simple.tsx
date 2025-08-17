@@ -63,9 +63,9 @@ interface SpinWheelSimpleProps {
   userSpinsUsed: number;
   userId?: string;
   userAccumulated?: {
-    AIDOGE: string;
-    BOOP: string;
-    BOBOTRUM: string;
+    IARB: string;
+    JUICE: string;
+    ABET: string;
   };
 }
 
@@ -80,7 +80,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
   const { toast } = useToast();
   
   // Check if user has free spins available (3 per day)
-  const hasFreeSpin = freeSpinsUsed < 3;
+  const hasFreeSpin = userSpinsUsed < 3;
   
   // Update session spins when props change
   useEffect(() => {
@@ -236,26 +236,27 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
   }, [hash, isConfirming, isSuccess, isPending, toast]);
 
   const handleSpin = async () => {
-    if (!isConnected || !address) {
-      toast({
-        title: "Connect Wallet",
-        description: "Please connect your wallet to spin",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check for free spins first
+    // Check for free spins first - no wallet connection required for free spins
     if (hasFreeSpin && userId) {
       await handleFreeSpin();
       return;
     }
 
-    // Contract spins are disabled - only free spins available
-    if (freeSpinsUsed >= 3) {
+    // If no free spins available, show limit reached message
+    if (userSpinsUsed >= 3) {
       toast({
         title: "Daily Limit Reached",
         description: "You can spin 3 times per day. Try again tomorrow!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // For paid spins (disabled for now), require wallet connection
+    if (!isConnected || !address) {
+      toast({
+        title: "Connect Wallet",
+        description: "Please connect your wallet for paid spins",
         variant: "destructive",
       });
       return;
@@ -345,7 +346,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       const finalRotation = rotation + (spins * 360) - targetAngle;
       
       setRotation(finalRotation);
-      setFreeSpinsUsed(prev => prev + 1);
+      // Don't update freeSpinsUsed - use userSpinsUsed from props
       
       // Show result after animation
       setTimeout(() => {
@@ -546,8 +547,8 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       <div className="text-center space-y-2">
         <div className="text-lg font-bold text-white">
           {hasFreeSpin 
-            ? `🆓 Free Spins: ${3 - freeSpinsUsed} remaining`
-            : `⛽ Contract Spins: ${5 - sessionSpinsUsed} remaining`
+            ? `🆓 Free Spins: ${3 - userSpinsUsed} remaining`
+            : `⛽ Daily Limit Reached`
           }
         </div>
         <p className="text-sm text-gray-300">
@@ -560,12 +561,11 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
       <Button
         onClick={handleSpin}
-        disabled={!isConnected || freeSpinsUsed >= 3 || isSpinning || isProcessing}
+        disabled={userSpinsUsed >= 3 || isSpinning || isProcessing}
         className="w-48 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg"
         data-testid="button-spin"
       >
-        {!isConnected ? 'Connect Wallet' : 
-         freeSpinsUsed >= 3 ? 'Daily Limit Reached' :
+        {userSpinsUsed >= 3 ? 'Daily Limit Reached' :
          isProcessing ? 'Confirming Transaction...' :
          isSpinning ? 'Spinning...' : 
          hasFreeSpin ? '🎰 FREE SPIN!' : 'No spins available'}
@@ -588,18 +588,18 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       {/* Spins Counter */}
       <div className="text-center">
         <p className="text-white/80 text-sm">
-          Total daily spins: {freeSpinsUsed}/3 used
+          Total daily spins: {userSpinsUsed}/3 used
         </p>
         <p className="text-white/60 text-xs">
-          (Free: {freeSpinsUsed}/3, Contract: 0/0)
+          (Free: {userSpinsUsed}/3, Contract: 0/0)
         </p>
       </div>
 
       {/* Accumulated Rewards Display */}
       {userAccumulated && (
-        BigInt(userAccumulated.AIDOGE) > 0 ||
-        BigInt(userAccumulated.BOOP) > 0 ||
-        BigInt(userAccumulated.BOBOTRUM) > 0
+        (userAccumulated.IARB && BigInt(userAccumulated.IARB) > 0) ||
+        (userAccumulated.JUICE && BigInt(userAccumulated.JUICE) > 0) ||
+        (userAccumulated.ABET && BigInt(userAccumulated.ABET) > 0)
       ) && (
         <div className="w-full max-w-md space-y-4">
           <div className="text-center">
@@ -613,48 +613,48 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           </div>
 
           <div className="space-y-2">
-            {userAccumulated?.AIDOGE && BigInt(userAccumulated.AIDOGE) > 0 && (
+            {userAccumulated?.IARB && BigInt(userAccumulated.IARB) > 0 && (
               <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">AIDOGE</Badge>
-                  <span className="font-mono text-white">{ethers.formatEther(userAccumulated.AIDOGE)}</span>
+                  <Badge variant="secondary">IARB</Badge>
+                  <span className="font-mono text-white">{ethers.formatEther(userAccumulated.IARB)}</span>
                 </div>
                 <Button 
                   size="sm" 
-                  onClick={() => handleSingleClaim('AIDOGE')}
-                  data-testid="button-claim-aidoge"
+                  onClick={() => handleSingleClaim('IARB')}
+                  data-testid="button-claim-iarb"
                 >
                   Claim
                 </Button>
               </div>
             )}
 
-            {userAccumulated?.BOOP && BigInt(userAccumulated.BOOP) > 0 && (
+            {userAccumulated?.JUICE && BigInt(userAccumulated.JUICE) > 0 && (
               <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">BOOP</Badge>
-                  <span className="font-mono text-white">{ethers.formatEther(userAccumulated.BOOP)}</span>
+                  <Badge variant="secondary">JUICE</Badge>
+                  <span className="font-mono text-white">{ethers.formatEther(userAccumulated.JUICE)}</span>
                 </div>
                 <Button 
                   size="sm" 
-                  onClick={() => handleSingleClaim('BOOP')}
-                  data-testid="button-claim-boop"
+                  onClick={() => handleSingleClaim('JUICE')}
+                  data-testid="button-claim-juice"
                 >
                   Claim
                 </Button>
               </div>
             )}
 
-            {userAccumulated?.BOBOTRUM && BigInt(userAccumulated.BOBOTRUM) > 0 && (
+            {userAccumulated?.ABET && BigInt(userAccumulated.ABET) > 0 && (
               <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">BOBOTRUM</Badge>
-                  <span className="font-mono text-white">{ethers.formatEther(userAccumulated.BOBOTRUM)}</span>
+                  <Badge variant="secondary">ABET</Badge>
+                  <span className="font-mono text-white">{ethers.formatEther(userAccumulated.ABET)}</span>
                 </div>
                 <Button 
                   size="sm" 
-                  onClick={() => handleSingleClaim('BOBOTRUM')}
-                  data-testid="button-claim-bobotrum"
+                  onClick={() => handleSingleClaim('ABET')}
+                  data-testid="button-claim-abet"
                 >
                   Claim
                 </Button>

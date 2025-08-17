@@ -635,9 +635,9 @@ export default function Home() {
                 userSpinsUsed={typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0}
                 userId={user?.id || ''}
                 userAccumulated={balances ? {
-                  AIDOGE: balances.token1,
-                  BOOP: balances.token2,
-                  BOBOTRUM: balances.token3
+                  IARB: balances.token1,
+                  JUICE: balances.token2,
+                  ABET: balances.token3
                 } : undefined}
                 onSpinComplete={(result) => {
                   if (result && result.segment && result.isWin) {
@@ -647,7 +647,7 @@ export default function Home() {
                       symbols: [result.segment],
                       isWin: result.isWin,
                       rewardAmount: result.reward || result.rewardAmount || "0",
-                      tokenType: result.segment === 'AIDOGE' ? 'TOKEN1' : result.segment === 'BOOP' ? 'TOKEN2' : result.segment === 'BOBOTRUM' ? 'TOKEN3' : null,
+                      tokenType: result.segment === 'IARB' ? 'TOKEN1' : result.segment === 'JUICE' ? 'TOKEN2' : result.segment === 'ABET' ? 'TOKEN3' : null,
                       tokenId: null,
                       tokenAddress: result.tokenAddress || null,
                       isAccumulated: true,
