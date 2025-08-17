@@ -12,7 +12,7 @@ export const users = pgTable("users", {
   farcasterDisplayName: text("farcaster_display_name"),
   farcasterPfpUrl: text("farcaster_pfp_url"),
   farcasterBio: text("farcaster_bio"),
-  spinsUsed: integer("spins_used").default(0),
+  spinsUsed: integer("spins_used").default(0), // Now max 3 per day
   totalWins: integer("total_wins").default(0),
   totalSpins: integer("total_spins").default(0),
   lastSpinDate: timestamp("last_spin_date"),
@@ -54,7 +54,8 @@ export const spinResults = pgTable("spin_results", {
   tokenType: text("token_type"), // TOKEN1, TOKEN2, TOKEN3
   tokenId: varchar("token_id").references(() => tokens.id),
   tokenAddress: text("token_address"),
-  isAccumulated: boolean("is_accumulated").default(true), // True = added to balance, False = claimed
+  isAccumulated: boolean("is_accumulated").default(true), // True = pending claim, False = claimed
+  claimType: text("claim_type"), // 'single' or 'batch'
   transactionHash: text("transaction_hash"), // Only set when actually claimed
   timestamp: timestamp("timestamp").default(sql`now()`),
 });

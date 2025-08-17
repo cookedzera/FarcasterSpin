@@ -8,6 +8,7 @@ import { z } from "zod";
 import { createFarcasterAuthMiddleware, verifyFarcasterToken, getUserByAddress } from "./farcaster";
 import { blockchainService } from "./blockchain";
 import { handleSpinResult } from "./spin-result-route";
+import { registerSpinRoutes } from "./spin-routes";
 
 // ERC20 ABI for token transfers
 const ERC20_ABI = [
@@ -69,6 +70,8 @@ async function sendTokenReward(recipientAddress: string | null, token: any, amou
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register new spin and claim routes
+  registerSpinRoutes(app);
   // Get current user stats - optimized with parallel queries
   app.get("/api/user/:id", async (req, res) => {
     try {

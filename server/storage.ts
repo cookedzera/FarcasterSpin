@@ -5,12 +5,14 @@ import { randomUUID } from "crypto";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
+  getUserById(id: string): Promise<User | undefined>; // Alias for getUser
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
   getGameStats(): Promise<GameStats>;
   updateGameStats(updates: Partial<GameStats>): Promise<GameStats>;
   createSpinResult(result: InsertSpinResult): Promise<SpinResult>;
+  addSpinResult(result: InsertSpinResult): Promise<SpinResult>; // Alias for createSpinResult
   getLeaderboard(): Promise<User[]>;
   getUserSpinsToday(userId: string): Promise<number>;
   getTokens(): Promise<Token[]>;
@@ -21,6 +23,7 @@ export interface IStorage {
   addAccumulatedReward(userId: string, tokenType: string, amount: string): Promise<User | undefined>;
   getUserAccumulatedBalances(userId: string): Promise<{ token1: string; token2: string; token3: string }>;
   createTokenClaim(claim: InsertTokenClaim): Promise<TokenClaim>;
+  addTokenClaim(claim: InsertTokenClaim): Promise<TokenClaim>; // Alias for createTokenClaim
   getUserClaims(userId: string): Promise<TokenClaim[]>;
   canUserClaim(userId: string): Promise<{ canClaim: boolean; totalValueUSD: string }>;
 }
@@ -29,6 +32,10 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
+  }
+
+  async getUserById(id: string): Promise<User | undefined> {
+    return this.getUser(id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
@@ -82,6 +89,10 @@ export class DatabaseStorage implements IStorage {
       .values(result)
       .returning();
     return spinResult;
+  }
+
+  async addSpinResult(result: InsertSpinResult): Promise<SpinResult> {
+    return this.createSpinResult(result);
   }
 
   async getLeaderboard(): Promise<User[]> {
@@ -180,6 +191,10 @@ export class DatabaseStorage implements IStorage {
       .values(claim)
       .returning();
     return newClaim;
+  }
+
+  async addTokenClaim(claim: InsertTokenClaim): Promise<TokenClaim> {
+    return this.createTokenClaim(claim);
   }
 
   async getUserClaims(userId: string): Promise<TokenClaim[]> {
