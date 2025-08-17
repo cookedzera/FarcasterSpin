@@ -78,17 +78,24 @@ const BackgroundMusic = memo(() => {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || isInitialized.current) return;
+    if (!audio) return;
 
-    // If there's already a global audio instance, stop it
+    // Always stop any existing global audio instance first
     if (globalAudioInstance && globalAudioInstance !== audio) {
+      console.log('Stopping previous audio instance');
       globalAudioInstance.pause();
       globalAudioInstance.currentTime = 0;
+      globalAudioInstance.volume = 0;
     }
+
+    // Only initialize if not already done for this specific audio element
+    if (isInitialized.current && globalAudioInstance === audio) return;
 
     // Set this as the global audio instance
     globalAudioInstance = audio;
     isInitialized.current = true;
+    
+    console.log('Initializing new audio instance');
 
     // Set reduced volume (12% of original)
     audio.volume = 0.12;
@@ -121,6 +128,7 @@ const BackgroundMusic = memo(() => {
     playAudio();
 
     return () => {
+      console.log('Cleaning up audio instance');
       isInitialized.current = false;
       if (globalAudioInstance === audio) {
         globalAudioInstance = null;
@@ -128,14 +136,16 @@ const BackgroundMusic = memo(() => {
       if (audio && !audio.paused) {
         audio.pause();
         audio.currentTime = 0;
+        audio.volume = 0;
       }
     };
   }, []);
 
   const toggleMute = useCallback(() => {
-    const audio = audioRef.current;
+    // Always use the global audio instance to prevent multiple audio issues
+    const audio = globalAudioInstance || audioRef.current;
     if (!audio) {
-      console.warn('Audio element not found');
+      console.warn('No audio element found (neither global nor local)');
       return;
     }
 
