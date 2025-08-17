@@ -26,6 +26,11 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
   - Replaced popup winning animations with mobile-friendly overlay display on wheel
   - Added clear balance update notifications showing exact token amounts won
   - Improved mobile responsiveness for winning status display
+✅ **Gas Fee Optimization**: Streamlined claiming process to reduce transaction costs
+  - Removed individual token claim buttons to prevent multiple gas fees
+  - Users must complete all 3 daily spins before claiming any rewards
+  - Single "Claim All" button appears only after finishing all spins
+  - Encourages users to accumulate rewards and claim in one transaction
 
 ## Previous Changes (January 17, 2025)
 

@@ -379,52 +379,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
     }
   };
 
-  const handleSingleClaim = async (tokenType: string) => {
-    if (!address || !userId) return;
 
-    try {
-      const response = await fetch('/api/claim-single', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          userAddress: address,
-          tokenType
-        })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Claim failed');
-      }
-
-      const claimResult = await response.json();
-      
-      toast({
-        title: "🎉 Tokens Claimed!",
-        description: `${ethers.formatEther(claimResult.amount)} ${tokenType} sent to your wallet`,
-      });
-
-      // Refresh by calling parent callback
-      if (onSpinComplete) {
-        onSpinComplete({
-          segment: 'CLAIM',
-          isWin: true,
-          rewardAmount: claimResult.amount,
-          tokenType
-        });
-      }
-
-    } catch (error: any) {
-      toast({
-        title: "Claim Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleBatchClaim = async () => {
     if (!address || !userId) return;
@@ -623,7 +578,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         </p>
       </div>
 
-      {/* Accumulated Rewards Display */}
+      {/* Accumulated Rewards Display - Only show claim when all spins are used */}
       {userAccumulated && (
         (userAccumulated.IARB && BigInt(userAccumulated.IARB) > 0) ||
         (userAccumulated.JUICE && BigInt(userAccumulated.JUICE) > 0) ||
@@ -636,75 +591,68 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
               Accumulated Rewards
             </h3>
             <p className="text-sm text-gray-300">
-              Your winnings are ready to claim!
+              {userSpinsUsed >= 3 ? "Your winnings are ready to claim!" : "Complete all spins to claim rewards!"}
             </p>
           </div>
 
+          {/* Show token amounts without individual claim buttons */}
           <div className="space-y-2">
             {userAccumulated?.IARB && BigInt(userAccumulated.IARB) > 0 && (
-              <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="flex items-center justify-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary">IARB</Badge>
                   <span className="font-mono text-white">{ethers.formatEther(userAccumulated.IARB)}</span>
                 </div>
-                <Button 
-                  size="sm" 
-                  onClick={() => handleSingleClaim('IARB')}
-                  data-testid="button-claim-iarb"
-                >
-                  Claim
-                </Button>
               </div>
             )}
 
             {userAccumulated?.JUICE && BigInt(userAccumulated.JUICE) > 0 && (
-              <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="flex items-center justify-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary">JUICE</Badge>
                   <span className="font-mono text-white">{ethers.formatEther(userAccumulated.JUICE)}</span>
                 </div>
-                <Button 
-                  size="sm" 
-                  onClick={() => handleSingleClaim('JUICE')}
-                  data-testid="button-claim-juice"
-                >
-                  Claim
-                </Button>
               </div>
             )}
 
             {userAccumulated?.ABET && BigInt(userAccumulated.ABET) > 0 && (
-              <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="flex items-center justify-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary">ABET</Badge>
                   <span className="font-mono text-white">{ethers.formatEther(userAccumulated.ABET)}</span>
                 </div>
-                <Button 
-                  size="sm" 
-                  onClick={() => handleSingleClaim('ABET')}
-                  data-testid="button-claim-abet"
-                >
-                  Claim
-                </Button>
               </div>
             )}
           </div>
 
-          {/* Batch Claim Button */}
-          <div className="pt-2 border-t border-white/10">
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              onClick={handleBatchClaim}
-              data-testid="button-claim-all"
-            >
-              <Coins className="w-4 h-4 mr-2" />
-              Claim All (Recommended - Save Gas!)
-            </Button>
-            <p className="text-xs text-gray-400 text-center mt-1">
-              Save gas fees by claiming all tokens in one transaction
-            </p>
-          </div>
+          {/* Claim All Button - Only show when all spins are used */}
+          {userSpinsUsed >= 3 && (
+            <div className="pt-2 border-t border-white/10">
+              <Button 
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 text-lg" 
+                onClick={handleBatchClaim}
+                data-testid="button-claim-all"
+              >
+                <Coins className="w-5 h-5 mr-2" />
+                Claim All Rewards
+              </Button>
+              <p className="text-xs text-gray-400 text-center mt-1">
+                One transaction to claim all your winnings
+              </p>
+            </div>
+          )}
+          
+          {/* Pending spins message */}
+          {userSpinsUsed < 3 && (
+            <div className="text-center p-3 bg-yellow-600/20 border border-yellow-400 rounded-lg">
+              <p className="text-yellow-300 text-sm font-medium">
+                🎰 Complete {3 - userSpinsUsed} more spin{3 - userSpinsUsed !== 1 ? 's' : ''} to unlock claiming
+              </p>
+              <p className="text-yellow-400/80 text-xs mt-1">
+                Save gas fees by claiming all rewards together
+              </p>
+            </div>
+          )}
         </div>
       )}
 
