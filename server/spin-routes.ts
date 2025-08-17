@@ -35,18 +35,22 @@ export function registerSpinRoutes(app: Express) {
       
       // Check daily limit (3 spins)
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       
       const lastSpinDate = user.lastSpinDate ? new Date(user.lastSpinDate) : null;
-      const isNewDay = !lastSpinDate || lastSpinDate < today;
+      const lastSpinDay = lastSpinDate ? new Date(lastSpinDate.getFullYear(), lastSpinDate.getMonth(), lastSpinDate.getDate()) : null;
       
-      const currentSpinsUsed = isNewDay ? 0 : user.spinsUsed;
+      const isNewDay = !lastSpinDay || lastSpinDay.getTime() !== todayStart.getTime();
+      
+      const currentSpinsUsed = isNewDay ? 0 : (typeof user.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user.spinsUsed || 0);
       
       if (currentSpinsUsed >= 3) {
         return res.status(400).json({ 
           error: "Daily spin limit reached",
           spinsRemaining: 0,
-          nextSpinAvailable: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+          currentSpinsUsed: currentSpinsUsed,
+          isNewDay: isNewDay,
+          nextSpinAvailable: new Date(todayStart.getTime() + 24 * 60 * 60 * 1000)
         });
       }
       
@@ -76,15 +80,15 @@ export function registerSpinRoutes(app: Express) {
         
         // Add to appropriate accumulated token balance
         switch (spinResult.tokenType) {
-          case 'AIDOGE':
+          case 'TOKEN1':
             const currentToken1 = BigInt(user.accumulatedToken1 || "0");
             updateData.accumulatedToken1 = (currentToken1 + rewardAmountBigInt).toString();
             break;
-          case 'BOOP':
+          case 'TOKEN2':
             const currentToken2 = BigInt(user.accumulatedToken2 || "0");
             updateData.accumulatedToken2 = (currentToken2 + rewardAmountBigInt).toString();
             break;
-          case 'BOBOTRUM':
+          case 'TOKEN3':
             const currentToken3 = BigInt(user.accumulatedToken3 || "0");
             updateData.accumulatedToken3 = (currentToken3 + rewardAmountBigInt).toString();
             break;
@@ -131,17 +135,17 @@ export function registerSpinRoutes(app: Express) {
       let tokenConfig;
       
       switch (tokenType) {
-        case 'AIDOGE':
+        case 'TOKEN1':
           accumulatedAmount = user.accumulatedToken1 || "0";
-          tokenConfig = TOKEN_CONFIG.AIDOGE;
+          tokenConfig = TOKEN_CONFIG.TOKEN1;
           break;
-        case 'BOOP':
+        case 'TOKEN2':
           accumulatedAmount = user.accumulatedToken2 || "0";
-          tokenConfig = TOKEN_CONFIG.BOOP;
+          tokenConfig = TOKEN_CONFIG.TOKEN2;
           break;
-        case 'BOBOTRUM':
+        case 'TOKEN3':
           accumulatedAmount = user.accumulatedToken3 || "0";
-          tokenConfig = TOKEN_CONFIG.BOBOTRUM;
+          tokenConfig = TOKEN_CONFIG.TOKEN3;
           break;
         default:
           return res.status(400).json({ error: "Invalid token type" });

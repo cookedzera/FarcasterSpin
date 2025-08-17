@@ -29,14 +29,14 @@ export const TOKEN_CONFIG = {
 
 // Wheel segments with probabilities
 const WHEEL_SEGMENTS = [
-  { name: 'AIDOGE', weight: 15 }, // 15%
+  { name: 'IARB', weight: 15 }, // 15%
   { name: 'BUST', weight: 25 },   // 25%
-  { name: 'BOOP', weight: 12 },   // 12%
-  { name: 'BONUS', weight: 8 },   // 8% (2x BOOP)
-  { name: 'BOBOTRUM', weight: 15 }, // 15%
+  { name: 'JUICE', weight: 12 },   // 12%
+  { name: 'BONUS', weight: 8 },   // 8% (2x JUICE)
+  { name: 'ABET', weight: 15 }, // 15%
   { name: 'BUST', weight: 20 },   // 20%
-  { name: 'AIDOGE', weight: 3 },  // 3%
-  { name: 'JACKPOT', weight: 2 }, // 2% (10x AIDOGE)
+  { name: 'IARB', weight: 3 },  // 3%
+  { name: 'JACKPOT', weight: 2 }, // 2% (10x IARB)
 ];
 
 // Calculate winning probabilities based on user's daily spin count
@@ -90,39 +90,39 @@ export function performSpin(): SpinResult {
   let rewardAmount = "0";
   
   switch (segment) {
-    case 'AIDOGE':
+    case 'IARB':
       isWin = true;
-      tokenType = "AIDOGE";
-      tokenAddress = TOKEN_CONFIG.AIDOGE.address;
-      rewardAmount = TOKEN_CONFIG.AIDOGE.rewardAmount;
+      tokenType = "TOKEN1";
+      tokenAddress = TOKEN_CONFIG.TOKEN1.address || "";
+      rewardAmount = TOKEN_CONFIG.TOKEN1.rewardAmount;
       break;
       
-    case 'BOOP':
+    case 'JUICE':
       isWin = true;
-      tokenType = "BOOP";
-      tokenAddress = TOKEN_CONFIG.BOOP.address;
-      rewardAmount = TOKEN_CONFIG.BOOP.rewardAmount;
+      tokenType = "TOKEN2";
+      tokenAddress = TOKEN_CONFIG.TOKEN2.address || "";
+      rewardAmount = TOKEN_CONFIG.TOKEN2.rewardAmount;
       break;
       
-    case 'BOBOTRUM':
+    case 'ABET':
       isWin = true;
-      tokenType = "BOBOTRUM";
-      tokenAddress = TOKEN_CONFIG.BOBOTRUM.address;
-      rewardAmount = TOKEN_CONFIG.BOBOTRUM.rewardAmount;
+      tokenType = "TOKEN3";
+      tokenAddress = TOKEN_CONFIG.TOKEN3.address || "";
+      rewardAmount = TOKEN_CONFIG.TOKEN3.rewardAmount;
       break;
       
     case 'BONUS':
       isWin = true;
-      tokenType = "BOOP";
-      tokenAddress = TOKEN_CONFIG.BOOP.address;
-      rewardAmount = "4000000000000000000"; // 2x BOOP = 4 tokens
+      tokenType = "TOKEN2";
+      tokenAddress = TOKEN_CONFIG.TOKEN2.address || "";
+      rewardAmount = "4000000000000000000"; // 2x TOKEN2 = 4 tokens
       break;
       
     case 'JACKPOT':
       isWin = true;
-      tokenType = "AIDOGE";
-      tokenAddress = TOKEN_CONFIG.AIDOGE.address;
-      rewardAmount = "10000000000000000000"; // 10x AIDOGE = 10 tokens
+      tokenType = "TOKEN1";
+      tokenAddress = TOKEN_CONFIG.TOKEN1.address || "";
+      rewardAmount = "10000000000000000000"; // 10x TOKEN1 = 10 tokens
       break;
       
     default: // BUST

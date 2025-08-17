@@ -403,14 +403,14 @@ export default function Home() {
           <div className="mb-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-white/60">Daily Progress</span>
-              <span className="text-xs text-white/60">{user?.spinsUsed || 0}/3</span>
+              <span className="text-xs text-white/60">{typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0}/3</span>
             </div>
             <div className="flex space-x-1">
               {Array.from({ length: 3 }, (_, index) => (
                 <div 
                   key={index}
                   className={`flex-1 h-2 rounded-full transition-all duration-300 ${
-                    index < (user?.spinsUsed || 0) 
+                    index < (typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0) 
                       ? 'bg-gradient-to-r from-green-500 to-blue-500' 
                       : 'bg-gray-600'
                   }`}
@@ -453,13 +453,13 @@ export default function Home() {
               <div className="flex-1 bg-white/30 rounded-full h-1.5">
                 <div 
                   className="bg-white rounded-full h-1.5 transition-all duration-500"
-                  style={{ width: `${((user?.spinsUsed || 0) / 3) * 100}%` }}
+                  style={{ width: `${((typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0) / 3) * 100}%` }}
                 ></div>
               </div>
-              <span className="text-xs font-medium">{((user?.spinsUsed || 0) / 3 * 100).toFixed(0)}%</span>
+              <span className="text-xs font-medium">{(((typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0) / 3) * 100).toFixed(0)}%</span>
             </div>
             <p className="text-xs text-white/80">
-              {3 - (user?.spinsUsed || 0)} spins remaining for today!
+              {3 - (typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0)} spins remaining for today!
             </p>
             </div>
           </motion.div>
@@ -632,7 +632,7 @@ export default function Home() {
               </div>
 
               <SpinWheelSimple 
-                userSpinsUsed={user?.spinsUsed || 0}
+                userSpinsUsed={typeof user?.spinsUsed === 'string' ? parseInt(user.spinsUsed, 10) || 0 : user?.spinsUsed || 0}
                 userId={user?.id || ''}
                 userAccumulated={balances ? {
                   AIDOGE: balances.token1,
