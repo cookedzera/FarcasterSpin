@@ -21,6 +21,19 @@ const WHEEL_SEGMENTS = [
   { name: 'JACKPOT', color: '#F97316', reward: '10x' },
 ];
 
+// Map server segment names to display names
+const SEGMENT_MAPPING: { [key: string]: string } = {
+  'IARB': 'AIDOGE',
+  'ABET': 'ARB', 
+  'JUICE': 'BOOP',
+  'AIDOGE': 'AIDOGE',
+  'ARB': 'ARB',
+  'BOOP': 'BOOP',
+  'BUST': 'BUST',
+  'BONUS': 'BONUS',
+  'JACKPOT': 'JACKPOT'
+};
+
 // Server-side spinning only (no contract dependencies)
 
 interface SpinResult {
@@ -203,14 +216,26 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
   // Handle spin result from server-side spinning with improved animation
   useEffect(() => {
     if (lastSpinResult) {
-      // Calculate target rotation for result
-      const resultSegment = WHEEL_SEGMENTS.find(s => s.name === lastSpinResult.segment) || WHEEL_SEGMENTS[0];
+      // Map server segment name to display segment name
+      const displaySegmentName = SEGMENT_MAPPING[lastSpinResult.segment] || lastSpinResult.segment;
+      
+      // Find the segment in our wheel array
+      const resultSegment = WHEEL_SEGMENTS.find(s => s.name === displaySegmentName);
+      if (!resultSegment) {
+        console.error('Segment not found:', displaySegmentName);
+        return;
+      }
+      
       const segmentIndex = WHEEL_SEGMENTS.indexOf(resultSegment);
       const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-      // Point arrow to center of segment - adjust for proper alignment
-      const targetAngle = (segmentIndex * segmentAngle) + (segmentAngle / 2) + 90; // Add 90deg offset for proper pointing
+      
+      // Calculate exact rotation to land arrow on center of winning segment
+      // Arrow points up (12 o'clock position), so we need to rotate wheel so winning segment center aligns with arrow
+      const segmentCenterAngle = (segmentIndex * segmentAngle) + (segmentAngle / 2);
+      const targetRotation = -segmentCenterAngle; // Negative because wheel rotates clockwise
+      
       const spins = 5; // 5 full rotations for dramatic effect
-      const finalRotation = rotation + (spins * 360) + targetAngle;
+      const finalRotation = rotation + (spins * 360) + targetRotation;
       
       // Start the wheel animation and sound
       setRotation(finalRotation);
@@ -218,8 +243,9 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       
       // Set the confirmed result after animation completes
       const resultTimeout = setTimeout(() => {
+        const displaySegmentName = SEGMENT_MAPPING[lastSpinResult.segment] || lastSpinResult.segment;
         const finalResult = {
-          segment: lastSpinResult.segment,
+          segment: displaySegmentName,
           isWin: lastSpinResult.isWin,
           reward: lastSpinResult.rewardAmount || '0',
           tokenType: lastSpinResult.tokenType
@@ -227,12 +253,12 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         
         setResult(finalResult);
         
-        // Show toast notification AFTER wheel animation
+        // Show toast notification AFTER wheel animation with correct segment name
         toast({
           title: lastSpinResult.isWin ? "🎉 You Won!" : "💀 Better Luck Next Time",
           description: lastSpinResult.isWin 
-            ? `You won ${(parseFloat(lastSpinResult.rewardAmount) / 1e18).toFixed(1)} ${lastSpinResult.tokenType} tokens!` 
-            : `You landed on ${lastSpinResult.segment}. ${lastSpinResult.spinsRemaining} spins remaining today.`,
+            ? `You won ${(parseFloat(lastSpinResult.rewardAmount) / 1e18).toFixed(1)} ${displaySegmentName} tokens!` 
+            : `You landed on ${displaySegmentName}. ${lastSpinResult.spinsRemaining} spins remaining today.`,
           variant: lastSpinResult.isWin ? "default" : "destructive",
         });
         
