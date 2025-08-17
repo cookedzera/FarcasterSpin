@@ -13,12 +13,13 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
-✅ **Free Farcaster Hub API Integration (Latest)**: Implemented automatic Farcaster user detection using free APIs
-  - Integrated official Farcaster Hub API (nemes.farcaster.xyz) for free profile data access without API keys
-  - Enhanced user lookup by address with comprehensive fallback system (Hub API → Neynar → Searchcaster)
+✅ **Farcaster Hub API Integration (Latest)**: Implemented automatic Farcaster user detection using working free Hub API
+  - Integrated snapchain.farcaster.xyz Hub API for free profile data access without API keys
+  - Enhanced user lookup with proper message parsing for display names, usernames, bios, and profile pictures  
   - Added real-time profile detection with visual loading states and status indicators
   - Improved user experience with automatic profile detection on wallet connection
   - Distinguished between real Farcaster users and wallet-only users in the UI
+  - Fixed scroll bar issue by hiding all scrollbars for clean mobile experience
   - Added detailed logging for debugging profile lookup process
   - No external API keys required - uses completely free Farcaster infrastructure
 
