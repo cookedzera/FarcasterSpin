@@ -13,14 +13,14 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
-✅ **Farcaster Profile Detection Complete (Latest)**: Successfully implemented and cleaned up complete Farcaster Mini App integration  
-  - Fixed Farcaster Mini App SDK integration using proper ES modules approach instead of script tag
-  - Successfully detecting real user profiles showing "Hello, cookedzera!" with proper username "@cookedzera.eth" 
-  - Pinata Hub API integration working perfectly for fetching detailed profile data (display names, usernames, profile pictures)
-  - Clean fallback system: when in Farcaster → shows real names, when outside → shows "Player"
-  - Removed all debug code and console logs for production-ready implementation
-  - User profile detection working seamlessly in both Farcaster frame and development environments
-  - Ready for deployment with fully functional profile integration
+✅ **Smooth Navigation & Profile Caching (Latest)**: Fixed flash/loading issues during page navigation with persistent Farcaster data
+  - Implemented global caching system to persist Farcaster profile data across page navigation (5-minute cache duration)
+  - Fixed profile page to use working useFarcaster hook instead of broken useFarcasterAuth
+  - Eliminated 1-second flash of "Player" and missing profile pictures during navigation
+  - Added proper loading states to prevent UI flickering while maintaining smooth transitions
+  - Farcaster profile now shows consistently across all pages (home, profile, leaderboard)
+  - User experience significantly improved with instant profile loading on page switches
+  - Production-ready navigation with cached profile detection working seamlessly
 
 ✅ **Smart Center Display System**: Replaced popup with elegant center wheel display for winning results
   - Converted center ARB logo into dynamic winning display that shows token logo and amount for 3.5 seconds

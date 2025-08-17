@@ -130,14 +130,14 @@ export default function Profile() {
             whileHover={{ scale: 1.05, y: -2 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            {isFarcasterAuthenticated && avatarUrl ? (
+            {!farcasterLoading && isFarcasterAuthenticated && avatarUrl ? (
               <img 
                 src={avatarUrl} 
                 alt="Profile" 
                 className="w-full h-full object-cover"
               />
             ) : (
-              displayName?.charAt(0) || username?.charAt(0) || user?.username?.charAt(0) || 'P'
+              (!farcasterLoading && (displayName?.charAt(0) || username?.charAt(0))) || user?.username?.charAt(0) || 'P'
             )}
             <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-3 border-gray-900">
               <span className="text-white text-xs font-bold">{level}</span>
@@ -150,12 +150,12 @@ export default function Profile() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
-              {isFarcasterAuthenticated 
+              {!farcasterLoading && isFarcasterAuthenticated 
                 ? (displayName || username || user?.username)
-                : user?.username
+                : user?.username || "Loading..."
               }
             </motion.h1>
-            {isFarcasterAuthenticated && (
+            {!farcasterLoading && isFarcasterAuthenticated && username && (
               <Badge className="mb-2 bg-purple-500/20 text-purple-400 border-purple-400/30 text-xs">
                 @{username}
               </Badge>

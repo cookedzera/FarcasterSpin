@@ -268,9 +268,13 @@ export default function Home() {
             </motion.h1>
           </div>
           <h2 className="text-lg font-semibold text-white">
-            Hello, {displayName}!
+            {farcasterLoading ? (
+              "Hello, Player!"
+            ) : (
+              `Hello, ${displayName}!`
+            )}
           </h2>
-          {username && username !== displayName && (
+          {!farcasterLoading && username && username !== displayName && (
             <p className="text-sm text-white/60 mt-1">
               @{username}
             </p>
