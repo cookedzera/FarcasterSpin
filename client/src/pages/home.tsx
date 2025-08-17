@@ -15,8 +15,93 @@ import boopLogo from "@assets/Boop_resized_1754468548333.webp";
 import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
 import backgroundMusic from "@assets/upbeat-anime-background-music-285658_1755431775139.mp3";
 
-// Global audio instance to prevent multiple instances
-let globalAudioInstance: HTMLAudioElement | null = null;
+// Completely rebuilt audio system - single global instance with proper state management
+class AudioManager {
+  private static instance: AudioManager;
+  private audio: HTMLAudioElement | null = null;
+  private isMuted: boolean = false;
+  private isInitialized: boolean = false;
+  private volume: number = 0.12;
+  
+  static getInstance(): AudioManager {
+    if (!AudioManager.instance) {
+      AudioManager.instance = new AudioManager();
+    }
+    return AudioManager.instance;
+  }
+  
+  private constructor() {}
+  
+  init(audioElement: HTMLAudioElement): void {
+    // Always stop and cleanup any existing audio first
+    this.cleanup();
+    
+    this.audio = audioElement;
+    this.audio.volume = this.isMuted ? 0 : this.volume;
+    this.audio.loop = true;
+    this.isInitialized = true;
+    
+    console.log('AudioManager: New audio instance initialized');
+    this.startPlayback();
+  }
+  
+  private async startPlayback(): Promise<void> {
+    if (!this.audio) return;
+    
+    try {
+      await this.audio.play();
+      console.log('AudioManager: Playback started');
+    } catch (error) {
+      console.log('AudioManager: Auto-play blocked, waiting for user interaction');
+      this.setupUserInteractionHandler();
+    }
+  }
+  
+  private setupUserInteractionHandler(): void {
+    const handleInteraction = async () => {
+      if (this.audio) {
+        try {
+          await this.audio.play();
+          console.log('AudioManager: Playback started after user interaction');
+        } catch (e) {
+          console.error('AudioManager: Playback failed:', e);
+        }
+      }
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+    };
+
+    document.addEventListener('click', handleInteraction);
+    document.addEventListener('touchstart', handleInteraction);
+  }
+  
+  toggleMute(): boolean {
+    if (!this.audio) {
+      console.warn('AudioManager: No audio instance available');
+      return this.isMuted;
+    }
+    
+    this.isMuted = !this.isMuted;
+    this.audio.volume = this.isMuted ? 0 : this.volume;
+    
+    console.log(`AudioManager: ${this.isMuted ? 'Muted' : 'Unmuted'}, volume: ${this.audio.volume}`);
+    return this.isMuted;
+  }
+  
+  getMuted(): boolean {
+    return this.isMuted;
+  }
+  
+  cleanup(): void {
+    if (this.audio && !this.audio.paused) {
+      this.audio.pause();
+      this.audio.currentTime = 0;
+      this.audio.volume = 0;
+      console.log('AudioManager: Previous audio cleaned up');
+    }
+    this.isInitialized = false;
+  }
+}
 
 interface TokenBalances {
   token1: string;
@@ -70,101 +155,31 @@ const RADIAL_STYLE = {
   background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)'
 };
 
-// Background music component with volume control and mute button
+// Rebuilt background music component using AudioManager
 const BackgroundMusic = memo(() => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isMuted, setIsMuted] = useState(false);
-  const isInitialized = useRef(false);
+  const audioManager = AudioManager.getInstance();
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Always stop any existing global audio instance first
-    if (globalAudioInstance && globalAudioInstance !== audio) {
-      console.log('Stopping previous audio instance');
-      globalAudioInstance.pause();
-      globalAudioInstance.currentTime = 0;
-      globalAudioInstance.volume = 0;
-    }
-
-    // Only initialize if not already done for this specific audio element
-    if (isInitialized.current && globalAudioInstance === audio) return;
-
-    // Set this as the global audio instance
-    globalAudioInstance = audio;
-    isInitialized.current = true;
+    // Initialize with the new audio manager
+    audioManager.init(audio);
     
-    console.log('Initializing new audio instance');
-
-    // Set reduced volume (12% of original)
-    audio.volume = 0.12;
-    audio.loop = true;
-
-    // Auto-play attempt with user interaction fallback
-    const playAudio = async () => {
-      try {
-        await audio.play();
-        console.log('Background music started playing');
-      } catch (error) {
-        console.log('Auto-play blocked, waiting for user interaction');
-        // Auto-play failed, wait for user interaction
-        const handleUserInteraction = async () => {
-          try {
-            await audio.play();
-            console.log('Background music started after user interaction');
-            document.removeEventListener('click', handleUserInteraction);
-            document.removeEventListener('touchstart', handleUserInteraction);
-          } catch (e) {
-            console.error('Audio playback failed:', e);
-          }
-        };
-
-        document.addEventListener('click', handleUserInteraction);
-        document.addEventListener('touchstart', handleUserInteraction);
-      }
-    };
-
-    playAudio();
+    // Sync local state with manager state
+    setIsMuted(audioManager.getMuted());
 
     return () => {
-      console.log('Cleaning up audio instance');
-      isInitialized.current = false;
-      if (globalAudioInstance === audio) {
-        globalAudioInstance = null;
-      }
-      if (audio && !audio.paused) {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.volume = 0;
-      }
+      audioManager.cleanup();
     };
-  }, []);
+  }, [audioManager]);
 
   const toggleMute = useCallback(() => {
-    // Always use the global audio instance to prevent multiple audio issues
-    const audio = globalAudioInstance || audioRef.current;
-    if (!audio) {
-      console.warn('No audio element found (neither global nor local)');
-      return;
-    }
-
-    try {
-      if (isMuted) {
-        // Unmute by restoring volume
-        audio.volume = 0.12;
-        setIsMuted(false);
-        console.log('Audio unmuted, volume:', audio.volume);
-      } else {
-        // Mute by setting volume to 0
-        audio.volume = 0;
-        setIsMuted(true);
-        console.log('Audio muted, volume:', audio.volume);
-      }
-    } catch (error) {
-      console.error('Error toggling mute:', error);
-    }
-  }, [isMuted]);
+    const newMutedState = audioManager.toggleMute();
+    setIsMuted(newMutedState);
+  }, [audioManager]);
 
   return (
     <>
