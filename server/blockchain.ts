@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
 
 // Arbitrum Sepolia testnet configuration
-const ARBITRUM_RPC = "https://sepolia-rollup.arbitrum.io/rpc";
-const WHEEL_GAME_ADDRESS = process.env.DEPLOYED_CONTRACT_ADDRESS || ""; // Contract address from environment
+const ARBITRUM_RPC = process.env.ARBITRUM_SEPOLIA_RPC || "https://sepolia-rollup.arbitrum.io/rpc";
+const WHEEL_GAME_ADDRESS = process.env.DEPLOYED_CONTRACT_ADDRESS || "0x4be6dd3897fd6fbc8a619c69fa6f4bd94531d90a"; // Contract address from deployment
 
 // Contract ABI for the WheelGameTestnet contract
 const WHEEL_GAME_ABI = [
@@ -15,11 +15,11 @@ const WHEEL_GAME_ABI = [
   "event RewardsClaimed(address indexed player, address indexed token, uint256 amount)"
 ];
 
-// Token addresses provided by user
+// Token addresses from deployed contract (actual working tokens)
 export const TOKEN_ADDRESSES = {
-  TOKEN1: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4", // AIDOGE
-  TOKEN2: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952", // BOOP  
-  TOKEN3: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19"  // BOBOTRUM
+  TOKEN1: "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4", // IARB
+  TOKEN2: "0x0E1CD6557D2BA59C61c75850E674C2AD73253952", // JUICE  
+  TOKEN3: "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19"  // ABET
 } as const;
 
 export class BlockchainService {
@@ -93,7 +93,7 @@ export class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed && parsed.args) {
+        if (parsed?.args) {
           return {
             txHash: receipt.hash,
             isWin: parsed.args.isWin,
@@ -144,7 +144,7 @@ export class BlockchainService {
 
       if (spinEvent) {
         const parsed = this.contract.interface.parseLog(spinEvent);
-        if (parsed && parsed.args) {
+        if (parsed?.args) {
           const tokenAddress = parsed.args.tokenAddress;
           const segment = parsed.args.segment;
           const isWin = parsed.args.isWin;

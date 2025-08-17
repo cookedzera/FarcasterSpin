@@ -1,0 +1,29 @@
+{
+  "network": "arbitrumSepolia",
+  "chainId": 421614,
+  "deployer": "0x3b0287dDC6dD5a22862702dd2FB6E3Aa17429cB6",
+  "deploymentTime": "2025-08-17T06:53:42.913Z",
+  "contracts": {
+    "wheelGame": {
+      "address": "0x4be6dd3897fd6fbc8a619c69fa6f4bd94531d90a",
+      "name": "WheelGameArbitrumSepolia"
+    },
+    "tokens": {
+      "TOKEN1": {
+        "address": "0x287396E90c5febB4dC1EDbc0EEF8e5668cdb08D4",
+        "name": "AIDOGE Test",
+        "symbol": "AIDOGE"
+      },
+      "TOKEN2": {
+        "address": "0x0E1CD6557D2BA59C61c75850E674C2AD73253952",
+        "name": "BOOP Test",
+        "symbol": "BOOP"
+      },
+      "TOKEN3": {
+        "address": "0xaeA5bb4F5b5524dee0E3F931911c8F8df4576E19",
+        "name": "BOBOTRUM Test",
+        "symbol": "BOBOTRUM"
+      }
+    }
+  }
+}
