@@ -7,6 +7,55 @@ import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 
+// Typewriter animation component for alternating text
+const TypewriterText = memo(() => {
+  const [displayText, setDisplayText] = useState("");
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [typingSpeed, setTypingSpeed] = useState(150);
+  
+  const words = ["Spin", "Games"];
+  
+  useEffect(() => {
+    const handleType = () => {
+      const currentWord = words[currentWordIndex];
+      
+      if (isDeleting) {
+        setDisplayText(prev => prev.slice(0, -1));
+        setTypingSpeed(75);
+      } else {
+        setDisplayText(prev => currentWord.slice(0, prev.length + 1));
+        setTypingSpeed(150);
+      }
+      
+      if (!isDeleting && displayText === currentWord) {
+        setTimeout(() => setIsDeleting(true), 2000);
+      } else if (isDeleting && displayText === "") {
+        setIsDeleting(false);
+        setCurrentWordIndex((prev) => (prev + 1) % words.length);
+      }
+    };
+    
+    const timer = setTimeout(handleType, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, currentWordIndex, typingSpeed, words]);
+  
+  return (
+    <span className="relative text-blue-400">
+      {displayText}
+      <motion.span
+        animate={{ opacity: [1, 0] }}
+        transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
+        className="inline-block ml-1"
+      >
+        |
+      </motion.span>
+      {/* Underline specifically for the typewriter text */}
+      <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded-full"></div>
+    </span>
+  );
+});
+
 import { Button } from "@/components/ui/button";
 import { formatUnits } from "ethers";
 import { type GameStats, type SpinResult } from "@shared/schema";
@@ -200,9 +249,8 @@ export default function Home() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
-              ARB<span className="text-blue-400">CASINO</span>
+              ARB<TypewriterText />
             </motion.h1>
-            <div className="w-16 h-0.5 bg-blue-400 mx-auto mb-1 rounded-full"></div>
           </div>
           <h2 className="text-lg font-semibold text-white">
             Hello, {user?.username || 'Player'}!
