@@ -75,7 +75,7 @@ export function registerSpinRoutes(app: Express) {
         const rewardAmountBigInt = BigInt(spinResult.rewardAmount);
         
         let updateData: any = {
-          totalWins: user.totalWins + 1
+          totalWins: (user.totalWins || 0) + 1
         };
         
         // Add to appropriate accumulated token balance
@@ -100,7 +100,7 @@ export function registerSpinRoutes(app: Express) {
       // Update user's spin count
       await storage.updateUser(userId, {
         spinsUsed: currentSpinsUsed + 1,
-        totalSpins: user.totalSpins + 1,
+        totalSpins: (user.totalSpins || 0) + 1,
         lastSpinDate: new Date()
       });
       
@@ -231,17 +231,17 @@ export function registerSpinRoutes(app: Express) {
       
       // Send each token type if amount > 0
       if (BigInt(token1Amount) > 0) {
-        const txHash = await sendTokensToUser(userAddress, TOKEN_CONFIG.AIDOGE.address, token1Amount);
+        const txHash = await sendTokensToUser(userAddress, TOKEN_CONFIG.TOKEN1.address, token1Amount);
         txHashes.push(txHash);
       }
       
       if (BigInt(token2Amount) > 0) {
-        const txHash = await sendTokensToUser(userAddress, TOKEN_CONFIG.BOOP.address, token2Amount);
+        const txHash = await sendTokensToUser(userAddress, TOKEN_CONFIG.TOKEN2.address, token2Amount);
         txHashes.push(txHash);
       }
       
       if (BigInt(token3Amount) > 0) {
-        const txHash = await sendTokensToUser(userAddress, TOKEN_CONFIG.BOBOTRUM.address, token3Amount);
+        const txHash = await sendTokensToUser(userAddress, TOKEN_CONFIG.TOKEN3.address, token3Amount);
         txHashes.push(txHash);
       }
       

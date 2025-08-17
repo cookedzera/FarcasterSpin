@@ -10,10 +10,7 @@ import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 import { Button } from "@/components/ui/button";
 import { formatUnits } from "ethers";
 import { type GameStats, type SpinResult } from "@shared/schema";
-import aidogeLogo from "@assets/photo_2023-04-18_14-25-28_1754468465899.jpg";
-import boopLogo from "@assets/Boop_resized_1754468548333.webp";
-import catchLogo from "@assets/Logomark_colours_1754468507462.webp";
-import backgroundMusic from "@assets/upbeat-anime-background-music-285658_1755431775139.mp3";
+// Asset imports removed - using placeholder data instead
 
 // Completely rebuilt audio system - single global instance with proper state management
 class AudioManager {
@@ -209,7 +206,7 @@ const BackgroundMusic = memo(() => {
         preload="auto"
         className="hidden"
       >
-        <source src={backgroundMusic} type="audio/mpeg" />
+        {/* Background music source removed */}
       </audio>
     </>
   );
@@ -271,9 +268,9 @@ export default function Home() {
 
   // Memoize token data to prevent recreation - MUST be before early return
   const tokenData = useMemo(() => [
-    { name: 'AIDOGE', icon: aidogeLogo, amount: balances?.token1 || '0', time: '2h 14 min', emoji: '🐕' },
-    { name: 'BOOP', icon: boopLogo, amount: balances?.token2 || '0', time: '5h 22 min', emoji: '🎭' },
-    { name: 'CATCH', icon: catchLogo, amount: balances?.token3 || '0', time: '1h 8 min', emoji: '🎯' }
+    { name: 'IARB', icon: null, amount: balances?.token1 || '0', time: '2h 14 min', emoji: '🪙' },
+    { name: 'JUICE', icon: null, amount: balances?.token2 || '0', time: '5h 22 min', emoji: '🧃' },
+    { name: 'ABET', icon: null, amount: balances?.token3 || '0', time: '1h 8 min', emoji: '🎯' }
   ], [balances?.token1, balances?.token2, balances?.token3]);
 
   // Show minimal loading state while preserving background
@@ -678,7 +675,13 @@ export default function Home() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <div className="relative">
-                        <img src={token.icon} alt={token.name} className="w-8 h-8 rounded-lg" />
+                        {token.icon ? (
+                          <img src={token.icon} alt={token.name} className="w-8 h-8 rounded-lg" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                            {token.name.charAt(0)}
+                          </div>
+                        )}
                         <span className="absolute -top-1 -right-1 text-xs">{token.emoji}</span>
                       </div>
                       <div>

@@ -13,6 +13,20 @@ Gas fee preference: Users should pay their own gas fees for both spinning and cl
 
 ## Recent Changes (August 17, 2025)
 
+✅ **Code Cleanup & Optimization (Latest)**: Comprehensive codebase cleanup to improve maintainability and performance
+  - Removed duplicate JavaScript server files (index.js, storage.js, vite.js) - keeping only TypeScript versions
+  - Deleted unused spin wheel components (spin-wheel-clean.tsx, spin-wheel-free.tsx) - keeping only spin-wheel-simple.tsx which is actively used
+  - Cleaned up extensive documentation files (18 .md files) that were outdated deployment guides and instructions
+  - Removed 20+ unused deployment scripts (.js, .cjs files) and wallet checking utilities
+  - Deleted 9 unused contract files keeping only ARBCasinoWheel.sol as the main contract
+  - Removed attached_assets folder containing 70+ unused image and audio files
+  - Fixed TypeScript compilation errors in spin-routes.ts with proper null safety checks
+  - Updated asset references to use placeholder gradients instead of missing image files
+  - Maintained all existing functionality and UI/UX while removing 95+ unused files
+  - Application startup and functionality confirmed working after cleanup
+
+## Previous Recent Changes
+
 ✅ **Application Startup Fixed**: Completely resolved startup failure by switching from Neon serverless to standard PostgreSQL connection
 ✅ **Database Driver Migration**: Updated from `@neondatabase/serverless` to standard `pg` driver with `drizzle-orm/node-postgres`
 ✅ **PostgreSQL Database Setup**: Successfully configured PostgreSQL database with proper environment variables and SSL handling
