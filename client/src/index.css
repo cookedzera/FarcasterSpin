@@ -71,6 +71,10 @@
     height: 100vh;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
+    /* Mobile browser compatibility */
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
   }
   
   html::-webkit-scrollbar,

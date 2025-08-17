@@ -106,9 +106,19 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
     };
   }, []);
 
-  // Create realistic casino wheel clicking sound
+  // Create realistic casino wheel clicking sound with Android compatibility
   const playWheelSpinSound = () => {
+    // Skip audio on mobile browsers that have issues
     if (!audioContextRef.current || wheelSoundRef.current.isPlaying) return;
+    
+    // Android compatibility check
+    if (typeof window !== 'undefined') {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      if (userAgent.includes('android') && userAgent.includes('chrome')) {
+        // Skip audio on Android Chrome to prevent runtime errors
+        return;
+      }
+    }
 
     try {
       const audioContext = audioContextRef.current;
@@ -181,7 +191,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       }, 4200); // Slightly longer to ensure all ticks complete
       
     } catch (error) {
-      console.warn('Failed to play wheel sound:', error);
+      console.warn('Audio playback failed (mobile compatibility):', error);
       wheelSoundRef.current.isPlaying = false;
     }
   };
@@ -414,7 +424,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
           transition={{
             rotate: {
               duration: 4.5,
-              ease: [0.25, 0.1, 0.25, 1],
+              ease: "easeInOut",
               type: "tween"
             },
             scale: {
@@ -432,9 +442,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
                 key={index}
                 className="absolute w-full h-full will-change-transform"
                 style={{
-                  background: `conic-gradient(from ${startAngle}deg, ${segment.color} 0deg, ${segment.color} ${segmentAngle}deg, transparent ${segmentAngle}deg)`,
+                  backgroundColor: segment.color,
                   clipPath: `polygon(50% 50%, ${50 + 50 * Math.cos((startAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((startAngle - 90) * Math.PI / 180)}%, ${50 + 50 * Math.cos((endAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((endAngle - 90) * Math.PI / 180)}%)`,
-                  transform: 'translateZ(0)'
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)'
                 }}
               >
                 <div 
