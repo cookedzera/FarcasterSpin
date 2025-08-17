@@ -6,6 +6,11 @@ import SpinWheelSimple from "@/components/spin-wheel-simple";
 import CountdownTimer from "@/components/countdown-timer";
 import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
+import { useFarcaster } from "@/hooks/use-farcaster";
+import { formatUnits } from "viem";
+import aidogeLogo from "@assets/aidoge_1755435810322.png";
+import boopLogo from "@assets/boop_1755435810327.png";
+import arbLogo from "@assets/arb-logo.png";
 
 // Typewriter animation component for alternating text
 const TypewriterText = memo(() => {
@@ -58,11 +63,7 @@ const TypewriterText = memo(() => {
 });
 
 import { Button } from "@/components/ui/button";
-import { formatUnits } from "ethers";
 import { type GameStats, type SpinResult } from "@shared/schema";
-import aidogeLogo from "@assets/aidoge_1755435810322.png";
-import boopLogo from "@assets/boop_1755435810327.png";
-import arbLogo from "@assets/arb-logo.png";
 // Audio is now managed globally in App.tsx via GlobalAudio component
 
 interface TokenBalances {
@@ -122,6 +123,7 @@ const RADIAL_STYLE = {
 export default function Home() {
   const queryClient = useQueryClient();
   const { user, isLoading: userLoading } = useGameState();
+  const { displayName, username, avatarUrl, isLoading: farcasterLoading } = useFarcaster();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
 
   // Prevent body scroll when modal is open
@@ -161,7 +163,7 @@ export default function Home() {
   // Memoize expensive token formatting function
   const formatTokenAmount = useCallback((amount: string, decimals = 18) => {
     try {
-      const parsed = parseFloat(formatUnits(amount, decimals));
+      const parsed = parseFloat(formatUnits(BigInt(amount), decimals));
       if (parsed >= 1000) {
         return `${(parsed / 1000).toFixed(1)}K`;
       } else if (parsed >= 1) {
@@ -241,7 +243,19 @@ export default function Home() {
             whileHover={{ scale: 1.05, y: -2 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            {user?.username?.charAt(0) || 'P'}
+            {avatarUrl ? (
+              <img 
+                src={avatarUrl} 
+                alt="Profile" 
+                className="w-full h-full rounded-full object-cover"
+                onError={(e) => {
+                  // Fallback to initial if avatar fails to load
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            ) : (
+              displayName?.charAt(0) || username?.charAt(0) || 'P'
+            )}
           </motion.div>
           <div className="mb-2">
             <motion.h1 
@@ -254,8 +268,13 @@ export default function Home() {
             </motion.h1>
           </div>
           <h2 className="text-lg font-semibold text-white">
-            Hello, {user?.username || 'Player'}!
+            Hello, {displayName}!
           </h2>
+          {username && username !== displayName && (
+            <p className="text-sm text-white/60 mt-1">
+              @{username}
+            </p>
+          )}
         </motion.div>
 
         {/* Main Action Cards - Compact */}

@@ -1,9 +1,19 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, Wallet, X } from 'lucide-react'
+import { LinkIcon, User, Wallet, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFarcaster } from '@/hooks/use-farcaster'
+
+interface FarcasterUser {
+  fid: number
+  username?: string
+  displayName?: string
+  bio?: string
+  pfpUrl?: string
+  custody?: string
+  verifications?: string[]
+}
 
 export function WalletConnectCompact() {
   const { isConnected, address } = useAccount()
@@ -12,6 +22,8 @@ export function WalletConnectCompact() {
   const { displayName, username, avatarUrl, isAuthenticated } = useFarcaster()
   const [showDetails, setShowDetails] = useState(false)
   const [showWallets, setShowWallets] = useState(false)
+
+
 
   const handleConnect = async (connector: any) => {
     try {
@@ -50,36 +62,29 @@ export function WalletConnectCompact() {
           whileTap={{ scale: 0.95 }}
           data-testid="wallet-connected-button"
         >
-          {avatarUrl ? (
+          {user.pfpUrl ? (
             <img 
-              src={avatarUrl} 
+              src={user.pfpUrl} 
               alt="Profile" 
-              className="w-6 h-6 rounded-full border border-purple-400/30"
+              className="w-6 h-6 rounded-full"
             />
           ) : (
             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
               <User className="w-3 h-3 text-white" />
             </div>
           )}
-          <div className="flex flex-col items-start">
-            <span className="text-xs font-medium text-white truncate max-w-24">
-              {displayName || 'Wallet'}
-            </span>
-            <span className="text-xs text-white/50 truncate max-w-24">
-              {address?.slice(0, 4)}...{address?.slice(-2)}
-            </span>
-          </div>
+          <LinkIcon className="w-4 h-4 text-green-400" />
         </motion.button>
 
         {/* Dropdown details */}
         <AnimatePresence>
           {showDetails && (
             <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.9 }}
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.9 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute top-full right-0 mt-2 w-64 p-4 rounded-2xl text-white z-50"
+              className="absolute right-0 top-12 z-50 p-4 rounded-2xl text-white min-w-64"
               style={{
                 background: 'rgba(0, 0, 0, 0.8)',
                 backdropFilter: 'blur(20px)',
@@ -154,37 +159,37 @@ export function WalletConnectCompact() {
         }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        data-testid="connect-wallet-button"
+        data-testid="wallet-connect-button"
       >
         <Wallet className="w-4 h-4" />
         <span className="text-xs font-medium">
-          {isPending ? 'Connecting...' : 'Connect'}
+          {isPending || isLoading ? 'Connecting...' : 'Connect'}
         </span>
       </motion.button>
 
-      {/* Wallet options dropdown */}
+      {/* Wallet selection dropdown */}
       <AnimatePresence>
         {showWallets && (
           <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.9 }}
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 w-56 p-3 rounded-2xl text-white z-50"
+            className="absolute right-0 top-12 z-50 p-3 rounded-2xl text-white min-w-48"
             style={{
               background: 'rgba(0, 0, 0, 0.9)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
             }}
-            data-testid="wallet-options-dropdown"
+            data-testid="wallet-selection-dropdown"
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-sm">Choose Wallet</h3>
               <button
                 onClick={() => setShowWallets(false)}
                 className="text-white/60 hover:text-white p-1"
-                data-testid="close-wallet-options"
+                data-testid="close-wallet-selection"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -194,20 +199,18 @@ export function WalletConnectCompact() {
               {connectors.map((connector) => (
                 <button
                   key={connector.id}
-                  onClick={() => handleConnect(connector)}
+                  onClick={() => {
+                    handleConnect(connector);
+                    setShowWallets(false);
+                  }}
                   disabled={isPending}
-                  className="w-full flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-white/10 disabled:opacity-50 transition-all duration-200 group"
-                  data-testid={`wallet-option-${connector.id}`}
+                  className="w-full flex items-center space-x-3 p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 disabled:opacity-50"
+                  data-testid={`connector-${connector.id}`}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <Wallet className="w-4 h-4 text-white" />
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                    <Wallet className="w-3 h-3 text-white" />
                   </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">{connector.name}</div>
-                    <div className="text-xs text-white/60">
-                      {connector.id === 'injected' ? 'Browser Wallet' : 'External Wallet'}
-                    </div>
-                  </div>
+                  <span className="text-sm font-medium">{connector.name}</span>
                 </button>
               ))}
             </div>
