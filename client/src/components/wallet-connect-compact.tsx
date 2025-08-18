@@ -1,14 +1,16 @@
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, Wallet, X, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFarcaster } from '@/hooks/use-farcaster'
+import { arbitrumSepolia } from 'wagmi/chains'
 
 export function WalletConnectCompact() {
-  const { isConnected, address } = useAccount()
+  const { isConnected, address, chain } = useAccount()
   const { connect, connectors, isPending } = useConnect()
   const { disconnect } = useDisconnect()
+  const { switchChain } = useSwitchChain()
   const { displayName, username, avatarUrl, isAuthenticated } = useFarcaster()
   const [showDetails, setShowDetails] = useState(false)
   const [showWallets, setShowWallets] = useState(false)
@@ -23,6 +25,8 @@ export function WalletConnectCompact() {
       }
       await connect({ connector })
       setShowWallets(false)
+      
+      // Network switching will be handled by the network prompt modal
     } catch (error) {
       console.error('Failed to connect wallet:', error)
       // Show user-friendly error message
@@ -39,9 +43,54 @@ export function WalletConnectCompact() {
     setShowDetails(false)
   }
 
+  // Show network switch button if connected but not on Arbitrum
+  const needsNetworkSwitch = isConnected && chain?.id !== arbitrumSepolia.id
+
   if (isConnected) {
     return (
       <div className="relative">
+        {/* Network switch prompt */}
+        {needsNetworkSwitch && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gray-900 border border-gray-700 rounded-2xl p-6 mx-4 max-w-sm text-center"
+            >
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Switch to Arbitrum</h3>
+              <p className="text-white/60 text-sm mb-4">
+                This app works best on Arbitrum Sepolia. Switch networks for the optimal gaming experience.
+              </p>
+              <div className="flex space-x-3">
+                <Button
+                  onClick={async () => {
+                    try {
+                      await switchChain({ chainId: arbitrumSepolia.id })
+                    } catch (error) {
+                      console.log('Network switch cancelled or failed:', error)
+                    }
+                  }}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Switch Network
+                </Button>
+                <Button
+                  onClick={() => {/* User can dismiss for now */}}
+                  variant="outline"
+                  className="flex-1 border-gray-600 text-gray-300"
+                >
+                  Later
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
         {/* Compact connected state */}
         <motion.button
           onClick={() => setShowDetails(!showDetails)}
@@ -214,7 +263,7 @@ export function WalletConnectCompact() {
                     </div>
                     <div className="flex-1">
                       <div className="font-medium text-sm">Farcaster Wallet</div>
-                      <div className="text-xs text-white/60">Mini App Wallet</div>
+                      <div className="text-xs text-white/60">Fast & secure on Arbitrum</div>
                     </div>
                   </button>
                 ))
@@ -231,7 +280,7 @@ export function WalletConnectCompact() {
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-sm">External</div>
-                  <div className="text-xs text-white/60">Other Wallets</div>
+                  <div className="text-xs text-white/60">MetaMask, Coinbase & more</div>
                 </div>
                 <ChevronRight 
                   className={`w-4 h-4 text-white/60 transition-transform duration-200 ${

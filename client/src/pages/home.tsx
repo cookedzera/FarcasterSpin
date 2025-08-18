@@ -1,6 +1,8 @@
 import { useState, useCallback, useMemo, memo, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { type GameStats, type SpinResult } from "@shared/schema";
 import { useGameState } from "@/hooks/use-game-state";
 import SpinWheelSimple from "@/components/spin-wheel-simple";
 import CountdownTimer from "@/components/countdown-timer";
@@ -64,8 +66,6 @@ const TypewriterText = memo(() => {
   );
 });
 
-import { Button } from "@/components/ui/button";
-import { type GameStats, type SpinResult } from "@shared/schema";
 // Audio is now managed globally in App.tsx via GlobalAudio component
 
 interface TokenBalances {
