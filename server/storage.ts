@@ -499,23 +499,16 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use database storage with fallback to memory storage
+// Use Supabase database storage
 function createStorage(): IStorage {
   const databaseUrl = process.env.DATABASE_URL;
   
   if (!databaseUrl || databaseUrl.trim() === '') {
-    console.log('🧪 DATABASE_URL not set, using in-memory storage for development');
-    return new MemStorage();
+    throw new Error("DATABASE_URL must be set. Please configure your Supabase database connection.");
   }
   
-  try {
-    // Try to create database storage
-    console.log('🔧 Attempting to connect to Supabase database...');
-    return new DatabaseStorage();
-  } catch (error) {
-    console.warn('⚠️ Database connection failed, falling back to memory storage:', (error as Error).message);
-    return new MemStorage();
-  }
+  console.log('🔧 Connecting to Supabase database...');
+  return new DatabaseStorage();
 }
 
 export const storage = createStorage();

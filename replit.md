@@ -10,7 +10,7 @@ Project focus: Fully Replit-compatible without external dependencies like tsx.
 Navigation preferences: Fast, smooth transitions without loading animations between pages.
 UI preferences: Token collection display with real balances instead of accumulated rewards on profile.
 Gas fee preference: Users should pay their own gas fees for both spinning and claiming transactions, not the project wallet.
-Database preference: Supabase for external deployment, scalable for 200-400 users.
+Database preference: Supabase for external deployment, scalable for 200-400 users. **MIGRATED**: App successfully moved to Supabase database (August 18, 2025).
 
 # System Architecture
 
@@ -32,9 +32,11 @@ Database preference: Supabase for external deployment, scalable for 200-400 user
 - **Error Handling**: Centralized error handling.
 
 ## Database Schema
+- **Database**: Supabase (PostgreSQL) with transaction pooler for optimal performance.
 - **ORM**: Drizzle ORM with PostgreSQL dialect.
 - **Tables**: `users` (player profiles, Farcaster data, spin counts, wallet addresses, token balances), `tokens` (configurations), `game_stats` (daily aggregated statistics), `spin_results` (individual spin outcomes), `token_claims` (token claim requests).
 - **Data Validation**: Zod schemas for type-safe operations.
+- **Connection**: Transaction pooler (port 6543) for concurrent user handling.
 
 ## Game Logic
 - **Spin Mechanics**: Smart contract-based wheel spinning with 8 segments (IARB, JUICE, ABET, BONUS, JACKPOT, BUST).
