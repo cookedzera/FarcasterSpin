@@ -375,10 +375,10 @@ export default function Home() {
 
 
       {/* Main Content */}
-      <div className="relative z-10 px-2 py-4 pb-24">
+      <div className="relative z-10 px-6 py-8 pb-24">
         {/* User Profile - Compact */}
         <motion.div 
-          className="text-center mb-4"
+          className="text-center mb-8"
           initial={{ opacity: 0.8 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
@@ -432,10 +432,10 @@ export default function Home() {
         </motion.div>
 
         {/* Main Action Cards - Compact */}
-        <div className="space-y-4 mb-4">
+        <div className="space-y-6 mb-6">
           {/* Spin Challenge Card */}
           <motion.div
-            className="rounded-2xl p-4 text-white relative overflow-hidden"
+            className="rounded-2xl p-6 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
@@ -573,7 +573,7 @@ export default function Home() {
 
           {/* Rewards Card */}
           <motion.div
-            className="rounded-2xl p-4 text-white relative overflow-hidden"
+            className="rounded-2xl p-6 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
@@ -666,7 +666,7 @@ export default function Home() {
 
           {/* Current Challenge */}
           <motion.div 
-            className="rounded-xl p-3 text-white relative overflow-hidden"
+            className="rounded-xl p-5 text-white relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
@@ -726,7 +726,7 @@ export default function Home() {
               return (
                 <motion.div
                   key={index}
-                  className="rounded-xl p-3 relative overflow-hidden"
+                  className="rounded-xl p-4 relative overflow-hidden"
                   style={{
                     background: 'rgba(255, 255, 255, 0.08)',
                     backdropFilter: 'blur(20px)',

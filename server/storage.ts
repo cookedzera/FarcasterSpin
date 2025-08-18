@@ -501,10 +501,10 @@ export class MemStorage implements IStorage {
 
 // Use Supabase database storage
 function createStorage(): IStorage {
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
   
   if (!databaseUrl || databaseUrl.trim() === '') {
-    throw new Error("DATABASE_URL must be set. Please configure your Supabase database connection.");
+    throw new Error("SUPABASE_DATABASE_URL or DATABASE_URL must be set. Please configure your Supabase database connection.");
   }
   
   console.log('🔧 Connecting to Supabase database...');
