@@ -6,6 +6,7 @@ import { useEffect, lazy, Suspense } from "react";
 
 // Code splitting - lazy load pages for better performance
 const Home = lazy(() => import("@/pages/home"));
+const TestPage = lazy(() => import("@/pages/test-page"));
 const Profile = lazy(() => import("@/pages/profile"));
 const TokenCollection = lazy(() => import("@/pages/token-collection"));
 const Admin = lazy(() => import("@/pages/admin"));
@@ -34,7 +35,8 @@ function Router() {
     <div className="page-transition gpu-accelerated">
       <Suspense fallback={<PageLoader />}>
         <Switch>
-          <Route path="/" component={Home} />
+          <Route path="/" component={TestPage} />
+          <Route path="/home" component={Home} />
           <Route path="/tokens" component={TokenCollection} />
           <Route path="/profile" component={Profile} />
           <Route path="/leaderboard" component={Leaderboard} />
