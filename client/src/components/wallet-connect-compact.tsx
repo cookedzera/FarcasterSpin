@@ -196,9 +196,9 @@ export function WalletConnectCompact() {
             </div>
             
             <div className="space-y-2">
-              {/* Farcaster - Primary Option */}
-              {connectors
-                .filter(connector => connector.id === 'farcasterMiniApp')
+              {/* Farcaster - Primary Option (First connector is Mini App based on wagmi config) */}
+              {connectors.length > 0 && connectors[0].id && connectors
+                .filter((connector, index) => index === 0) // First connector is miniAppConnector() from config
                 .map((connector) => (
                   <button
                     key={connector.id}
@@ -213,8 +213,8 @@ export function WalletConnectCompact() {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-sm">Farcaster</div>
-                      <div className="text-xs text-white/60">External Wallet</div>
+                      <div className="font-medium text-sm">Farcaster Wallet</div>
+                      <div className="text-xs text-white/60">Mini App Wallet</div>
                     </div>
                   </button>
                 ))
