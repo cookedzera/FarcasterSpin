@@ -8,6 +8,7 @@ import Navigation from "@/components/navigation";
 import { WalletConnectCompact } from "@/components/wallet-connect-compact";
 import { useFarcaster } from "@/hooks/use-farcaster";
 import { formatUnits } from "viem";
+import { AudioManager } from "@/lib/audio-manager";
 import aidogeLogo from "@assets/aidoge_1755435810322.png";
 import boopLogo from "@assets/boop_1755435810327.png";
 import arbLogo from "@assets/arb-logo.png";
@@ -126,6 +127,19 @@ export default function Home() {
   const { user, isLoading: userLoading } = useGameState();
   const { displayName, username, avatarUrl, isLoading: farcasterLoading } = useFarcaster();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [audioManager] = useState(() => AudioManager.getInstance());
+
+  // Initialize audio and manage mute state
+  useEffect(() => {
+    audioManager.init();
+    setIsMuted(audioManager.getMuted());
+  }, [audioManager]);
+
+  const toggleMute = useCallback(() => {
+    const newMutedState = audioManager.toggleMute();
+    setIsMuted(newMutedState);
+  }, [audioManager]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -218,6 +232,57 @@ export default function Home() {
       <FloatingParticles />
       
 
+
+      {/* Music Button with Vibing Cat - Top Left */}
+      <div className="fixed top-4 left-4 z-50">
+        <motion.button
+          onClick={toggleMute}
+          className={`relative p-2 rounded-xl transition-all duration-300 backdrop-blur-sm ${
+            isMuted 
+              ? 'bg-red-900/80 border border-red-400/50 shadow-lg shadow-red-400/20' 
+              : 'bg-emerald-900/80 border border-emerald-400/50 shadow-lg shadow-emerald-400/20'
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          data-testid="button-mute-music"
+        >
+          {/* Vibing Cat Animation */}
+          <div className="flex items-center space-x-1">
+            <motion.div
+              className="text-lg"
+              animate={!isMuted ? {
+                rotate: [-5, 5, -5],
+                scale: [1, 1.1, 1]
+              } : {}}
+              transition={{
+                duration: 0.6,
+                repeat: !isMuted ? Infinity : 0,
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }}
+            >
+              🐱
+            </motion.div>
+            <motion.div 
+              className={`text-sm font-bold ${
+                isMuted ? 'text-red-400' : 'text-emerald-400'
+              }`}
+              animate={!isMuted ? {
+                scale: [1, 1.1, 1],
+                opacity: [0.7, 1, 0.7]
+              } : {}}
+              transition={{
+                duration: 0.8,
+                repeat: !isMuted ? Infinity : 0,
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }}
+            >
+              {isMuted ? '🔇' : '♪'}
+            </motion.div>
+          </div>
+        </motion.button>
+      </div>
 
       {/* Compact Wallet Connect - Top Right */}
       <div className="fixed top-6 right-6 z-30">
