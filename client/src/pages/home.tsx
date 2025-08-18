@@ -233,11 +233,11 @@ export default function Home() {
       
 
 
-      {/* Music Button with Vibing Cat - Top Left */}
+      {/* Music Button with Dancing Cat SVG - Top Left */}
       <div className="fixed top-4 left-4 z-50">
         <motion.button
           onClick={toggleMute}
-          className={`relative p-2 rounded-xl transition-all duration-300 backdrop-blur-sm ${
+          className={`relative p-3 rounded-2xl transition-all duration-300 backdrop-blur-sm ${
             isMuted 
               ? 'bg-red-900/80 border border-red-400/50 shadow-lg shadow-red-400/20' 
               : 'bg-emerald-900/80 border border-emerald-400/50 shadow-lg shadow-emerald-400/20'
@@ -246,40 +246,94 @@ export default function Home() {
           whileTap={{ scale: 0.95 }}
           data-testid="button-mute-music"
         >
-          {/* Vibing Cat Animation */}
-          <div className="flex items-center space-x-1">
+          <div className="flex flex-col items-center space-y-1">
+            {/* Dancing Cat SVG */}
             <motion.div
-              className="text-lg"
               animate={!isMuted ? {
-                rotate: [-5, 5, -5],
-                scale: [1, 1.1, 1]
+                y: [-2, 2, -2],
+                rotate: [-3, 3, -3]
               } : {}}
               transition={{
-                duration: 0.6,
+                duration: 0.5,
                 repeat: !isMuted ? Infinity : 0,
                 repeatType: "reverse",
                 ease: "easeInOut"
               }}
             >
-              🐱
+              <svg 
+                width="24" 
+                height="20" 
+                viewBox="0 0 24 20" 
+                fill="none" 
+                className={`${isMuted ? 'text-red-400' : 'text-emerald-400'}`}
+              >
+                {/* Cat ears */}
+                <path 
+                  d="M6 6 L8 2 L10 6 Z" 
+                  fill="currentColor"
+                />
+                <path 
+                  d="M14 6 L16 2 L18 6 Z" 
+                  fill="currentColor"
+                />
+                
+                {/* Cat head */}
+                <circle cx="12" cy="8" r="6" fill="currentColor" opacity="0.9"/>
+                
+                {/* Cat face */}
+                <circle cx="10" cy="7" r="0.8" fill="white" opacity="0.8"/>
+                <circle cx="14" cy="7" r="0.8" fill="white" opacity="0.8"/>
+                <path d="M12 9 L11 10 L12 10.5 L13 10 Z" fill="white" opacity="0.6"/>
+                
+                {/* Cat paws dancing */}
+                <circle 
+                  cx="8" 
+                  cy="12" 
+                  r="1.5" 
+                  fill="currentColor"
+                />
+                <circle 
+                  cx="16" 
+                  cy="12" 
+                  r="1.5" 
+                  fill="currentColor"
+                />
+              </svg>
             </motion.div>
-            <motion.div 
-              className={`text-sm font-bold ${
-                isMuted ? 'text-red-400' : 'text-emerald-400'
-              }`}
-              animate={!isMuted ? {
-                scale: [1, 1.1, 1],
-                opacity: [0.7, 1, 0.7]
-              } : {}}
-              transition={{
-                duration: 0.8,
-                repeat: !isMuted ? Infinity : 0,
-                repeatType: "reverse",
-                ease: "easeInOut"
-              }}
-            >
-              {isMuted ? '🔇' : '♪'}
-            </motion.div>
+
+            {/* Animated Equalizer Bars */}
+            <div className="flex items-end space-x-0.5">
+              {[...Array(4)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className={`w-1 rounded-full ${
+                    isMuted ? 'bg-red-400/50' : 'bg-emerald-400'
+                  }`}
+                  style={{ height: '8px' }}
+                  animate={!isMuted ? {
+                    scaleY: [0.3, 1.2, 0.3],
+                    opacity: [0.5, 1, 0.5]
+                  } : { scaleY: 0.3 }}
+                  transition={{
+                    duration: 0.6,
+                    repeat: !isMuted ? Infinity : 0,
+                    delay: i * 0.1,
+                    ease: "easeInOut"
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Mute indicator when disabled */}
+            {isMuted && (
+              <motion.div 
+                className="absolute inset-0 flex items-center justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="text-red-400 text-lg font-bold">🔇</div>
+              </motion.div>
+            )}
           </div>
         </motion.button>
       </div>

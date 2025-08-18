@@ -1,4 +1,6 @@
 // Global audio manager for seamless music across navigation
+import audioFile from "@assets/upbeat-anime-background-music-285658_1755435962944.mp3";
+
 export class AudioManager {
   private static instance: AudioManager;
   private audio: HTMLAudioElement | null = null;
@@ -18,7 +20,8 @@ export class AudioManager {
   init(): void {
     if (this.isInitialized) return; // Prevent re-initialization
     
-    this.audio = new Audio('/assets/background-music.mp3');
+    // Use the correct audio file path from attached assets
+    this.audio = new Audio(audioFile);
     this.audio.volume = this.isMuted ? 0 : this.volume;
     this.audio.loop = true;
     this.isInitialized = true;
