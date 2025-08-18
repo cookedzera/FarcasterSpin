@@ -125,7 +125,7 @@ const RADIAL_STYLE = {
 export default function Home() {
   const queryClient = useQueryClient();
   const { user, isLoading: userLoading } = useGameState();
-  const { displayName, username, avatarUrl, isLoading: farcasterLoading } = useFarcaster();
+  const { displayName, username, avatarUrl, loading: farcasterLoading } = useFarcaster();
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [audioManager] = useState(() => AudioManager.getInstance());
@@ -233,89 +233,119 @@ export default function Home() {
       
 
 
-      {/* Music Button with Dancing Cat SVG - Top Left */}
+      {/* Music Button with Dancing Cat Above - Top Left */}
       <div className="fixed top-4 left-4 z-50">
-        <motion.button
-          onClick={toggleMute}
-          className={`relative p-3 rounded-2xl transition-all duration-300 backdrop-blur-sm ${
-            isMuted 
-              ? 'bg-red-900/80 border border-red-400/50 shadow-lg shadow-red-400/20' 
-              : 'bg-emerald-900/80 border border-emerald-400/50 shadow-lg shadow-emerald-400/20'
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          data-testid="button-mute-music"
-        >
-          <div className="flex flex-col items-center space-y-1">
-            {/* Dancing Cat SVG */}
-            <motion.div
-              animate={!isMuted ? {
-                y: [-2, 2, -2],
-                rotate: [-3, 3, -3]
-              } : {}}
-              transition={{
-                duration: 0.5,
-                repeat: !isMuted ? Infinity : 0,
-                repeatType: "reverse",
-                ease: "easeInOut"
-              }}
+        <div className="relative">
+          {/* Tiny Cute Dancing Cat - Floating Above */}
+          <motion.div
+            className="absolute -top-6 left-1/2 transform -translate-x-1/2"
+            animate={!isMuted ? {
+              y: [-1, 1, -1],
+              rotate: [-3, 3, -3]
+            } : {}}
+            transition={{
+              duration: 0.5,
+              repeat: !isMuted ? Infinity : 0,
+              repeatType: "reverse",
+              ease: "easeInOut"
+            }}
+          >
+            <svg 
+              width="18" 
+              height="16" 
+              viewBox="0 0 18 16" 
+              fill="none" 
+              className={`${isMuted ? 'text-red-400' : 'text-emerald-400'}`}
             >
-              <svg 
-                width="24" 
-                height="20" 
-                viewBox="0 0 24 20" 
-                fill="none" 
-                className={`${isMuted ? 'text-red-400' : 'text-emerald-400'}`}
-              >
-                {/* Cat ears */}
-                <path 
-                  d="M6 6 L8 2 L10 6 Z" 
-                  fill="currentColor"
-                />
-                <path 
-                  d="M14 6 L16 2 L18 6 Z" 
-                  fill="currentColor"
-                />
-                
-                {/* Cat head */}
-                <circle cx="12" cy="8" r="6" fill="currentColor" opacity="0.9"/>
-                
-                {/* Cat face */}
-                <circle cx="10" cy="7" r="0.8" fill="white" opacity="0.8"/>
-                <circle cx="14" cy="7" r="0.8" fill="white" opacity="0.8"/>
-                <path d="M12 9 L11 10 L12 10.5 L13 10 Z" fill="white" opacity="0.6"/>
-                
-                {/* Cat paws dancing */}
-                <circle 
-                  cx="8" 
-                  cy="12" 
-                  r="1.5" 
-                  fill="currentColor"
-                />
-                <circle 
-                  cx="16" 
-                  cy="12" 
-                  r="1.5" 
-                  fill="currentColor"
-                />
-              </svg>
-            </motion.div>
+              {/* Tiny cat ears */}
+              <path 
+                d="M5 5 L6 2 L7 5 Z" 
+                fill="currentColor"
+                stroke="white"
+                strokeWidth="0.5"
+              />
+              <path 
+                d="M11 5 L12 2 L13 5 Z" 
+                fill="currentColor"
+                stroke="white"
+                strokeWidth="0.5"
+              />
+              
+              {/* Small cute head */}
+              <circle 
+                cx="9" 
+                cy="7" 
+                r="4" 
+                fill="currentColor" 
+                stroke="white"
+                strokeWidth="0.8"
+                opacity="0.95"
+              />
+              
+              {/* Cute face */}
+              <circle cx="7.5" cy="6.5" r="0.5" fill="white"/>
+              <circle cx="10.5" cy="6.5" r="0.5" fill="white"/>
+              <path d="M9 8 L8.5 8.5 L9 9 L9.5 8.5 Z" fill="white" opacity="0.9"/>
+              
+              {/* Tiny dancing legs */}
+              <motion.ellipse 
+                cx="7" 
+                cy="11" 
+                rx="0.8" 
+                ry="1.2" 
+                fill="currentColor"
+                stroke="white"
+                strokeWidth="0.5"
+                animate={!isMuted ? { 
+                  rotate: [-8, 8, -8],
+                  x: [-0.5, 0.5, -0.5]
+                } : {}}
+                transition={{ duration: 0.4, repeat: !isMuted ? Infinity : 0, delay: 0 }}
+              />
+              <motion.ellipse 
+                cx="11" 
+                cy="11" 
+                rx="0.8" 
+                ry="1.2" 
+                fill="currentColor"
+                stroke="white"
+                strokeWidth="0.5"
+                animate={!isMuted ? { 
+                  rotate: [8, -8, 8],
+                  x: [0.5, -0.5, 0.5]
+                } : {}}
+                transition={{ duration: 0.4, repeat: !isMuted ? Infinity : 0, delay: 0.2 }}
+              />
+            </svg>
+          </motion.div>
 
+          {/* Music Button */}
+          <motion.button
+            onClick={toggleMute}
+            className={`relative p-3 rounded-2xl transition-all duration-300 backdrop-blur-sm ${
+              isMuted 
+                ? 'bg-red-900/80 border border-red-400/50 shadow-lg shadow-red-400/20' 
+                : 'bg-emerald-900/80 border border-emerald-400/50 shadow-lg shadow-emerald-400/20'
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            data-testid="button-mute-music"
+          >
             {/* Animated Equalizer Bars */}
-            <div className="flex items-end space-x-0.5">
+            <div className="flex items-end justify-center space-x-0.5">
               {[...Array(4)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className={`w-1 rounded-full ${
+                  className={`w-1.5 rounded-full ${
                     isMuted ? 'bg-red-400/50' : 'bg-emerald-400'
                   }`}
-                  style={{ height: '8px' }}
+                  style={{ height: '12px' }}
                   animate={!isMuted ? {
-                    scaleY: [0.3, 1.2, 0.3],
+                    scaleY: [0.3, 1.5, 0.3],
                     opacity: [0.5, 1, 0.5]
                   } : { scaleY: 0.3 }}
                   transition={{
-                    duration: 0.6,
+                    duration: 0.7,
                     repeat: !isMuted ? Infinity : 0,
                     delay: i * 0.1,
                     ease: "easeInOut"
@@ -334,8 +364,8 @@ export default function Home() {
                 <div className="text-red-400 text-lg font-bold">🔇</div>
               </motion.div>
             )}
-          </div>
-        </motion.button>
+          </motion.button>
+        </div>
       </div>
 
       {/* Compact Wallet Connect - Top Right */}
