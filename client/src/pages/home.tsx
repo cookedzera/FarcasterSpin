@@ -238,81 +238,81 @@ export default function Home() {
         <div className="relative">
           {/* Tiny Cute Dancing Cat - Floating Above */}
           <motion.div
-            className="absolute -top-6 left-1/2 transform -translate-x-1/2"
+            className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10"
             animate={!isMuted ? {
-              y: [-1, 1, -1],
-              rotate: [-3, 3, -3]
+              y: [-2, 2, -2],
+              rotate: [-4, 4, -4]
             } : {}}
             transition={{
-              duration: 0.5,
+              duration: 0.6,
               repeat: !isMuted ? Infinity : 0,
               repeatType: "reverse",
               ease: "easeInOut"
             }}
           >
             <svg 
-              width="18" 
-              height="16" 
-              viewBox="0 0 18 16" 
+              width="24" 
+              height="20" 
+              viewBox="0 0 24 20" 
               fill="none" 
-              className={`${isMuted ? 'text-red-400' : 'text-emerald-400'}`}
+              className={`drop-shadow-lg ${isMuted ? 'text-red-400' : 'text-emerald-400'}`}
             >
               {/* Tiny cat ears */}
               <path 
-                d="M5 5 L6 2 L7 5 Z" 
+                d="M7 7 L8 3 L9 7 Z" 
                 fill="currentColor"
                 stroke="white"
-                strokeWidth="0.5"
+                strokeWidth="1"
               />
               <path 
-                d="M11 5 L12 2 L13 5 Z" 
+                d="M15 7 L16 3 L17 7 Z" 
                 fill="currentColor"
                 stroke="white"
-                strokeWidth="0.5"
+                strokeWidth="1"
               />
               
               {/* Small cute head */}
               <circle 
-                cx="9" 
-                cy="7" 
-                r="4" 
+                cx="12" 
+                cy="10" 
+                r="5" 
                 fill="currentColor" 
                 stroke="white"
-                strokeWidth="0.8"
+                strokeWidth="1.2"
                 opacity="0.95"
               />
               
-              {/* Cute face */}
-              <circle cx="7.5" cy="6.5" r="0.5" fill="white"/>
-              <circle cx="10.5" cy="6.5" r="0.5" fill="white"/>
-              <path d="M9 8 L8.5 8.5 L9 9 L9.5 8.5 Z" fill="white" opacity="0.9"/>
+              {/* Cute face - bigger eyes */}
+              <circle cx="10" cy="9" r="0.8" fill="white"/>
+              <circle cx="14" cy="9" r="0.8" fill="white"/>
+              <path d="M12 11 L11 12 L12 12.5 L13 12 Z" fill="white" opacity="0.9"/>
               
               {/* Tiny dancing legs */}
               <motion.ellipse 
-                cx="7" 
-                cy="11" 
-                rx="0.8" 
-                ry="1.2" 
+                cx="9" 
+                cy="15" 
+                rx="1" 
+                ry="1.5" 
                 fill="currentColor"
                 stroke="white"
-                strokeWidth="0.5"
+                strokeWidth="0.8"
                 animate={!isMuted ? { 
-                  rotate: [-8, 8, -8],
-                  x: [-0.5, 0.5, -0.5]
+                  rotate: [-10, 10, -10],
+                  x: [-0.8, 0.8, -0.8]
                 } : {}}
                 transition={{ duration: 0.4, repeat: !isMuted ? Infinity : 0, delay: 0 }}
               />
               <motion.ellipse 
-                cx="11" 
-                cy="11" 
-                rx="0.8" 
-                ry="1.2" 
+                cx="15" 
+                cy="15" 
+                rx="1" 
+                ry="1.5" 
                 fill="currentColor"
                 stroke="white"
-                strokeWidth="0.5"
+                strokeWidth="0.8"
                 animate={!isMuted ? { 
-                  rotate: [8, -8, 8],
-                  x: [0.5, -0.5, 0.5]
+                  rotate: [10, -10, 10],
+                  x: [0.8, -0.8, 0.8]
                 } : {}}
                 transition={{ duration: 0.4, repeat: !isMuted ? Infinity : 0, delay: 0.2 }}
               />
