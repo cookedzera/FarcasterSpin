@@ -499,20 +499,19 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         </motion.div>
       </div>
 
-      {/* Spin Status */}
-      <div className="text-center space-y-2">
-        <div className="text-lg font-bold text-white">
+      {/* Compact Spin Status */}
+      <div className="text-center">
+        {!hasSpinsRemaining && (
+          <div className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-white text-sm font-medium mb-2">
+            Daily Limit Reached
+          </div>
+        )}
+        <div className="text-sm text-gray-300">
           {hasSpinsRemaining 
-            ? `🆓 Free Spins: ${3 - userSpinsUsed} remaining`
-            : `⛽ Daily Limit Reached`
+            ? `${3 - userSpinsUsed} spins remaining - No gas fees`
+            : "Come back tomorrow for more spins"
           }
         </div>
-        <p className="text-sm text-gray-300">
-          {hasSpinsRemaining 
-            ? "No gas fees - rewards accumulate until claimed"
-            : "Come back tomorrow for more spins!"
-          }
-        </p>
       </div>
 
       <Button
@@ -529,13 +528,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       
 
       
-      {/* Spins Counter */}
+      {/* Compact Spins Counter */}
       <div className="text-center">
-        <p className="text-white/80 text-sm">
-          Total daily spins: {userSpinsUsed}/3 used
-        </p>
         <p className="text-white/60 text-xs">
-          Server-side spins (no gas fees)
+          Total daily spins: {userSpinsUsed}/3 used
         </p>
       </div>
 
@@ -546,47 +542,38 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         (userAccumulated.ARB && parseFloat(userAccumulated.ARB) > 0)
       ) && (
         <div className="w-full max-w-md space-y-4">
-          {/* Modern header with gradient background */}
-          <div className="text-center p-4 rounded-2xl relative overflow-hidden"
+          {/* Compact rewards header */}
+          <div className="text-center p-3 rounded-xl relative overflow-hidden"
                style={{
-                 background: 'linear-gradient(135deg, rgba(139, 69, 19, 0.3) 0%, rgba(255, 215, 0, 0.1) 50%, rgba(139, 69, 19, 0.3) 100%)',
-                 border: '1px solid rgba(255, 215, 0, 0.3)',
-                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 215, 0, 0.2)'
+                 background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.1) 100%)',
+                 border: '1px solid rgba(245, 158, 11, 0.3)'
                }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent" />
-            <div className="relative">
-              <h3 className="text-xl font-bold text-white flex items-center justify-center gap-2 mb-2">
-                <Gift className="w-6 h-6 text-yellow-400" />
-                <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 bg-clip-text text-transparent">
-                  Accumulated Rewards
-                </span>
-              </h3>
-              <p className="text-sm text-yellow-200/80">
-                {userSpinsUsed >= 3 ? "Your winnings are ready to claim!" : "Complete all spins to claim rewards!"}
-              </p>
+            <div className="flex items-center justify-center gap-2">
+              <Gift className="w-5 h-5 text-yellow-400" />
+              <h3 className="text-lg font-bold text-yellow-400">Accumulated Rewards</h3>
             </div>
+            <p className="text-xs text-yellow-200/80 mt-1">
+              {userSpinsUsed >= 3 ? "Your winnings are ready to claim!" : "Complete all spins first"}
+            </p>
           </div>
 
-          {/* Modern token cards with gradients */}
-          <div className="space-y-3">
+          {/* Compact token display */}
+          <div className="space-y-2">
             {userAccumulated?.AIDOGE && parseFloat(userAccumulated.AIDOGE) > 0 && (
               <div 
-                className="relative p-4 rounded-xl overflow-hidden will-change-transform"
+                className="relative p-3 rounded-lg overflow-hidden will-change-transform"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%)',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.1)',
-                  transform: 'translateZ(0)' // Hardware acceleration
+                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)'
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent" />
                 <div className="relative flex items-center justify-center">
                   <div className="flex items-center gap-3">
                     <div className="px-3 py-1 bg-blue-600/80 backdrop-blur-sm rounded-full border border-blue-400/50">
                       <span className="text-white font-bold text-sm">AIDOGE</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {parseFloat(userAccumulated.AIDOGE || "0").toFixed(2)}
+                      {(parseFloat(userAccumulated.AIDOGE || "0") / 1e18).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -595,22 +582,19 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
             {userAccumulated?.BOOP && parseFloat(userAccumulated.BOOP) > 0 && (
               <div 
-                className="relative p-4 rounded-xl overflow-hidden will-change-transform"
+                className="relative p-3 rounded-lg overflow-hidden will-change-transform"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.1) 100%)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                  boxShadow: '0 4px 16px rgba(34, 197, 94, 0.1)',
-                  transform: 'translateZ(0)' // Hardware acceleration
+                  background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.05) 100%)',
+                  border: '1px solid rgba(34, 197, 94, 0.2)'
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent" />
                 <div className="relative flex items-center justify-center">
                   <div className="flex items-center gap-3">
                     <div className="px-3 py-1 bg-green-600/80 backdrop-blur-sm rounded-full border border-green-400/50">
                       <span className="text-white font-bold text-sm">BOOP</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {parseFloat(userAccumulated.BOOP || "0").toFixed(2)}
+                      {(parseFloat(userAccumulated.BOOP || "0") / 1e18).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -619,22 +603,19 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
 
             {userAccumulated?.ARB && parseFloat(userAccumulated.ARB) > 0 && (
               <div 
-                className="relative p-4 rounded-xl overflow-hidden will-change-transform"
+                className="relative p-3 rounded-lg overflow-hidden will-change-transform"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(126, 34, 206, 0.1) 100%)',
-                  border: '1px solid rgba(147, 51, 234, 0.3)',
-                  boxShadow: '0 4px 16px rgba(147, 51, 234, 0.1)',
-                  transform: 'translateZ(0)' // Hardware acceleration
+                  background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(126, 34, 206, 0.05) 100%)',
+                  border: '1px solid rgba(147, 51, 234, 0.2)'
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-transparent" />
                 <div className="relative flex items-center justify-center">
                   <div className="flex items-center gap-3">
                     <div className="px-3 py-1 bg-purple-600/80 backdrop-blur-sm rounded-full border border-purple-400/50">
                       <span className="text-white font-bold text-sm">ARB</span>
                     </div>
                     <span className="font-mono text-white text-lg font-bold">
-                      {parseFloat(userAccumulated.ARB || "0").toFixed(2)}
+                      {(parseFloat(userAccumulated.ARB || "0") / 1e18).toFixed(2)}
                     </span>
                   </div>
                 </div>
