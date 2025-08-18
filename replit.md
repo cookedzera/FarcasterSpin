@@ -10,7 +10,7 @@ Project focus: Fully Replit-compatible without external dependencies like tsx.
 Navigation preferences: Fast, smooth transitions without loading animations between pages.
 UI preferences: Token collection display with real balances instead of accumulated rewards on profile.
 Gas fee preference: Users should pay their own gas fees for both spinning and claiming transactions, not the project wallet.
-Database preference: Supabase for external deployment, scalable for 200-400 users. **MIGRATED**: App successfully moved to Supabase database (August 18, 2025).
+Database preference: Supabase for external deployment, scalable for 200-400 users. **MIGRATED**: App successfully moved to Supabase database with permanent connection (August 18, 2025).
 
 # System Architecture
 
