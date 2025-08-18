@@ -1,14 +1,14 @@
 import { http, createConfig } from 'wagmi'
-import { arbitrum, arbitrumSepolia } from 'wagmi/chains'
+import { arbitrum, arbitrumSepolia, base } from 'wagmi/chains'
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector'
-import { coinbaseWallet, walletConnect, injected } from 'wagmi/connectors'
+import { coinbaseWallet, injected } from 'wagmi/connectors'
 
-// Simplified wallet config - remove WalletConnect to fix connection issues
+// Wallet config with Base wallet and auto-detection
 export const config = createConfig({
-  chains: [arbitrumSepolia, arbitrum], // Support both testnet and mainnet
+  chains: [arbitrumSepolia, arbitrum, base], // Support testnet, mainnet, and Base
   connectors: [
     miniAppConnector(), // Farcaster wallet integration
-    injected(), // MetaMask and other injected wallets
+    injected(), // Auto-detect installed browser wallets
     coinbaseWallet({
       appName: 'ArbCasino',
     }),
@@ -16,6 +16,7 @@ export const config = createConfig({
   transports: {
     [arbitrumSepolia.id]: http('https://sepolia-rollup.arbitrum.io/rpc'),
     [arbitrum.id]: http('https://arb1.arbitrum.io/rpc'),
+    [base.id]: http('https://mainnet.base.org'),
   },
 })
 

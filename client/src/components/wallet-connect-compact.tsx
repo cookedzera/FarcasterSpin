@@ -1,7 +1,7 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, Wallet, X } from 'lucide-react'
+import { User, Wallet, X, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFarcaster } from '@/hooks/use-farcaster'
 
@@ -12,6 +12,7 @@ export function WalletConnectCompact() {
   const { displayName, username, avatarUrl, isAuthenticated } = useFarcaster()
   const [showDetails, setShowDetails] = useState(false)
   const [showWallets, setShowWallets] = useState(false)
+  const [showExternalWallets, setShowExternalWallets] = useState(false)
 
   const handleConnect = async (connector: any) => {
     try {
@@ -27,6 +28,10 @@ export function WalletConnectCompact() {
       // Show user-friendly error message
       alert('Failed to connect wallet. Please try again or use a different wallet.')
     }
+  }
+
+  const handleExternalClick = () => {
+    setShowExternalWallets(!showExternalWallets)
   }
 
   const handleDisconnect = () => {
@@ -191,25 +196,125 @@ export function WalletConnectCompact() {
             </div>
             
             <div className="space-y-2">
-              {connectors.map((connector) => (
-                <button
-                  key={connector.id}
-                  onClick={() => handleConnect(connector)}
-                  disabled={isPending}
-                  className="w-full flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-white/10 disabled:opacity-50 transition-all duration-200 group"
-                  data-testid={`wallet-option-${connector.id}`}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <Wallet className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">{connector.name}</div>
-                    <div className="text-xs text-white/60">
-                      {connector.id === 'injected' ? 'Browser Wallet' : 'External Wallet'}
+              {/* Farcaster - Primary Option */}
+              {connectors
+                .filter(connector => connector.id === 'farcasterMiniApp')
+                .map((connector) => (
+                  <button
+                    key={connector.id}
+                    onClick={() => handleConnect(connector)}
+                    disabled={isPending}
+                    className="w-full flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-white/10 disabled:opacity-50 transition-all duration-200 group"
+                    data-testid={`wallet-option-${connector.id}`}
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
                     </div>
-                  </div>
-                </button>
-              ))}
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">Farcaster</div>
+                      <div className="text-xs text-white/60">External Wallet</div>
+                    </div>
+                  </button>
+                ))
+              }
+
+              {/* External Wallets - Secondary Option */}
+              <button
+                onClick={handleExternalClick}
+                className="w-full flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-white/10 transition-all duration-200 group"
+                data-testid="external-wallets-toggle"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Wallet className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm">External</div>
+                  <div className="text-xs text-white/60">Other Wallets</div>
+                </div>
+                <ChevronRight 
+                  className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
+                    showExternalWallets ? 'rotate-90' : ''
+                  }`} 
+                />
+              </button>
+
+              {/* External Wallet Options - Expanded */}
+              <AnimatePresence>
+                {showExternalWallets && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="ml-11 space-y-2 overflow-hidden"
+                  >
+                    {/* Auto-detected browser wallets */}
+                    {connectors
+                      .filter(connector => connector.id === 'injected')
+                      .map((connector) => (
+                        <button
+                          key={connector.id}
+                          onClick={() => handleConnect(connector)}
+                          disabled={isPending}
+                          className="w-full flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-white/10 disabled:opacity-50 transition-all duration-200 group"
+                          data-testid={`wallet-option-${connector.id}`}
+                        >
+                          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <Wallet className="w-3 h-3 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">Injected</div>
+                            <div className="text-xs text-white/60">Browser Wallet</div>
+                          </div>
+                        </button>
+                      ))
+                    }
+                    
+                    {/* Coinbase Wallet (Base) */}
+                    {connectors
+                      .filter(connector => connector.id === 'coinbaseWalletSDK')
+                      .map((connector) => (
+                        <button
+                          key={connector.id}
+                          onClick={() => handleConnect(connector)}
+                          disabled={isPending}
+                          className="w-full flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-white/10 disabled:opacity-50 transition-all duration-200 group"
+                          data-testid={`wallet-option-${connector.id}`}
+                        >
+                          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">Coinbase Wallet</div>
+                            <div className="text-xs text-white/60">External Wallet</div>
+                          </div>
+                        </button>
+                      ))
+                    }
+                    
+                    {/* Rainbow Wallet */}
+                    <button
+                      onClick={() => window.open('https://rainbow.me/', '_blank')}
+                      className="w-full flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-white/10 transition-all duration-200 group"
+                      data-testid="wallet-option-rainbow"
+                    >
+                      <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2L13.09 8.26L22 12L13.09 15.74L12 22L10.91 15.74L2 12L10.91 8.26L12 2Z"/>
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">Rainbow</div>
+                        <div className="text-xs text-white/60">Install Wallet</div>
+                      </div>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}
