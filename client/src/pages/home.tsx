@@ -235,90 +235,90 @@ export default function Home() {
 
       {/* Music Button with Dancing Cat Above - Top Left */}
       <div className="fixed top-4 left-4 z-50">
-        <div className="relative">
-          {/* Tiny Cute Dancing Cat - Floating Above */}
-          <motion.div
-            className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10"
-            animate={!isMuted ? {
-              y: [-2, 2, -2],
-              rotate: [-4, 4, -4]
-            } : {}}
-            transition={{
-              duration: 0.6,
-              repeat: !isMuted ? Infinity : 0,
-              repeatType: "reverse",
-              ease: "easeInOut"
-            }}
+        {/* Tiny Cute Dancing Cat - Above Button */}
+        <motion.div
+          className="flex justify-center mb-2"
+          animate={!isMuted ? {
+            y: [-2, 2, -2],
+            rotate: [-4, 4, -4]
+          } : {}}
+          transition={{
+            duration: 0.6,
+            repeat: !isMuted ? Infinity : 0,
+            repeatType: "reverse",
+            ease: "easeInOut"
+          }}
+        >
+          <svg 
+            width="24" 
+            height="20" 
+            viewBox="0 0 24 20" 
+            fill="none" 
+            className={`drop-shadow-lg ${isMuted ? 'text-red-400' : 'text-emerald-400'}`}
           >
-            <svg 
-              width="24" 
-              height="20" 
-              viewBox="0 0 24 20" 
-              fill="none" 
-              className={`drop-shadow-lg ${isMuted ? 'text-red-400' : 'text-emerald-400'}`}
-            >
-              {/* Tiny cat ears */}
-              <path 
-                d="M7 7 L8 3 L9 7 Z" 
-                fill="currentColor"
-                stroke="white"
-                strokeWidth="1"
-              />
-              <path 
-                d="M15 7 L16 3 L17 7 Z" 
-                fill="currentColor"
-                stroke="white"
-                strokeWidth="1"
-              />
-              
-              {/* Small cute head */}
-              <circle 
-                cx="12" 
-                cy="10" 
-                r="5" 
-                fill="currentColor" 
-                stroke="white"
-                strokeWidth="1.2"
-                opacity="0.95"
-              />
-              
-              {/* Cute face - bigger eyes */}
-              <circle cx="10" cy="9" r="0.8" fill="white"/>
-              <circle cx="14" cy="9" r="0.8" fill="white"/>
-              <path d="M12 11 L11 12 L12 12.5 L13 12 Z" fill="white" opacity="0.9"/>
-              
-              {/* Tiny dancing legs */}
-              <motion.ellipse 
-                cx="9" 
-                cy="15" 
-                rx="1" 
-                ry="1.5" 
-                fill="currentColor"
-                stroke="white"
-                strokeWidth="0.8"
-                animate={!isMuted ? { 
-                  rotate: [-10, 10, -10],
-                  x: [-0.8, 0.8, -0.8]
-                } : {}}
-                transition={{ duration: 0.4, repeat: !isMuted ? Infinity : 0, delay: 0 }}
-              />
-              <motion.ellipse 
-                cx="15" 
-                cy="15" 
-                rx="1" 
-                ry="1.5" 
-                fill="currentColor"
-                stroke="white"
-                strokeWidth="0.8"
-                animate={!isMuted ? { 
-                  rotate: [10, -10, 10],
-                  x: [0.8, -0.8, 0.8]
-                } : {}}
-                transition={{ duration: 0.4, repeat: !isMuted ? Infinity : 0, delay: 0.2 }}
-              />
-            </svg>
-          </motion.div>
+            {/* Tiny cat ears */}
+            <path 
+              d="M7 7 L8 3 L9 7 Z" 
+              fill="currentColor"
+              stroke="white"
+              strokeWidth="1"
+            />
+            <path 
+              d="M15 7 L16 3 L17 7 Z" 
+              fill="currentColor"
+              stroke="white"
+              strokeWidth="1"
+            />
+            
+            {/* Small cute head */}
+            <circle 
+              cx="12" 
+              cy="10" 
+              r="5" 
+              fill="currentColor" 
+              stroke="white"
+              strokeWidth="1.2"
+              opacity="0.95"
+            />
+            
+            {/* Cute face - bigger eyes */}
+            <circle cx="10" cy="9" r="0.8" fill="white"/>
+            <circle cx="14" cy="9" r="0.8" fill="white"/>
+            <path d="M12 11 L11 12 L12 12.5 L13 12 Z" fill="white" opacity="0.9"/>
+            
+            {/* Tiny dancing legs */}
+            <motion.ellipse 
+              cx="9" 
+              cy="15" 
+              rx="1" 
+              ry="1.5" 
+              fill="currentColor"
+              stroke="white"
+              strokeWidth="0.8"
+              animate={!isMuted ? { 
+                rotate: [-10, 10, -10],
+                x: [-0.8, 0.8, -0.8]
+              } : {}}
+              transition={{ duration: 0.4, repeat: !isMuted ? Infinity : 0, delay: 0 }}
+            />
+            <motion.ellipse 
+              cx="15" 
+              cy="15" 
+              rx="1" 
+              ry="1.5" 
+              fill="currentColor"
+              stroke="white"
+              strokeWidth="0.8"
+              animate={!isMuted ? { 
+                rotate: [10, -10, 10],
+                x: [0.8, -0.8, 0.8]
+              } : {}}
+              transition={{ duration: 0.4, repeat: !isMuted ? Infinity : 0, delay: 0.2 }}
+            />
+          </svg>
+        </motion.div>
 
+        <div className="relative">
           {/* Music Button */}
           <motion.button
             onClick={toggleMute}
