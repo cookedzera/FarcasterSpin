@@ -2,8 +2,8 @@ import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { updateConfig } from "@/lib/config";
-import { useEffect, lazy, Suspense } from "react";
-import { GlobalAudio } from "@/components/global-audio";
+import { useEffect, lazy, Suspense, useState, useCallback } from "react";
+import { AudioManager } from "@/lib/audio-manager";
 
 // Code splitting - lazy load pages for better performance
 const Home = lazy(() => import("@/pages/home"));
@@ -49,19 +49,50 @@ function Router() {
 }
 
 function App() {
+  const [isMuted, setIsMuted] = useState(false);
+  const [audioManager] = useState(() => AudioManager.getInstance());
+
   useEffect(() => {
     // Load contract configuration from API on app start
     updateConfig();
     
+    // Initialize audio on app start
+    audioManager.init();
+    setIsMuted(audioManager.getMuted());
+    
     // Preload commonly used components after a short delay for instant navigation
     const timer = setTimeout(preloadComponents, 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [audioManager]);
+
+  const toggleMute = useCallback(() => {
+    const newMutedState = audioManager.toggleMute();
+    setIsMuted(newMutedState);
+  }, [audioManager]);
 
   return (
     <TooltipProvider>
       <div className="app-container gpu-accelerated will-change-transform">
-        <GlobalAudio />
+        {/* Music button integrated directly into main app */}
+        <button
+          onClick={toggleMute}
+          className={`fixed top-4 left-4 z-50 w-10 h-10 rounded-md transition-all duration-300 font-mono text-xs font-bold backdrop-blur-sm ${
+            isMuted 
+              ? 'bg-red-900/80 border-2 border-red-400 text-red-400 shadow-lg hover:bg-red-800/90 hover:shadow-red-400/20' 
+              : 'bg-emerald-900/80 border-2 border-emerald-400 text-emerald-400 neon-border hover:bg-emerald-800/90'
+          }`}
+          style={{
+            textShadow: isMuted 
+              ? '0 0 8px rgba(248, 113, 113, 0.8)' 
+              : '0 0 8px rgba(52, 211, 153, 0.8)',
+            boxShadow: isMuted
+              ? '0 0 15px rgba(248, 113, 113, 0.3), inset 0 0 8px rgba(248, 113, 113, 0.1)'
+              : '0 0 15px rgba(52, 211, 153, 0.3), inset 0 0 8px rgba(52, 211, 153, 0.1)'
+          }}
+          data-testid="button-mute-music"
+        >
+          {isMuted ? '🔇' : '♪'}
+        </button>
         <Router />
       </div>
       <Toaster />
