@@ -38,11 +38,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create or get user by username
   app.post("/api/user", async (req, res) => {
     try {
-      const { username, walletAddress } = req.body;
+      const { username, walletAddress, farcasterFid, farcasterUsername, farcasterDisplayName, farcasterPfpUrl } = req.body;
       
       let user = await storage.getUserByUsername(username);
       if (!user) {
-        user = await storage.createUser({ username, walletAddress });
+        // Create new user with Farcaster data if provided
+        user = await storage.createUser({ 
+          username, 
+          walletAddress,
+          farcasterFid,
+          farcasterUsername,
+          farcasterDisplayName, 
+          farcasterPfpUrl
+        });
+      } else if (walletAddress && user.walletAddress !== walletAddress) {
+        // Update wallet address if different
+        await storage.updateUser(user.id, { walletAddress });
+        user.walletAddress = walletAddress;
+      }
+      
+      // Try to enrich with Farcaster data if we have wallet address but missing Farcaster info
+      if (walletAddress && (!user.farcasterUsername || !user.farcasterPfpUrl)) {
+        try {
+          const farcasterUser = await getUserByAddress(walletAddress);
+          if (farcasterUser && (farcasterUser.username || farcasterUser.pfpUrl)) {
+            const updates: any = {};
+            if (farcasterUser.fid) updates.farcasterFid = farcasterUser.fid;
+            if (farcasterUser.username) updates.farcasterUsername = farcasterUser.username;
+            if (farcasterUser.displayName) updates.farcasterDisplayName = farcasterUser.displayName;
+            if (farcasterUser.pfpUrl) updates.farcasterPfpUrl = farcasterUser.pfpUrl;
+            if (farcasterUser.bio) updates.farcasterBio = farcasterUser.bio;
+            
+            if (Object.keys(updates).length > 0) {
+              await storage.updateUser(user.id, updates);
+              Object.assign(user, updates);
+              console.log(`✅ Enriched user ${username} with Farcaster data:`, updates);
+            }
+          }
+        } catch (farcasterError: any) {
+          // Silently handle Farcaster enrichment errors
+          console.log(`ℹ️ Could not enrich user ${username} with Farcaster data:`, farcasterError?.message || farcasterError);
+        }
       }
       
       const spinsToday = await storage.getUserSpinsToday(user.id);
@@ -371,6 +407,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching user by address:', error);
       res.status(500).json({ error: 'Failed to fetch user data' });
+    }
+  });
+
+  // Enrich existing user with Farcaster data
+  app.post("/api/user/:id/enrich-farcaster", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { walletAddress } = req.body;
+      
+      if (!walletAddress) {
+        return res.status(400).json({ error: 'Wallet address is required' });
+      }
+
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      try {
+        const farcasterUser = await getUserByAddress(walletAddress);
+        if (farcasterUser && (farcasterUser.username || farcasterUser.pfpUrl)) {
+          const updates: any = {};
+          if (farcasterUser.fid) updates.farcasterFid = farcasterUser.fid;
+          if (farcasterUser.username) updates.farcasterUsername = farcasterUser.username;
+          if (farcasterUser.displayName) updates.farcasterDisplayName = farcasterUser.displayName;
+          if (farcasterUser.pfpUrl) updates.farcasterPfpUrl = farcasterUser.pfpUrl;
+          if (farcasterUser.bio) updates.farcasterBio = farcasterUser.bio;
+          
+          if (Object.keys(updates).length > 0) {
+            await storage.updateUser(id, updates);
+            console.log(`✅ Enriched user ${id} with Farcaster data:`, updates);
+            res.json({ success: true, updates, message: 'User enriched with Farcaster data' });
+          } else {
+            res.json({ success: false, message: 'No Farcaster data to update' });
+          }
+        } else {
+          res.status(404).json({ error: 'No Farcaster profile found for this address' });
+        }
+      } catch (farcasterError: any) {
+        console.error('Farcaster enrichment error:', farcasterError);
+        res.status(500).json({ error: 'Failed to fetch Farcaster data' });
+      }
+    } catch (error) {
+      console.error('Enrich user error:', error);
+      res.status(500).json({ error: 'Failed to enrich user' });
     }
   });
 
