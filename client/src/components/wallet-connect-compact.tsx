@@ -116,9 +116,16 @@ export function WalletConnectCompact() {
             </div>
           )}
           <div className="flex flex-col items-start">
-            <span className="text-xs font-medium text-white truncate max-w-24">
-              {displayName || 'Wallet'}
-            </span>
+            <div className="flex items-center space-x-1">
+              <span className="text-xs font-medium text-white truncate max-w-20">
+                {displayName || 'Wallet'}
+              </span>
+              {chain?.id === arbitrumSepolia.id ? (
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+              ) : (
+                <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+              )}
+            </div>
             <span className="text-xs text-white/50 truncate max-w-24">
               {address?.slice(0, 4)}...{address?.slice(-2)}
             </span>
@@ -176,6 +183,51 @@ export function WalletConnectCompact() {
                     {address?.slice(0, 6)}...{address?.slice(-4)}
                   </p>
                 </div>
+              </div>
+              
+              {/* Network Information */}
+              <div className="mb-4 p-3 rounded-xl" style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-white/60">Network</span>
+                  {chain?.id === arbitrumSepolia.id ? (
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-xs text-green-400">Connected</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                      <span className="text-xs text-yellow-400">Wrong Network</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">
+                    {chain?.name || 'Unknown Network'}
+                  </span>
+                  {chain?.id !== arbitrumSepolia.id && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await switchChain({ chainId: arbitrumSepolia.id })
+                        } catch (error) {
+                          console.log('User rejected network switch:', error)
+                        }
+                      }}
+                      className="text-xs px-2 py-1 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
+                    >
+                      Switch to Arbitrum
+                    </button>
+                  )}
+                </div>
+                {chain?.id === arbitrumSepolia.id && (
+                  <p className="text-xs text-white/40 mt-1">
+                    Perfect for fast, low-cost transactions
+                  </p>
+                )}
               </div>
               
               <Button 
