@@ -262,7 +262,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       
       // Set the confirmed result after animation completes
       const resultTimeout = setTimeout(() => {
-        const displaySegmentName = SEGMENT_MAPPING[lastSpinResult.segment] || lastSpinResult.segment;
+        // Always use the server result for center display - this ensures accuracy
         const finalResult = {
           segment: displaySegmentName,
           isWin: lastSpinResult.isWin,
@@ -272,7 +272,10 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
         
         setResult(finalResult);
         
-        // Center display shows winning result for 3-4 seconds
+        // Verify the wheel position matches the result for debugging
+        const normalizedRotation = ((finalRotation % 360) + 360) % 360;
+        const expectedSegmentAtTop = Math.floor(((360 - normalizedRotation + (segmentAngle / 2)) % 360) / segmentAngle);
+        console.log(`✅ Final wheel position: ${normalizedRotation.toFixed(1)}°, Expected segment index: ${expectedSegmentAtTop}, Actual result: ${segmentIndex}`);
         
         // Update session spin count for server spins
         setSessionSpinsUsed(prev => prev + 1);
@@ -292,7 +295,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       
       return () => clearTimeout(resultTimeout);
     }
-  }, [lastSpinResult]); // Only depend on lastSpinResult
+  }, [lastSpinResult, rotation]); // Include rotation in dependencies for accurate calculation
 
 
 
