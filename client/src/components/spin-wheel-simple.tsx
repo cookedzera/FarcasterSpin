@@ -295,7 +295,7 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       
       return () => clearTimeout(resultTimeout);
     }
-  }, [lastSpinResult, rotation]); // Include rotation in dependencies for accurate calculation
+  }, [lastSpinResult]); // Only depend on lastSpinResult to prevent infinite loop
 
 
 
