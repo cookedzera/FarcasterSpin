@@ -249,12 +249,27 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       // To align the segment center with the top arrow (0°), we need to rotate the wheel
       // so that the segment center ends up at 0° (top position)
       // Since we want the segment center to be at top (0°), we rotate by negative of its angle
+      
+      // Normalize current rotation to prevent accumulation errors
+      const currentNormalizedRotation = ((rotation % 360) + 360) % 360;
+      
+      // Calculate the shortest path to the target segment
       const targetRotation = -segmentCenterAngle;
       
-      const spins = 4; // 4 full rotations for dramatic effect
-      const finalRotation = rotation + (spins * 360) + targetRotation;
+      // Calculate how much more we need to rotate from current normalized position
+      let deltaRotation = targetRotation - currentNormalizedRotation;
       
-      console.log(`🔄 Current rotation: ${rotation}°, Target: ${targetRotation}°, Final: ${finalRotation}°`);
+      // Ensure we always go the shortest way and add full rotations for effect
+      if (deltaRotation > 180) {
+        deltaRotation -= 360;
+      } else if (deltaRotation < -180) {
+        deltaRotation += 360;
+      }
+      
+      const spins = 4; // 4 full rotations for dramatic effect
+      const finalRotation = rotation + (spins * 360) + deltaRotation;
+      
+      console.log(`🔄 Current: ${rotation.toFixed(1)}°, Normalized: ${currentNormalizedRotation.toFixed(1)}°, Target: ${targetRotation.toFixed(1)}°, Delta: ${deltaRotation.toFixed(1)}°, Final: ${finalRotation.toFixed(1)}°`);
       
       // Start the wheel animation and sound
       setRotation(finalRotation);
@@ -262,20 +277,32 @@ export default function SpinWheelSimple({ onSpinComplete, userSpinsUsed, userId,
       
       // Set the confirmed result after animation completes
       const resultTimeout = setTimeout(() => {
-        // Always use the server result for center display - this ensures accuracy
+        // Calculate what segment should actually be at the top based on final wheel position
+        const normalizedRotation = ((finalRotation % 360) + 360) % 360;
+        
+        // The arrow points to the top, so we need to see which segment is at 0° (top)
+        // Since segments are drawn starting from 0° and going clockwise, we need to account for rotation
+        const segmentAtTop = Math.floor(((360 - normalizedRotation + (segmentAngle / 2)) % 360) / segmentAngle);
+        const actualWinningSegment = WHEEL_SEGMENTS[segmentAtTop];
+        
+        console.log(`🎯 Server says: ${displaySegmentName}, Wheel position shows: ${actualWinningSegment.name}`);
+        console.log(`📍 Final rotation: ${finalRotation.toFixed(1)}°, Normalized: ${normalizedRotation.toFixed(1)}°`);
+        console.log(`🎪 Segment at top (index ${segmentAtTop}): ${actualWinningSegment.name}`);
+        
+        // Use the server result but verify consistency
         const finalResult = {
-          segment: displaySegmentName,
+          segment: displaySegmentName, // Always trust server result
           isWin: lastSpinResult.isWin,
           reward: lastSpinResult.rewardAmount || '0',
           tokenType: lastSpinResult.tokenType
         };
         
-        setResult(finalResult);
+        // If there's a mismatch, log it but still use server result
+        if (actualWinningSegment.name !== displaySegmentName) {
+          console.warn(`⚠️ Mismatch detected! Server: ${displaySegmentName}, Visual: ${actualWinningSegment.name}`);
+        }
         
-        // Verify the wheel position matches the result for debugging
-        const normalizedRotation = ((finalRotation % 360) + 360) % 360;
-        const expectedSegmentAtTop = Math.floor(((360 - normalizedRotation + (segmentAngle / 2)) % 360) / segmentAngle);
-        console.log(`✅ Final wheel position: ${normalizedRotation.toFixed(1)}°, Expected segment index: ${expectedSegmentAtTop}, Actual result: ${segmentIndex}`);
+        setResult(finalResult);
         
         // Update session spin count for server spins
         setSessionSpinsUsed(prev => prev + 1);
