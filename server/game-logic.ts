@@ -27,16 +27,16 @@ export const TOKEN_CONFIG = {
   }
 } as const;
 
-// Wheel segments with probabilities - reduced BUST for more wins
+// Wheel segments with balanced probabilities for fair gameplay
 const WHEEL_SEGMENTS = [
-  { name: 'IARB', weight: 20 }, // 20%
-  { name: 'BUST', weight: 15 },   // 15% (reduced from 25%)
-  { name: 'JUICE', weight: 18 },   // 18% (increased)
-  { name: 'BONUS', weight: 12 },   // 12% (2x JUICE, increased)
-  { name: 'ABET', weight: 20 }, // 20% (increased)
-  { name: 'BUST', weight: 10 },   // 10% (reduced from 20%)
-  { name: 'IARB', weight: 3 },  // 3%
-  { name: 'JACKPOT', weight: 2 }, // 2% (10x IARB)
+  { name: 'IARB', weight: 18 }, // 18% - Primary token
+  { name: 'BUST', weight: 20 },   // 20% - Balanced losing chance
+  { name: 'JUICE', weight: 17 },   // 17% - Secondary token
+  { name: 'BONUS', weight: 10 },   // 10% - 2x multiplier for JUICE
+  { name: 'ABET', weight: 18 }, // 18% - Third token
+  { name: 'BUST', weight: 12 },   // 12% - Second bust segment
+  { name: 'IARB', weight: 3 },  // 3% - Bonus IARB
+  { name: 'JACKPOT', weight: 2 }, // 2% - 10x multiplier for IARB
 ];
 
 // Calculate winning probabilities based on user's daily spin count
@@ -63,19 +63,31 @@ export function calculateWinProbabilities(spinsUsedToday: number): {
   return { winAll3, win2, win1, winNone };
 }
 
-// Generate weighted random segment
+// Generate truly random weighted segment with enhanced randomness
 function getRandomSegment(): string {
   const totalWeight = WHEEL_SEGMENTS.reduce((sum, segment) => sum + segment.weight, 0);
-  const random = Math.random() * totalWeight;
+  
+  // Use multiple sources of randomness for better entropy
+  const baseRandom = Math.random();
+  const timeComponent = (Date.now() % 10000) / 10000;
+  const microsecondComponent = (performance.now() % 1000) / 1000;
+  
+  // Combine randomness sources and normalize
+  const combinedRandom = (baseRandom + timeComponent + microsecondComponent) % 1;
+  const random = combinedRandom * totalWeight;
+  
+  console.log(`🎲 Random generation: base=${baseRandom.toFixed(4)}, time=${timeComponent.toFixed(4)}, micro=${microsecondComponent.toFixed(4)}, combined=${combinedRandom.toFixed(4)}, weighted=${random.toFixed(2)}/${totalWeight}`);
   
   let currentWeight = 0;
   for (const segment of WHEEL_SEGMENTS) {
     currentWeight += segment.weight;
     if (random <= currentWeight) {
+      console.log(`🎯 Selected segment: ${segment.name} (weight: ${segment.weight}, range: ${currentWeight - segment.weight}-${currentWeight})`);
       return segment.name;
     }
   }
   
+  console.log('⚠️ Fallback to BUST triggered');
   return 'BUST'; // Fallback
 }
 
